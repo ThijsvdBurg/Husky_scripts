@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+# Parameters
+# ~wall_clock (bool, default: False)
+# If True, then perform all rate measurements against wall clock time, regardless of whether simulation / log time is in effect. (New in ros_comm 1.5.3)
+# ~unreliable (bool, default: False)
+# If True, prefer to negotiate an unreliable connection for the inbound data. (New in ros_comm 1.5.3)
+# ~lazy (bool, default: False)
+# If True, don't subscribe to input topic unless there is at least one subscriber on the output topic. (New in ros_comm 1.5.3)
+
+
+# throttle messages <intopic> <msgs_per_sec> [outtopic]
+# rosrun topic_tools throttle messages base_scan 1.0
+<launch>
+<node name="image_left_downsample" pkg="topic_tools" type="throttle"
+      args="/radius /diameter std_msgs/Float32 'm.data * 2'" />
+</launch>

@@ -1,0 +1,35 @@
+<!-- -*- xml -*- -->
+<!--
+   Record HRP-2 data automatically in three separate rosbags:
+   - cameras images
+   - hrpsys information (IMU, force sensors, robot position)
+   - diagnostics (node output, diagnostics)
+  -->
+<!--
+
+-->
+<launch>
+  <arg name="record_zed_rgb"   default="false" />
+  <arg name="record_zed_left"  default="false" />
+  <arg name="record_zed_right" default="false" />
+  <arg name="record_zed_depth" default="false" />
+  <arg name="record_flir"      default="false" />
+  <arg name="seqno"                            />
+  <arg name="output_dir"       default="/media/5944fb55-8975-45e7-aaff-436bc493fe61/results/" />
+  <arg name="move"             default="false" />
+  <arg name="static"           default="true"  />
+
+ <!--  <arg name="record_sys"  default="true" /> -->
+
+ <!-- Are we on the robot (hrp2_14) or simulating (sim)? -->
+ <!-- <arg name="robot_machine_profile" default="hrp2_14" /> -->
+
+ <!-- Load the robot model and machine description 
+ <include file="$(find hrp2_bringup)/launch/common.launch">
+   <arg name="robot_machine_profile" value="$(arg robot_machine_profile)" />
+ </include> -->
+ 
+ <node pkg="rosbag" type="record" name="rosbag_record_zed"
+       args="record -O $(arg output_dir)seq$(arg seqno)_rgb /tf /zed_node/rgb/image_rect_color /zed_node/rgb/camera_info" />
+
+</launch>
