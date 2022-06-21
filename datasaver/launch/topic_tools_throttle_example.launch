@@ -1,0 +1,23 @@
+<launch>
+
+<arg name="rate" default="30.0"/>
+<arg name="output_dir" default="/media/5944fb55-8975-45e7-aaff-436bc493fe61/results/" />
+
+
+<node name="zed_left_rect_downsample" pkg="topic_tools" type="throttle"
+      args="messages /zed_node/left/image_rect_color $(arg rate)"
+/>
+
+<node name="zed_right_rect_downsample" pkg="topic_tools" type="throttle"
+      args="messages /zed_node/right/image_rect_color $(arg rate)"
+/>
+
+<node name="zed_left_info_downsample" pkg="topic_tools" type="throttle"
+      args="messages /zed_node/left/camera_info $(arg rate)"
+/>
+
+<node name="zed_right_info_downsample" pkg="topic_tools" type="throttle"
+      args="messages /zed_node/right/camera_info $(arg rate)"
+/>
+
+</launch>
