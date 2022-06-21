@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-  <node name="radius" pkg="rostopic" type="rostopic"
-      args="pub /radius std_msgs/Float32 'data: 1.0' -r 1" />
-
-  <node name="radius_to_diameter" pkg="topic_tools" type="transform"
-      args="/radius /diameter std_msgs/Float32 'm.data * 2'" />
-</launch>
