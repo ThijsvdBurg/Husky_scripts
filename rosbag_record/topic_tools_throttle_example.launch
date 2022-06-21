@@ -14,7 +14,7 @@
 
 <launch>
 <node name="zed_left_rect_downsample" pkg="topic_tools" type="throttle"
-      args="/image_rec /left_rect_downsample 5"
+      args="/zed_node/left/image_rect_color left_rect_downsample 5"
 </launch>
 
 
