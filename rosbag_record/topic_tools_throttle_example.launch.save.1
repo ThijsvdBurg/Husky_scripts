@@ -11,23 +11,7 @@
 
 # throttle messages <intopic> <msgs_per_sec> [outtopic]
 # rosrun topic_tools throttle messages base_scan 1.0
-
 <launch>
-<node name="zed_left_rect_downsample" pkg="topic_tools" type="throttle"
-      args="/image_rec /left_rect_downsample 5"
+<node name="image_left_downsample" pkg="topic_tools" type="throttle"
+      args="/radius /diameter std_msgs/Float32 'm.data * 2'" />
 </launch>
-
-
-# /zed_node/left/image_rect_color
-# /zed_node/left/camera_info
-# /zed_node/right/image_rect_color
-# /zed_node/right/camera_info
-
-# /zed_node/stereo/image_rect_color
-
-# /zed_node/depth/camera_info
-# /zed_node/depth/depth_registered
-# /zed_node/disparity/disparity_image
-# /zed_node/point_cloud/cloud_registered
-
-# /zed_node/rgb/camera_info
