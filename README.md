@@ -11,10 +11,10 @@ Scripts for using the Husky robot for data collection, data converting etc.
 ## Robot connection
 1. Connect the computer to the wifi base station (and turn wifi base on)
 2. Connect an ethernet cable between the laptop and the robot itself + between the mocap wifi and laptop
-3. Make sure this is in each command window:
+3. Make sure this is in each command window, alternatively, add these to your ~/.bashrc file:
 ```
 source /opt/ros/melodic/setup.bash
-source devel/setup.bash
+source <path_to_workspace>/devel/setup.bash
 export ROS_MASTER_URI=http://192.168.131.1:11311
 ```
 4. Check if everything works (the robot topics should appear)
