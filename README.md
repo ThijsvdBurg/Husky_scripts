@@ -35,11 +35,11 @@ rostopic echo /Bebop1/position_velocity_orientation_estimation
 ```
 roslaunch datasaver data_collection.launch -> for launching the data collection node in datasaver folder
 ```
-8. For subsampling the image data before recording it, move the launch file in datasaver/topic_tools_throttle_example.launch to the husky and run it from the robot:
+8. For subsampling the image data before recording it, move the launch file in datasaver/topic_tools_throttle_example.launch to the husky (see README in rosbag folder) and run it from the robot:
 ```
 roslaunch topic_tools_throttle_example.launch
 ```
-9. For recording the subsampled data, move the launch file in datasaver/data_collection_husky.launch to the husky and run it from the robot:
+9. For recording the subsampled data, move the launch file in datasaver/data_collection_husky.launch to the husky (see README in rosbag folder) and run it from the robot:
 ```
 roslaunch data_collection_husky.launch
 ```
