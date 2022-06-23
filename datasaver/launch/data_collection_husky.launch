@@ -1,11 +1,11 @@
+<?xml version="1.0"?>
 <launch>
 
 <!-- Set the nr of the exp on the server -->
 <arg name="exp_nr" default="0"/>
 <arg name="output_dir" default="/media/kingston_usb/results/"/>
-<arg name="output_dir2" default="/home/administrator/bagfiles_susan_thijs/"/>
+<arg name="output_dir2" default="/home/administrator/bagfiles_susan_thijs/bagfiles/"/>
 <param name="exp_nr_param" value="$(arg exp_nr)" />
-
 
 <!--
 <node pkg="rosbag" type="record" name="rosbag_record_zed"
@@ -14,8 +14,11 @@
 <node pkg="rosbag" type="record" name="rosbag_record_zed"
        args="record -O $(arg output_dir2)file /Bebop1/pose" />
 -->
-
 <node pkg="rosbag" type="record" name="rosbag_record_zed"
-       args="record -O $(arg output_dir)sequence_$(arg exp_nr) /zed_node/left/camera_info_throttle /zed_node/left/image_rect_color_throttle /zed_node/right/camera_info_throttle /zed_node/right/image_rect_color_throttle /Bebop1/pose /Bebop1/position_velocity_orientation_estimation /Bebop2/pose /Bebop2/position_velocity_orientation_estimation /cmd_vel /husky_velocity_controller/cmd_vel /joy_teleop/cmd_vel" />
+       args="record -O $(arg output_dir2)sequence_$(arg exp_nr) /zed_node/left/camera_info_throttle /zed_node/left/image_rect_color_throttle /zed_node/right/camera_info_throttle /zed_node/right/image_rect_color_throttle /Bebop1/pose /Bebop1/position_velocity_orientation_estimation /Bebop2/pose /Bebop2/position_velocity_orientation_estimation /cmd_vel /husky_velocity_controller/cmd_vel /joy_teleop/cmd_vel" />
+<!--
+<node pkg="rosbag" type="record" name="rosbag_record_zed"
+       args="record -O $(arg output_dir2)sequence_$(arg exp_nr) /zed_node/left/image_rect_color /zed_node/right/camera_info" />
+-->
 
 </launch>
