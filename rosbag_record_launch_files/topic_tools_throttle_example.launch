@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
+<launch>
 
-# Parameters
+<!-- Topic tools 'throttle messages' Parameters
 # ~wall_clock (bool, default: False)
-# If True, then perform all rate measurements against wall clock time, regardless of whether simulation / log time is in effect. (New in ros_comm 1.5.3)
+# If True, then perform all rate measurements against wall clock time, regardless of whether simulation / log time is in effect. (New >
 # ~unreliable (bool, default: False)
 # If True, prefer to negotiate an unreliable connection for the inbound data. (New in ros_comm 1.5.3)
 # ~lazy (bool, default: False)
@@ -11,23 +12,31 @@
 
 # throttle messages <intopic> <msgs_per_sec> [outtopic]
 # rosrun topic_tools throttle messages base_scan 1.0
+-->
 
-<launch>
+<arg name="rate" default="7.0"/>
+<!-- <arg name="output_dir" default="/media/5944fb55-8975-45e7-aaff-436bc493fe61/results/" /> -->
+
+
+
+<!-- create separate node for every topic which has to be downsampled -->
+
+
+<!-- zed left and right camera with their respective intrinsics -->
 <node name="zed_left_rect_downsample" pkg="topic_tools" type="throttle"
-      args="/zed_node/left/image_rect_color left_rect_downasample 5"
+      args="messages /zed_node/left/image_rect_color $(arg rate)"
+/>
+
+<node name="zed_right_rect_downsample" pkg="topic_tools" type="throttle"
+      args="messages /zed_node/right/image_rect_color $(arg rate)"
+/>
+
+<node name="zed_left_info_downsample" pkg="topic_tools" type="throttle"
+      args="messages /zed_node/left/camera_info $(arg rate)"
+/>
+
+<node name="zed_right_info_downsample" pkg="topic_tools" type="throttle"
+      args="messages /zed_node/right/camera_info $(arg rate)"
+/>
+
 </launch>
-
-
-# /zed_node/left/image_rect_color
-# /zed_node/left/camera_info
-# /zed_node/right/image_rect_color
-# /zed_node/right/camera_info
-
-# /zed_node/stereo/image_rect_color
-
-# /zed_node/depth/camera_info
-# /zed_node/depth/depth_registered
-# /zed_node/disparity/disparity_image
-# /zed_node/point_cloud/cloud_registered
-
-# /zed_node/rgb/camera_info
