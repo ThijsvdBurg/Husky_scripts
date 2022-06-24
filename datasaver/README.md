@@ -12,7 +12,7 @@ The script that needs to be put on the husky and run via ssh (for downsampling t
 roslaunch topic_tools_throttle_example.launch
 ```
 
-Script for launching a rosbag record that also records the camera feed:
+Script for launching a rosbag record that also records the camera feed. Also put this on the husky and save image feeds locally:
 ```
 roslaunch datasaver data_collection_husky.launch
 ```
