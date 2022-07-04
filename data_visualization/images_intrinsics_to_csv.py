@@ -8,7 +8,7 @@
 import os
 import argparse
 import numpy as np
-import bagpy
+# import bagpy
 from bagpy import bagreader
 import pandas as pd
 
@@ -18,14 +18,17 @@ def main():
 	parser = argparse.ArgumentParser(description="Extract bagfile to csv")
 
 	parser.add_argument("--source_dir", help="Directory containing rosbags.")
-	parser.add_argument("--output_dir", help="Output directory.")
+	parser.add_argument("--date", help="Date file prefix.")
+	parser.add_argument("--target_dir", help="Output directory.")
 	args = parser.parse_args()
 
-	print("Extract data from %s into %s" %(args.source_dir,args.output_dir))
-	max_nr = 2
+	print("Extract data from %s into %s" %(args.source_dir,args.target_dir))
+	
+	max_nr = 29
 	#max_nr = 19
-	for i in range(1, max_nr+1):
-		file = os.path.join(args.source_dir, "sequence_%01i.bag" % i)
+	for i in range(29, max_nr+1):
+		file = os.path.join(args.source_dir,"%s_sequence_%01i.bag" % (args.date,i))
+		
 		b = bagreader(file)
 		# get the list of topics
 		print(b.topic_table)
