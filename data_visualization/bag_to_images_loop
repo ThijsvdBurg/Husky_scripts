@@ -1,0 +1,5 @@
+#!/bin/bash
+for i in {40..57..1}
+do
+  python "/home/pmvanderburg/noetic-husky/data_acquisition/Husky_scripts/data_visualization/bag_to_images.py" --bag_file "/home/pmvanderburg/noetic-husky/data_acquisition/data_acq_20220622/20220622_sequence_$i.bag" --output_dir "/home/pmvanderburg/noetic-husky/data_acquisition/images_from_bags/images_sequence_$i/" --image_topic "/zed_node/left/image_rect_color_throttle"
+done
