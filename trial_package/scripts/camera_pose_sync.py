@@ -12,9 +12,10 @@ def callback(camera_info1, camera_info2):
 
 info1_sub = message_filters.Subscriber('/zed_node/left/camera_info_throttle', CameraInfo)
 info2_sub = message_filters.Subscriber('/zed_node/right/camera_info_throttle', CameraInfo)
+object_pose_sub = 
 # object_pose_sub = message_filters.Subscriber('/', CameraInfo)
-rospy.init_node('synchronizer',anonymous=True)
+rospy.init_node('synchronizer_node',anonymous=True)
 
-ts = message_filters.TimeSynchronizer([info1_sub, info2_sub], 10)
+ts = message_filters.TimeSynchronizer([info1_sub, info2_sub, bebop1_sub], 10)
 ts.registerCallback(callback)
 rospy.spin()
