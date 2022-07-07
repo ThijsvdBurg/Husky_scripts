@@ -3,7 +3,7 @@
 import rospy
 import message_filters
 from sensor_msgs.msg import Image, CameraInfo
-# import nav_msgs
+import nav_msgs.msg
 # import geometry_msgs
 
 def callback(camera_info1, camera_info2):
@@ -12,7 +12,7 @@ def callback(camera_info1, camera_info2):
 
 info1_sub = message_filters.Subscriber('/zed_node/left/camera_info_throttle', CameraInfo)
 info2_sub = message_filters.Subscriber('/zed_node/right/camera_info_throttle', CameraInfo)
-object_pose_sub = 
+object_pose_sub = message_filters.Subscriber('/Bebop1/position_velocity_orientation_estimation', Odometry)
 # object_pose_sub = message_filters.Subscriber('/', CameraInfo)
 rospy.init_node('synchronizer_node',anonymous=True)
 
