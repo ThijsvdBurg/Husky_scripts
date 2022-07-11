@@ -47,5 +47,14 @@ qtcreator-*
 # Emacs
 .#*
 
+# macos
+.DS_Store
+
 # Catkin custom files
 CATKIN_IGNORE
+
+# ROS files
+*.bag
+bagfiles
+
+
