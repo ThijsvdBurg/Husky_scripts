@@ -50,6 +50,8 @@ qtcreator-*
 # macos
 .DS_Store
 
+*.swp
+
 # Catkin custom files
 CATKIN_IGNORE
 
