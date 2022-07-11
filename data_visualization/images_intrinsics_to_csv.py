@@ -22,10 +22,10 @@ def main():
 	args = parser.parse_args()
 
 	print("Extract data from %s into %s" %(args.source_dir,args.output_dir))
-	max_nr = 2
+	max_nr = 108
 	#max_nr = 19
-	for i in range(1, max_nr+1):
-		file = os.path.join(args.source_dir, "sequence_%01i.bag" % i)
+	for i in range(108, max_nr+1):
+		file = os.path.join(args.source_dir, "20220705_sequence_%01i.bag" % i)
 		b = bagreader(file)
 		# get the list of topics
 		print(b.topic_table)
