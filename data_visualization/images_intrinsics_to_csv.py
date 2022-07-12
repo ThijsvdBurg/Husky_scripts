@@ -38,10 +38,10 @@ def main():
 		csvfiles = []
 		for t in b.topics:
 		    data = b.message_by_topic(t)
-		    csvfiles.append(data)
+			csvfiles.append(data)
 		print(csvfiles[0])
 		data = pd.read_csv(csvfiles[0])
-	
+
 if __name__ == "__main__":
 	main()
 
