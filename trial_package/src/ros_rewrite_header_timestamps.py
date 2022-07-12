@@ -4,8 +4,9 @@ import os
 
 def main():
     """Rewrite bagfile header stamps to syncronize the zed camera with optitrack data
-	"""
-	parser = argparse.ArgumentParser(description="Rewrite header stamps and put them in new bag file")
+    """
+    parser = argparse.ArgumentParser(description="Rewrite header stamps and put them in new bag file")
+
 	parser.add_argument("--source_dir", help="Directory containing rosbags.")
 	parser.add_argument("--target_dir", help="Output directory.")
 	# parser.add_argument("--start", type=int, help="Start index number.")
@@ -19,7 +20,7 @@ def main():
     target_dir = args.target_dir
 
     print("Extract data from the directory %s into the directory %s" %(source_dir,target_dir))
-    
+
     for i in range(start,end):
         with rosbag.Bag(os.path.join(target_dir,"%s_sequence_%01i_edit.bag" % args.date), 'w') as outbag:
             
