@@ -58,6 +58,7 @@ def main():
                 if topic== "/zed_node/left/camera_info_throttle":
                     print('/zed_node msg is: \n',msg)
         +=i
+        print(i)
 
 if __name__ == "__main__":
 	main()
