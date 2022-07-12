@@ -19,13 +19,18 @@ def main():
 
 	parser.add_argument("--source_dir", help="Directory containing rosbags.")
 	parser.add_argument("--output_dir", help="Output directory.")
+	parser.add_argument("--start", help="Start index number.")
+	parser.add_argument("--end", help="End index number.")
+	parser.add_argument("--date", help="Filename date prefix.")
+		
 	args = parser.parse_args()
 
 	print("Extract data from %s into %s" %(args.source_dir,args.output_dir))
-	max_nr = 108
+	# start_nr = 108
 	#max_nr = 19
-	for i in range(108, max_nr+1):
-		file = os.path.join(args.source_dir, "20220705_sequence_%01i.bag" % i)
+	for i in range(args.start, args.end):
+		file = os.path.join(args.source_dir,"%s_sequence_%01i.bag" % (args.date,i))
+		# file = os.path.join(args.source_dir, "20220705_sequence_%01i.bag" % i)
 		b = bagreader(file)
 		# get the list of topics
 		print(b.topic_table)
@@ -36,8 +41,7 @@ def main():
 		    csvfiles.append(data)
 		print(csvfiles[0])
 		data = pd.read_csv(csvfiles[0])
-
-
+	
 if __name__ == "__main__":
 	main()
 
