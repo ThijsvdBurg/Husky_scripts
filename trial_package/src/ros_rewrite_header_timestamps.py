@@ -6,8 +6,7 @@ def main():
     """Rewrite bagfile header stamps to syncronize the zed camera with optitrack data
     """
     parser = argparse.ArgumentParser(description="Rewrite header stamps and put them in new bag file")
-
-	parser.add_argument("--source_dir", help="Directory containing rosbags.")
+    parser.add_argument("--source_dir", help="Directory containing rosbags.")
 	parser.add_argument("--target_dir", help="Output directory.")
 	# parser.add_argument("--start", type=int, help="Start index number.")
 	# parser.add_argument("--end", type=int, help="End index number.")
