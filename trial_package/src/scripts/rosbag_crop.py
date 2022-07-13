@@ -45,9 +45,9 @@ def main():
 
 	                # cycle through the bag, message for message
                         # reset numsgs
-                        numsgs = args.num_msgs
-                        for topic, msg, t in inbag.read_messages():
-                            if numsgs:
+                    numsgs = args.num_msgs
+                    for topic, msg, t in inbag.read_messages():
+                        if numsgs:
                         # if topic=="/joy_teleop/cmd_vel" or topic=="/zed_node/left/image_rect_color_throttle" or topic=="/zed_node/right/image_rect_color_throttle":
                         # if topic=="/joy_teleop/cmd_vel":
                         # print("is joy teleop")
