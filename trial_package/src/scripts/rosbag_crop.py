@@ -27,14 +27,14 @@ def main():
 
     for i in range(start,end+1):
         print(i)
-        with rosbag.Bag(os.path.join(tgt_dir,"%s_sequence_%01i_crop.bag" % (args.date,i)), 'w') as outbag:
-
-            # finding/selecting a rosbag for cropping
-            filepath = os.path.join(src_dir,"%s_sequence_%01i.bag" % (args.date,i))
+        # finding/selecting a rosbag for cropping
+        filepath = os.path.join(src_dir,"%s_sequence_%01i.bag" % (args.date,i))
             
-            if not os.path.exists(filepath):
-                print("\nInbagpath does not exist, skipping %s_sequence_%01i.bag \n" % (args.date,i))
-            else:
+        
+        if not os.path.exists(filepath):
+            print("\nInbagpath does not exist, skipping %s_sequence_%01i.bag \n" % (args.date,i))
+        else:
+            with rosbag.Bag(os.path.join(tgt_dir,"%s_sequence_%01i_crop.bag" % (args.date,i)), 'w') as outbag:
                 print('Bagfile to be cropped:\n', filepath)
                 # make rosbag class
                 inbag=rosbag.Bag(filepath)
