@@ -31,27 +31,30 @@ def main():
 
             # finding/selecting a rosbag for cropping
             filepath = os.path.join(src_dir,"%s_sequence_%01i.bag" % (args.date,i))
-            print('Bagfile to be cropped:\n', filepath)
-            # make rosbag class
-            inbag=rosbag.Bag(filepath)
-            b=bagpy.bagreader(filepath)
-            print(b.topic_table)
-            # cycle through the bag, message for message
-            for topic, msg, t in inbag.read_messages():
-                if numsgs:
-                    # if topic=="/joy_teleop/cmd_vel" or topic=="/zed_node/left/image_rect_color_throttle" or topic=="/zed_node/right/image_rect_color_throttle":
-                    #if topic=="/joy_teleop/cmd_vel":
-                    #    print("is joy teleop")
-                    #    print(t)
-                        #numsgs+=1
-                    if topic!="/joy_teleop/cmd_vel" and topic!="/husky_velocity_controller/cmd_vel": # and topic!="/zed_node/left/image_rect_color_throttle" and topic!="/zed_node/right/image_rect_color_throttle":
-                    #if topic!="/joy_teleop/cmd_vel":
-                        print("Is not joy teleop or zed camera image")
-                        #print(t)
-                        outbag.write(topic,msg,t)
-                        print(topic)
-                        #print(numsgs)
-                        numsgs-=1
+            
+            if not os.path.exists(filepath):
+                print("\nInbagpath does not exist, skipping %s_sequence_%01i.bag \n" % (args.date,i))
+            else:
+                print('Bagfile to be cropped:\n', filepath)
+                # make rosbag class
+                inbag=rosbag.Bag(filepath)
+                b=bagpy.bagreader(filepath)
+                print(b.topic_table)
+                # cycle through the bag, message for message
+                for topic, msg, t in inbag.read_messages():
+                    if numsgs:
+                        # if topic=="/joy_teleop/cmd_vel" or topic=="/zed_node/left/image_rect_color_throttle" or topic=="/zed_node/right/image_rect_color_throttle":
+                        # if topic=="/joy_teleop/cmd_vel":
+                        # print("is joy teleop")
+                        # print(t)
+                        # numsgs+=1
+                        if topic!="/joy_teleop/cmd_vel" and topic!="/husky_velocity_controller/cmd_vel": # and topic!="/zed_node/left/image_rect_color_throttle" and topic!="/zed_node/right/image_rect_color_throttle":
+                            print("Is not joy teleop or zed camera image")
+                            #print(t)
+                            # outbag.write(topic,msg,t)
+                            print(topic)
+                            #print(numsgs)
+                            numsgs-=1
         i+=1
 
 if __name__ == "__main__":
