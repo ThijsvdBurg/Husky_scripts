@@ -1,3 +1,4 @@
+from urllib import robotparser
 import rosbag
 import argparse
 import os
@@ -19,6 +20,9 @@ def main():
     source_dir = args.source_dir
     target_dir = args.target_dir
 
+    husky_topic='/Husky/Pose'
+    object_topic='/Box/Pose'
+
     if args.suffix==None:
         suffix=""
     else:
@@ -28,45 +32,62 @@ def main():
 
     for i in range(start,end+1):
         print(i)
-        with rosbag.Bag(os.path.join(target_dir,"%s_sequence_%01i_edit.bag" % (args.date,i)), 'w') as outbag: 
+
+        outbagpath=os.path.join(target_dir,"%s_sequence_%01i_edit.bag" % (args.date,i))
+        # print("Outbagpath is: \n",outbagpath)
+        if os.path.exists(outbagpath):
+            print("\nOutbagpath exists, skipping %s_sequence_%01i_edit.bag \n" % (args.date,i))
+        else:
+            # check if sourge bagfile exists first before creating a target bagfile object
+            filepath = os.path.join(source_dir,"%s_sequence_%01i%s.bag" % (args.date,i,suffix))
+            if not os.path.exists(filepath):
+                print("\nInbagpath does not exist, skipping %s_sequence_%01i%s.bag \n" % (args.date,i,suffix))
+            else:
+                with rosbag.Bag(outbagpath,'w') as outbag:
+                    #with rosbag.Bag(os.path.join(target_dir,"%s_sequence_edit.bag" % args.date), 'w') as outbag:
+                    # print("Inbagpath",filepath)
+                    inbag=rosbag.Bag(filepath)
+
+
+                    for topic, msg, t in inbag.read_messages():
+                        # This also replaces tf timestamps under the assumption
+                        # that all transforms in the message share the same timestamp
+                        if topic == husky_topic and msg.pose:
+                            #print(msg.header.stamp.nsecs)
+                            time_sec =t.secs
+                            time_nano=t.nsecs
+                            # Rewrite correct header stamps to the 'faulty' Husky stamps, since that was the main machine on which was recorded, so that is easier.
+                            msg.header.stamp.secs  = time_sec
+                            msg.header.stamp.nsecs = time_nano
+                            outbag.write(husky_topic,msg,t)
+                        elif topic == object_topic and msg.pose:
+                            #print(msg.header.stamp.nsecs)
+                            time_sec =t.secs
+                            time_nano=t.nsecs
+                            # Rewrite correct header stamps to the 'faulty' Husky stamps, since that was the main machine on which was recorded, so that is easier.
+                            msg.header.stamp.secs  = time_sec
+                            msg.header.stamp.nsecs = time_nano
+                            outbag.write(object_topic,msg,t)
+                        else:
+                        # topic!=husky_topic and topic!=object_topic: # and topic!="/zed_node/left/image_rect_color_throttle" and topic!="/zed_node/right/image_rect_color_throttle":
+                            outbag.write(topic,msg,t)
+
+        # with rosbag.Bag(os.path.join(target_dir,"%s_sequence_%01i_edit.bag" % (args.date,i)), 'w') as outbag: 
         #with rosbag.Bag(os.path.join(target_dir,"%s_sequence_edit.bag" % args.date), 'w') as outbag:
 
-            filepath = os.path.join(source_dir,"%s_sequence_%01i.bag" % (args.date,i))
-            #filepath = os.path.join(source_dir,"%s_sequence_.bag" % args.date)
-            print(filepath)
-            inbag=rosbag.Bag(filepath)
+                # if topic== "/Bebop2/position_velocity_orientation_estimation" and msg.pose:
+                #     #print(msg.header.stamp.nsecs)
+                #     time_sec =t.secs
+                #     time_nano=t.nsecs
+                #     # Rewrite correct header stamps to the 'faulty' Husky stamps, since that was the main machine on which was recorded, so that is easier.
+                #     msg.header.stamp.secs  = time_sec
+                #     msg.header.stamp.nsecs = time_nano
+                #     # Write to topic of object, write the (now altered) message at time t
+                #     outbag.write(object_topic,msg,t)
 
-            # inbag=rosbag.Bag('/home/pmvanderburg/noetic-husky/data_acquisition/data_acq_20220622/rostest/20220705_sequence_108.bag','r')
-
-            # target_topic='/%s/Pose' % (args.instance)
-            husky_topic='/Husky/Pose'
-            object_topic='/Box/Pose'
-
-            for topic, msg, t in inbag.read_messages():
-                # This also replaces tf timestamps under the assumption
-                # that all transforms in the message share the same timestamp
-                if topic == "/Bebop1/position_velocity_orientation_estimation" and msg.pose:
-                    #print(msg.header.stamp.nsecs)
-                    time_sec =t.secs
-                    time_nano=t.nsecs
-                    # Rewrite correct header stamps to the 'faulty' Husky stamps, since that was the main machine on which was recorded, so that is easier.
-                    msg.header.stamp.secs  = time_sec
-                    msg.header.stamp.nsecs = time_nano
-                    outbag.write(husky_topic,msg,t)
-
-                if topic== "/Bebop2/position_velocity_orientation_estimation" and msg.pose:
-                    #print(msg.header.stamp.nsecs)
-                    time_sec =t.secs
-                    time_nano=t.nsecs
-                    # Rewrite correct header stamps to the 'faulty' Husky stamps, since that was the main machine on which was recorded, so that is easier.
-                    msg.header.stamp.secs  = time_sec
-                    msg.header.stamp.nsecs = time_nano
-                    # Write to topic of object, write the (now altered) message at time t
-                    outbag.write(object_topic,msg,t)
-
-                if topic== "/zed_node/left/camera_info_throttle":
-                    print('/zed_node msg is: \n',msg)
-                    print("i is :\n",i)
+                # if topic== "/zed_node/left/camera_info_throttle":
+                #     print('/zed_node msg is: \n',msg)
+                #     print("i is :\n",i)
 
         # +=i
 
