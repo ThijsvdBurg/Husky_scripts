@@ -44,15 +44,15 @@ def main():
             else:
                 # with rosbag write and path to target bagfile
                 with rosbag.Bag(outbagpath, 'w') as outbag:
-	                print('Bagfile to be cropped:\n', filepath)
+                    print('Bagfile to be cropped:\n', filepath)
 
-	                # define source rosbag and create rosbag class.
+                    # define source rosbag and create rosbag class.
                     # Also print table of topics
-	                inbag=rosbag.Bag(filepath)
-	                b=bagpy.bagreader(filepath)
-	                print(b.topic_table)
+                    inbag=rosbag.Bag(filepath)
+                    b=bagpy.bagreader(filepath)
+                    print(b.topic_table)
 
-	                # cycle through the bag, message for message
+                    # cycle through the bag, message for message
                     # reset numsgs
                     numsgs = args.num_msgs
                     for topic, msg, t in inbag.read_messages():
