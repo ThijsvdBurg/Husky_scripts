@@ -29,37 +29,46 @@ def main():
         # finding/selecting a rosbag for cropping
         filepath = os.path.join(src_dir,"%s_sequence_%01i.bag" % (args.date,i))
         outbagpath = os.path.join(tgt_dir,"%s_sequence_%01i_crop.bag" % (args.date,i))
+        
+        #check if the source bagfile exists
         if not os.path.exists(filepath):
             print("\nInbagpath does not exist, skipping %s_sequence_%01i.bag" % (args.date,i))
+        
+        # Only if it exists, we will try to create a target bagfile
         else:
+            # But if target bagfile already exists, we will skip it
             if os.path.exists(outbagpath):
                 print("\nOutbagpath \n%s \nalready exists \nSkipping %s_sequence_%01i.bag" % (outbagpath,args.date,i))
+
+            # If it doesn't exist, continue
             else:
+                # with rosbag write and path to target bagfile
                 with rosbag.Bag(outbagpath, 'w') as outbag:
 	                print('Bagfile to be cropped:\n', filepath)
 
-	                # make rosbag class and print table of topics
+	                # define source rosbag and create rosbag class.
+                    # Also print table of topics
 	                inbag=rosbag.Bag(filepath)
 	                b=bagpy.bagreader(filepath)
 	                print(b.topic_table)
 
 	                # cycle through the bag, message for message
-                        # reset numsgs
+                    # reset numsgs
                     numsgs = args.num_msgs
                     for topic, msg, t in inbag.read_messages():
                         if numsgs:
-                        # if topic=="/joy_teleop/cmd_vel" or topic=="/zed_node/left/image_rect_color_throttle" or topic=="/zed_node/right/image_rect_color_throttle":
-                        # if topic=="/joy_teleop/cmd_vel":
-                        # print("is joy teleop")
-                        # print(t)
-                        # numsgs+=1
-                        if topic!="/joy_teleop/cmd_vel" and topic!="/husky_velocity_controller/cmd_vel": # and topic!="/zed_node/left/image_rect_color_throttle" and topic!="/zed_node/right/image_rect_color_throttle":
-                            #print("Is not joy teleop or zed camera image")
-                            #print(t)
-                            outbag.write(topic,msg,t)
-                            #print(topic)
-                            #print(numsgs)
-                            numsgs-=1
+                            if topic!="/joy_teleop/cmd_vel" and topic!="/husky_velocity_controller/cmd_vel": # and topic!="/zed_node/left/image_rect_color_throttle" and topic!="/zed_node/right/image_rect_color_throttle":
+                                #print("Is not joy teleop or zed camera image")
+                                #print(t)
+                                outbag.write(topic,msg,t)
+                                #print(topic)
+                                #print(numsgs)
+                                numsgs-=1
+                            # if topic=="/joy_teleop/cmd_vel" or topic=="/zed_node/left/image_rect_color_throttle" or topic=="/zed_node/right/image_rect_color_throttle":
+                            # if topic=="/joy_teleop/cmd_vel":
+                            # print("is joy teleop")
+                            # print(t)
+                            # numsgs+=1
         i+=1
         print("finished for loop iteration, i has increased to: ",i)
 
