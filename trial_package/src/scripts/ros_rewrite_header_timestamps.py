@@ -52,7 +52,7 @@ def main():
                     for topic, msg, t in inbag.read_messages():
                         # This also replaces tf timestamps under the assumption
                         # that all transforms in the message share the same timestamp
-                        if topic == husky_topic and msg.pose:
+                        if topic == "/Bebop1/position_velocity_orientation_estimation" and msg.pose:
                             #print(msg.header.stamp.nsecs)
                             time_sec =t.secs
                             time_nano=t.nsecs
@@ -60,7 +60,7 @@ def main():
                             msg.header.stamp.secs  = time_sec
                             msg.header.stamp.nsecs = time_nano
                             outbag.write(husky_topic,msg,t)
-                        elif topic == object_topic and msg.pose:
+                        elif topic == "/Bebop2/position_velocity_orientation_estimation" and msg.pose:
                             #print(msg.header.stamp.nsecs)
                             time_sec =t.secs
                             time_nano=t.nsecs
