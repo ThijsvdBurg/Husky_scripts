@@ -8,13 +8,13 @@ def main():
     parser = argparse.ArgumentParser(description="Rewrite header stamps and put them in new bag file")
     parser.add_argument("--source_dir", help="Directory containing rosbags.")
     parser.add_argument("--target_dir", help="Output directory.")
-    # parser.add_argument("--start", type=int, help="Start index number.")
-    # parser.add_argument("--end", type=int, help="End index number.")
+    parser.add_argument("--start", type=int, help="Start index number.")
+    parser.add_argument("--end", type=int, help="End index number.")
     parser.add_argument("--date", help="Filename date prefix.")
 
     args = parser.parse_args()
-    start=108
-    end=108
+    start=args.start
+    end=args.end
     source_dir = args.source_dir
     target_dir = args.target_dir
 
@@ -40,7 +40,7 @@ def main():
                 # This also replaces tf timestamps under the assumption
                 # that all transforms in the message share the same timestamp
                 if topic == "/Bebop1/position_velocity_orientation_estimation" and msg.pose:
-                    print(msg.header.stamp.nsecs)
+                    #print(msg.header.stamp.nsecs)
                     time_sec =t.secs
                     time_nano=t.nsecs
                     # Rewrite correct header stamps to the 'faulty' Husky stamps, since that was the main machine on which was recorded, so that is easier.
@@ -60,8 +60,9 @@ def main():
 
                 if topic== "/zed_node/left/camera_info_throttle":
                     print('/zed_node msg is: \n',msg)
+                    print("i is :\n",i)
+
         # +=i
-        print(i)
 
 if __name__ == "__main__":
 	main()
