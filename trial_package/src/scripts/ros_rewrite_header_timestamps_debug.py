@@ -26,7 +26,7 @@ def main():
     print("\nExtract data from the directory %s into the directory %s" %(source_dir,target_dir))
 
     for i in range(start,end+1):
-        # print(i)
+        print(i)
         outbagpath=os.path.join(target_dir,"%s_sequence_%01i_edit.bag" % (args.date,i))
         # print("Outbagpath is: \n",outbagpath)
         if os.path.exists(outbagpath):
@@ -45,8 +45,6 @@ def main():
                         print("time t is", t)
                         #print("topic is", topic)
                         #print("i is :\n",i)
-
-        # +=i
 
 if __name__ == "__main__":
 	main()
