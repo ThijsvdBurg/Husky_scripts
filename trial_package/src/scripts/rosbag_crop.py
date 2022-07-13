@@ -29,7 +29,6 @@ def main():
         print(i)
         with rosbag.Bag(os.path.join(tgt_dir,"%s_sequence_%01i_crop.bag" % (args.date,i)), 'w') as outbag:
 
-
             # finding/selecting a rosbag for cropping
             filepath = os.path.join(src_dir,"%s_sequence_%01i.bag" % (args.date,i))
             print('Bagfile to be cropped:\n', filepath)
