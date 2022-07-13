@@ -11,6 +11,7 @@ def main():
     parser.add_argument("--start", type=int, help="Start index number.")
     parser.add_argument("--end", type=int, help="End index number.")
     parser.add_argument("--date", help="Filename date prefix.")
+    parser.add_argument("--suffix", help="Filename suffix (edit, crop or empty).")
 
     args = parser.parse_args()
     start=args.start
@@ -18,7 +19,12 @@ def main():
     source_dir = args.source_dir
     target_dir = args.target_dir
 
-    print("Extract data from the directory %s into the directory %s" %(source_dir,target_dir))
+    if args.suffix==None:
+        suffix=""
+    else:
+        suffix="_%s" % args.suffix
+
+    print("\nExtract data from the directory %s into the directory %s" %(source_dir,target_dir))
 
     for i in range(start,end+1):
         print(i)
