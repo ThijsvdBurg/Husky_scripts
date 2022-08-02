@@ -5,7 +5,12 @@ import os
 
 def main():
     """Rewrite bagfile header stamps to syncronize the zed camera with optitrack data
+    TODO:
+    - Make all topics (both zed camera topics and optitrack localisation) work simultaneously so that the new rosbag is an altered version of the old
+    - Check csv files to ensure that the timestamps are correctly rewritten
+    - Attempt to syncronise the optitrack with the zed topics
     """
+
     parser = argparse.ArgumentParser(description="Rewrite header stamps and put them in new bag file")
     parser.add_argument("--source_dir", help="Directory containing rosbags.")
     parser.add_argument("--target_dir", help="Output directory.")
@@ -20,9 +25,11 @@ def main():
     source_dir = args.source_dir
     target_dir = args.target_dir
 
+    # new (more logical) names for topics, instead of bebop1 and bebop2
     husky_topic='/Husky/Pose'
     object_topic='/Box/Pose'
 
+    # prevent filename suffix to be filled to "None" when no suffix arg is supplied
     if args.suffix==None:
         suffix=""
     else:
@@ -30,7 +37,9 @@ def main():
 
     print("\nExtract data from the directory %s into the directory %s" %(source_dir,target_dir))
 
+    # iterature through the start to the end rosbag, dependent on the argument "start" and "end"
     for i in range(start,end+1):
+        
         print(i)
 
         outbagpath=os.path.join(target_dir,"%s_sequence_%01i_edit.bag" % (args.date,i))
@@ -47,29 +56,21 @@ def main():
                     #with rosbag.Bag(os.path.join(target_dir,"%s_sequence_edit.bag" % args.date), 'w') as outbag:
                     # print("Inbagpath",filepath)
                     inbag=rosbag.Bag(filepath)
-
-
+                    # walk through messages
                     for topic, msg, t in inbag.read_messages():
-                        # This also replaces tf timestamps under the assumption
-                        # that all transforms in the message share the same timestamp
                         if topic == "/Bebop1/position_velocity_orientation_estimation" and msg.pose:
                             #print(msg.header.stamp.nsecs)
-                            time_sec =t.secs
-                            time_nano=t.nsecs
                             # Rewrite correct header stamps to the 'faulty' Husky stamps, since that was the main machine on which was recorded, so that is easier.
-                            msg.header.stamp.secs  = time_sec
-                            msg.header.stamp.nsecs = time_nano
+                            msg.header.stamp.secs  =t.secs
+                            msg.header.stamp.nsecs =t.nsecs
                             outbag.write(husky_topic,msg,t)
                         elif topic == "/Bebop2/position_velocity_orientation_estimation" and msg.pose:
                             #print(msg.header.stamp.nsecs)
-                            time_sec =t.secs
-                            time_nano=t.nsecs
                             # Rewrite correct header stamps to the 'faulty' Husky stamps, since that was the main machine on which was recorded, so that is easier.
-                            msg.header.stamp.secs  = time_sec
-                            msg.header.stamp.nsecs = time_nano
+                            msg.header.stamp.secs  = t.secs
+                            msg.header.stamp.nsecs = t.nsecs
                             outbag.write(object_topic,msg,t)
-                        else:
-                        # topic!=husky_topic and topic!=object_topic: # and topic!="/zed_node/left/image_rect_color_throttle" and topic!="/zed_node/right/image_rect_color_throttle":
+                        else: # to make all other topics join the new rosbag
                             outbag.write(topic,msg,t)
 
         # with rosbag.Bag(os.path.join(target_dir,"%s_sequence_%01i_edit.bag" % (args.date,i)), 'w') as outbag: 

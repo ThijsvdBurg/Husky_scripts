@@ -64,11 +64,7 @@ def main():
                                 #print(topic)
                                 #print(numsgs)
                                 numsgs-=1
-                            # if topic=="/joy_teleop/cmd_vel" or topic=="/zed_node/left/image_rect_color_throttle" or topic=="/zed_node/right/image_rect_color_throttle":
-                            # if topic=="/joy_teleop/cmd_vel":
-                            # print("is joy teleop")
-                            # print(t)
-                            # numsgs+=1
+                            
         i+=1
         print("finished for loop iteration, i has increased to: ",i)
 

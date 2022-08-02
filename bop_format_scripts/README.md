@@ -8,6 +8,8 @@ Information needs to be converted from ROS format to BOP format
 
 ## CameraInfo_to_BOP.py
 
+https://github.com/thodan/bop_toolkit/blob/master/docs/bop_datasets_format.md
+
 Steps:
 
 1. 
