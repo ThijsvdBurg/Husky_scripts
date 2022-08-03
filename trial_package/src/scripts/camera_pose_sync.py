@@ -7,9 +7,9 @@ import nav_msgs.msg
 # import geometry_msgs
 
 # When topics are synced, they should be put in a new bag file together
-def callback(info1):
-  # rospy.loginfo('Match found')
-  rospy.loginfo(rospy.get_caller_id() + ' I heard %s', info1.header)
+def callback(leftcam,rightcam,robotpos,objectpos):
+  rospy.loginfo('Match found')
+  rospy.loginfo(rospy.get_caller_id() + ' I heard %s', leftcam.header)
   # rospy.loginfo(rospy.get_caller_id() + ' I heard %s', camera_info2.header)
   
 
