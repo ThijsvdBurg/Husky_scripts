@@ -60,3 +60,4 @@ CATKIN_IGNORE
 bagfiles
 
 
+.DS_Store
