@@ -19,7 +19,7 @@ rospy.init_node('camera_synchronizer_node',anonymous=True)
 
 # ts = message_filters.ApproximateTimeSynchronizer([info1_sub, info2_sub, object_pose_sub], queue_size=10, slop=10)
 
-ts = message_filters.ApproximateTimeSynchronizer([info1_sub, info2_sub], queue_size=10, slop=0.5)
+ts = message_filters.ApproximateTimeSynchronizer([info1_sub, info2_sub], queue_size=10, slop=0.01)
 #ts = message_filters.TimeSynchronizer([info1_sub, info2_sub],queue_size=1)
 #ts = message_filters.TimeSynchronizer([object_sub, robot_sub],queue_size=10)
 #ts = message_filters.ApproximateTimeSynchronizer([object_sub, robot_sub],queue_size=10,slop=1)
