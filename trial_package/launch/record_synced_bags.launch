@@ -11,7 +11,9 @@
        args="
        record -O $(arg output_dir2)sequence_$(arg exp_nr) 
        /sync/left/camera_info
+       /sync/left/image_rect
        /sync/right/camera_info
+       /sync/right/image_rect
        /sync/robot/pose
        /sync/object/pose" />
 
