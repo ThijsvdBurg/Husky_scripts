@@ -167,8 +167,8 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
-  scripts/camera_pose_sync.py
-  scripts/robot_object_sync.py
+  src/scripts/camera_pose_sync.py
+  src/scripts/robot_object_sync.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

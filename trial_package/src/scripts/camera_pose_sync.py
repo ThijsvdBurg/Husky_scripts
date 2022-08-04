@@ -9,7 +9,7 @@ import nav_msgs.msg
 # import geometry_msgs
 
 parser = argparse.ArgumentParser(description="Sync rosbag topics and rewrite the synced messages into a new rosbag")
-parser.add_argument("--slop", type=float, help="Directory containing rosbags.")
+parser.add_argument("--slop", type=float, default=0.05, help="Directory containing rosbags.")
 args = parser.parse_args()
 
 # When topics are synced, they should be put in a new bag file together
@@ -17,7 +17,7 @@ def callback(leftcam,rightcam,robotpos,objectpos):
   # rospy.loginfo('Match found')
   rospy.loginfo(rospy.get_caller_id() + ' I heard %s', leftcam.header)
   rospy.loginfo(rospy.get_caller_id() + ' I heard %s', robotpos.header)
-
+  rospy.loginfo(rospy.get_caller_id() + ' I heard %s', robotpos.pose)
 
 left_sub = message_filters.Subscriber('/zed_node/left/camera_info_throttle', CameraInfo)
 right_sub = message_filters.Subscriber('/zed_node/right/camera_info_throttle', CameraInfo)
