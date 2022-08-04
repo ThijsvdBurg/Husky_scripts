@@ -37,8 +37,8 @@ def callback(leftcam,rightcam,robotpos,objectpos):
 
 left_sub = message_filters.Subscriber('/zed_node/left/camera_info_throttle', CameraInfo)
 right_sub = message_filters.Subscriber('/zed_node/right/camera_info_throttle', CameraInfo)
-robot_sub = message_filters.Subscriber('/Husky/Pose', nav_msgs.msg.Odometry)
-object_sub = message_filters.Subscriber('/Box/Pose', nav_msgs.msg.Odometry)
+robot_sub = message_filters.Subscriber('/Husky/Pose', Odometry)
+object_sub = message_filters.Subscriber('/Box/Pose', Odometry)
 rospy.init_node('camera_synchronizer_node',anonymous=True)
 
 ts = message_filters.ApproximateTimeSynchronizer([left_sub, right_sub, robot_sub, object_sub], queue_size=10, slop=args.slop)
