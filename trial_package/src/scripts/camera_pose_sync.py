@@ -14,16 +14,24 @@ parser = argparse.ArgumentParser(description="Sync rosbag topics and rewrite the
 parser.add_argument("--slop", type=float, default=0.05, help="Directory containing rosbags.")
 args = parser.parse_args()
 
-pub = rospy.Publisher('/status', PoseWithCovariance, queue_size=1000)
+leftcampub = rospy.Publisher('/sync/left/camera_info', CameraInfo, queue_size=1000)
+rightcampub = rospy.Publisher('/sync/right/camera_info', CameraInfo, queue_size=1000)
+robotpub = rospy.Publisher('/sync/robot/pose', PoseWithCovariance, queue_size=1000)
+objectpub = rospy.Publisher('/sync/object/pose', PoseWithCovariance, queue_size=1000)
 
 # When topics are synced, they should be put in a new bag file together
 def callback(leftcam,rightcam,robotpos,objectpos):
   # rospy.loginfo('Match found')
-  last_data=objectpos.pose
-  rospy.loginfo(rospy.get_caller_id() + ' I heard %s', leftcam.header)
-  rospy.loginfo(rospy.get_caller_id() + ' I heard %s', robotpos.header)
-  rospy.loginfo(rospy.get_caller_id() + ' I heard %s', robotpos.pose)
-  pub.publish(last_data)
+  # last_data=objectpos.pose
+  # rospy.loginfo(rospy.get_caller_id() + ' I heard %s', leftcam.header)
+  # rospy.loginfo(rospy.get_caller_id() + ' I heard %s', robotpos.header)
+  # rospy.loginfo(rospy.get_caller_id() + ' I heard %s', robotpos.pose)
+  # pub.publish(last_data)
+  leftcampub.publish(leftcam)
+  rightcampub.publish(rightcam)
+  robotpub.publish(robotpos)
+  objectpub.publish(objectpos)
+
   print('last data published on /status topic')
 
 left_sub = message_filters.Subscriber('/zed_node/left/camera_info_throttle', CameraInfo)
