@@ -4,12 +4,13 @@
 <!-- Set the nr of the exp on the server -->
 <arg name="exp_nr" default="0"/>
 <arg name="output_dir" default="/media/kingston_usb/results/"/>
-<arg name="output_dir2" default="/home/pmvanderburg/bagfiles_susan_thijs/bagfiles/"/>
+<arg name="output_dir2" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/"/>
+<arg name="date" />
 <param name="exp_nr_param" value="$(arg exp_nr)" />
 
 <node pkg="rosbag" type="record" name="rosbag_record_synces_topics"
        args="
-       record -O $(arg output_dir2)sequence_$(arg exp_nr) 
+       record -O $(arg output_dir2)$(arg date)_sequence_$(arg exp_nr)_synced
        /sync/left/camera_info
        /sync/right/camera_info
        /sync/robot/pose
