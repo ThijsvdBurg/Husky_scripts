@@ -5,11 +5,8 @@ import argparse
 import message_filters
 from sensor_msgs.msg import Image, CameraInfo
 import nav_msgs.msg
-# from nav_msgs.msg import Odometry
-from std_msgs.msg import String
-# from geometry_msgs.msg import PoseWithCovariance
-
-# import geometry_msgs
+from std_msgs.msg import Float64
+from rospy_message_converter import json_message_converter
 
 parser = argparse.ArgumentParser(description="Sync rosbag topics and rewrite the synced messages into a new rosbag")
 parser.add_argument("--slop", type=float, default=0.05, help="Directory containing rosbags.")
@@ -24,20 +21,17 @@ objectpub = rospy.Publisher('/sync/object/pose', nav_msgs.msg.Odometry, queue_si
 
 # When topics are synced, they should be put in a new bag file together
 def callback(leftcaminfo,leftcamim,rightcaminfo,rightcamim,robotpos,objectpos):
-  # rospy.loginfo('Match found')
-  # last_data=objectpos.pose
   # rospy.loginfo(rospy.get_caller_id() + ' I heard %s', leftcam.header)
-  # rospy.loginfo(rospy.get_caller_id() + ' I heard %s', robotpos.header)
-  # rospy.loginfo(rospy.get_caller_id() + ' I heard %s', robotpos.pose)
-  # pub.publish(last_data)
-  leftImpub.publish(leftcaminfo)
-  leftInfopub.publish(leftcamim)
-  rightImpub.publish(rightcaminfo)
-  rightInfopub.publish(rightcamim)
+  leftInfopub.publish(leftcaminfo)
+  leftImpub.publish(leftcamim)
+  rightInfopub.publish(rightcaminfo)
+  rightImpub.publish(rightcamim)
   robotpub.publish(robotpos)
   objectpub.publish(objectpos)
-
-  print('last data published')
+  message=Float64(leftcaminfo.K)
+  json_str = json_message_converter.convert_ros_message_to_json(message)
+  print(json_str)
+  # print('last data published')
 
 leftinfo_sub = message_filters.Subscriber('/zed_node/left/camera_info_throttle', CameraInfo)
 leftimage_sub = message_filters.Subscriber('/zed_node/left/image_rect_color_throttle', Image)
