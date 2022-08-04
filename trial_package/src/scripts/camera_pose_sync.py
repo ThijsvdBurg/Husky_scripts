@@ -5,6 +5,7 @@ import argparse
 import message_filters
 from sensor_msgs.msg import Image, CameraInfo
 import nav_msgs.msg
+from std_msgs.msg import String
 
 # import geometry_msgs
 
