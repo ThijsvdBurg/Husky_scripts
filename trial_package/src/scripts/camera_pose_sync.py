@@ -6,6 +6,7 @@ import message_filters
 from sensor_msgs.msg import Image, CameraInfo
 import nav_msgs.msg
 from std_msgs.msg import String
+from geometry_msgs.msg import PoseWithCovariance
 
 # import geometry_msgs
 
@@ -13,7 +14,7 @@ parser = argparse.ArgumentParser(description="Sync rosbag topics and rewrite the
 parser.add_argument("--slop", type=float, default=0.05, help="Directory containing rosbags.")
 args = parser.parse_args()
 
-pub = rospy.Publisher('/status', String, queue_size=1000)
+pub = rospy.Publisher('/status', PoseWithCovariance, queue_size=1000)
 
 # When topics are synced, they should be put in a new bag file together
 def callback(leftcam,rightcam,robotpos,objectpos):
