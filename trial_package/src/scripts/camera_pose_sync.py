@@ -3,9 +3,12 @@
 import rospy
 import argparse
 import message_filters
+import yaml
+import json
 from sensor_msgs.msg import Image, CameraInfo
 import nav_msgs.msg
 from std_msgs.msg import Float64
+from std_msgs.msg import Int32
 from rospy_message_converter import json_message_converter
 
 parser = argparse.ArgumentParser(description="Sync rosbag topics and rewrite the synced messages into a new rosbag")
@@ -19,6 +22,16 @@ rightInfopub = rospy.Publisher('/sync/right/camera_info', CameraInfo, queue_size
 robotpub = rospy.Publisher('/sync/robot/pose', nav_msgs.msg.Odometry, queue_size=1000)
 objectpub = rospy.Publisher('/sync/object/pose', nav_msgs.msg.Odometry, queue_size=1000)
 
+
+def msg2json(msg):
+  ''' Convert a ROS message to JSON format'''
+  print('msg type is: ', type(msg) )
+  print('type after str(msg) is : ', type( str(msg) ) )
+  y = yaml.load(str(msg), Loader=yaml.FullLoader)
+  print('type after yaml load is: ', type(y) )
+  return json.dumps(y,indent=4)
+
+
 # When topics are synced, they should be put in a new bag file together
 def callback(leftcaminfo,leftcamim,rightcaminfo,rightcamim,robotpos,objectpos):
   # rospy.loginfo(rospy.get_caller_id() + ' I heard %s', leftcam.header)
@@ -28,9 +41,15 @@ def callback(leftcaminfo,leftcamim,rightcaminfo,rightcamim,robotpos,objectpos):
   rightImpub.publish(rightcamim)
   robotpub.publish(robotpos)
   objectpub.publish(objectpos)
-  message=Float64(leftcaminfo.K)
-  json_str = json_message_converter.convert_ros_message_to_json(message)
-  print(json_str)
+  message1=Float64(leftcaminfo.K)
+  #print(type(message1))
+  #print(dir(leftcaminfo.header.serialize))
+  msg2=leftcaminfo.header.seq
+  msg3=msg2json(leftcaminfo.header)
+  print(type(msg3),msg3)
+  #message2=Int32(leftcaminfo.header.seq)
+  #json_str = json_message_converter.convert_ros_message_to_json(message1)
+  # print(message1, message2)
   # print('last data published')
 
 leftinfo_sub = message_filters.Subscriber('/zed_node/left/camera_info_throttle', CameraInfo)

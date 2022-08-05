@@ -14,26 +14,30 @@ def main():
     parser.add_argument("--date", help="Filename date prefix.")
     parser.add_argument("--num_msgs", type=int, help="Number of msgs to retain")
 
-
     args = parser.parse_args()
     # make args normal variables for increased simplicity when writing and reading the code
     start=args.start
     end=args.end
     src_dir = args.source_dir
     tgt_dir = args.target_dir
-    #numsgs=args.num_msgs
 
     print("Extract data from the directory %s into the directory %s" %(src_dir,tgt_dir))
 
+    max_num = 999
+    width=len(str(max_num))
     for i in range(start,end+1):
+
+        print("for loop iteration, i is now: ",i)
+
         # finding/selecting a rosbag for cropping
-        filepath = os.path.join(src_dir,"%s_sequence_%01i.bag" % (args.date,i))
-        outbagpath = os.path.join(tgt_dir,"%s_sequence_%01i_crop.bag" % (args.date,i))
-        
+        infilename = "%s_sequence_{i:0{width}}.bag".format(i=i,width=width) % args.date
+        outfilename = "%s_sequence_{i:0{width}}_crop.bag".format(i=i,width=width) % args.date
+        filepath = os.path.join(src_dir,infilename)
+        outbagpath = os.path.join(tgt_dir,outfilename)
         #check if the source bagfile exists
         if not os.path.exists(filepath):
-            print("\nInbagpath does not exist, skipping %s_sequence_%01i.bag" % (args.date,i))
-        
+            print("\nInbagpath does not exist, skipping ", infilename)
+
         # Only if it exists, we will try to create a target bagfile
         else:
             # But if target bagfile already exists, we will skip it
@@ -64,9 +68,8 @@ def main():
                                 #print(topic)
                                 #print(numsgs)
                                 numsgs-=1
-                            
+
         i+=1
-        print("finished for loop iteration, i has increased to: ",i)
 
 if __name__ == "__main__":
 	main()
