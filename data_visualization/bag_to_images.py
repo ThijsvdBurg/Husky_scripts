@@ -16,7 +16,7 @@ import rosbag
 from cv_bridge import CvBridge
 
 def main():
-    """Extract an image sequence from a rosbag to be used in SC-SfM-learner.
+    """Extract an image sequence from a rosbag.
     """
     parser = argparse.ArgumentParser(description="Extract images from a ROS bag.")
 

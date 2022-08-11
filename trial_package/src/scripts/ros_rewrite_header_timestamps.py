@@ -5,10 +5,6 @@ import os
 
 def main():
     """Rewrite bagfile header stamps to syncronize the zed camera with optitrack data
-    TODO:
-    - Make all topics (both zed camera topics and optitrack localisation) work simultaneously so that the new rosbag is an altered version of the old
-    - Check csv files to ensure that the timestamps are correctly rewritten
-    - Attempt to syncronise the optitrack with the zed topics
     """
 
     parser = argparse.ArgumentParser(description="Rewrite header stamps and put them in new bag file")
@@ -39,7 +35,7 @@ def main():
 
     # iterature through the start to the end rosbag, dependent on the argument "start" and "end"
     for i in range(start,end+1):
-        
+
         print(i)
 
         outbagpath=os.path.join(target_dir,"%s_sequence_%01i_edit.bag" % (args.date,i))
