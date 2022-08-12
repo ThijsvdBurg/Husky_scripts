@@ -15,14 +15,19 @@ parser = argparse.ArgumentParser(description="Sync rosbag topics and rewrite the
 parser.add_argument("--slop", type=float, default=0.05, help="Directory containing rosbags.")
 args = parser.parse_args()
 
+# create publishers to publish on new topics
+#Left camera images and CameraInfo
 leftImpub = rospy.Publisher('/sync/left/image_rect', Image, queue_size=1000)
 leftInfopub = rospy.Publisher('/sync/left/camera_info', CameraInfo, queue_size=1000)
+#Right camera images and CameraInfo
 rightImpub = rospy.Publisher('/sync/right/image_rect', Image, queue_size=1000)
 rightInfopub = rospy.Publisher('/sync/right/camera_info', CameraInfo, queue_size=1000)
+#Robot and Object pose topics
 robotpub = rospy.Publisher('/sync/robot/pose', nav_msgs.msg.Odometry, queue_size=1000)
 objectpub = rospy.Publisher('/sync/object/pose', nav_msgs.msg.Odometry, queue_size=1000)
 
 
+#dump rosmsg as json via a yaml dict
 def msg2json(msg):
   ''' Convert a ROS message to JSON format'''
   print('msg type is: ', type(msg) )
@@ -31,22 +36,22 @@ def msg2json(msg):
   print('type after yaml load is: ', type(y) )
   return json.dumps(y,indent=4)
 
-
-# When topics are synced, they should be put in a new bag file together
+# When topics are synced, they should be put in a new bag file together, do this with a launchfile
 def callback(leftcaminfo,leftcamim,rightcaminfo,rightcamim,robotpos,objectpos):
-  # rospy.loginfo(rospy.get_caller_id() + ' I heard %s', leftcam.header)
+
+  # all topics are parsed to new /sync topics, which makes it clear that they have been synced
   leftInfopub.publish(leftcaminfo)
   leftImpub.publish(leftcamim)
   rightInfopub.publish(rightcaminfo)
   rightImpub.publish(rightcamim)
   robotpub.publish(robotpos)
   objectpub.publish(objectpos)
-  message1=Float64(leftcaminfo.K)
+  #message1=Float64(leftcaminfo.K)
   #print(type(message1))
   #print(dir(leftcaminfo.header.serialize))
-  msg2=leftcaminfo.header.seq
-  msg3=msg2json(leftcaminfo.header)
-  print(type(msg3),msg3)
+  #msg2=leftcaminfo.header.seq
+  #msg3=msg2json(leftcaminfo.header)
+  #print(type(msg3),msg3)
   #message2=Int32(leftcaminfo.header.seq)
   #json_str = json_message_converter.convert_ros_message_to_json(message1)
   # print(message1, message2)
@@ -61,7 +66,6 @@ object_sub = message_filters.Subscriber('/Box/Pose', nav_msgs.msg.Odometry)
 rospy.init_node('camera_synchronizer_node',anonymous=True)
 
 ts = message_filters.ApproximateTimeSynchronizer([leftinfo_sub, leftimage_sub, rightinfo_sub, rightimage_sub, robot_sub, object_sub], queue_size=30, slop=args.slop)
-#ts = message_filters.TimeSynchronizer([info1_sub, info2_sub],queue_size=1)
 
 ts.registerCallback(callback)
 rospy.spin()

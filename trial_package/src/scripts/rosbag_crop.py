@@ -5,6 +5,9 @@ import os
 
 def main():
     """Crop rosbag to first xxx msgs
+       Usage:
+       python <path_to_this_file> --source_dir <dir containing rosbags> --target_dir <dir to place new cropped rosbags> \
+       --start 1 --end 10 --date 20220705 --num_msgs 300
     """
     parser = argparse.ArgumentParser(description="Crop rosbags")
     parser.add_argument("--source_dir", help="Directory containing rosbags.")

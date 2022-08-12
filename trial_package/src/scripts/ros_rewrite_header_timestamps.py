@@ -36,8 +36,6 @@ def main():
     # iterature through the start to the end rosbag, dependent on the argument "start" and "end"
     for i in range(start,end+1):
 
-        print(i)
-
         outbagpath=os.path.join(target_dir,"%s_sequence_%01i_edit.bag" % (args.date,i))
         # print("Outbagpath is: \n",outbagpath)
         if os.path.exists(outbagpath):
@@ -69,22 +67,6 @@ def main():
                         else: # to make all other topics join the new rosbag
                             outbag.write(topic,msg,t)
 
-        # with rosbag.Bag(os.path.join(target_dir,"%s_sequence_%01i_edit.bag" % (args.date,i)), 'w') as outbag: 
-        #with rosbag.Bag(os.path.join(target_dir,"%s_sequence_edit.bag" % args.date), 'w') as outbag:
-
-                # if topic== "/Bebop2/position_velocity_orientation_estimation" and msg.pose:
-                #     #print(msg.header.stamp.nsecs)
-                #     time_sec =t.secs
-                #     time_nano=t.nsecs
-                #     # Rewrite correct header stamps to the 'faulty' Husky stamps, since that was the main machine on which was recorded, so that is easier.
-                #     msg.header.stamp.secs  = time_sec
-                #     msg.header.stamp.nsecs = time_nano
-                #     # Write to topic of object, write the (now altered) message at time t
-                #     outbag.write(object_topic,msg,t)
-
-                # if topic== "/zed_node/left/camera_info_throttle":
-                #     print('/zed_node msg is: \n',msg)
-                #     print("i is :\n",i)
 
         # +=i
 
