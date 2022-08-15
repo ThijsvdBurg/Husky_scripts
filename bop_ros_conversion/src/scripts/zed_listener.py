@@ -5,14 +5,12 @@ import rospy
 import tf_conversions
 
 import math
-import turtlesim.srv
-
 import tf2_ros
 import geometry_msgs.msg
 from nav_msgs.msg import Odometry
 
 def main():
-    rospy.init_node('tf2_listener')
+    rospy.init_node('zed_listener')
 
     #agentname1 = robot_optitrack  #
     agentname1 = rospy.get_param('~agentname1')
@@ -30,7 +28,6 @@ def main():
         try:
             trans = tfBuffer.lookup_transform(agentname1, agentname2, rospy.Time(), rospy.Duration(1.0))
         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-            #raise
             rate.sleep()
             continue
 

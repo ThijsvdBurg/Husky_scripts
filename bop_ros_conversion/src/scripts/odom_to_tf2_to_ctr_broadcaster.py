@@ -26,6 +26,21 @@ def handle_pose(msg, agent_name):
     t.transform.rotation.w = msg.pose.pose.orientation.w
     br.sendTransform(t)
 
+    t2 = geometry_msgs.msg.TransformStamped()
+    t2.header.stamp = rospy.Time.now()
+    t2.header.frame_id= '%s_optitrack' %agent_name
+    t2.child_frame_id = '%s_center' %agent_name
+    t2.transform.translation.x = 0.0
+    t2.transform.translation.y = 0.0
+    t2.transform.translation.z = -0.2
+    t2.transform.rotation.x = 0.0
+    t2.transform.rotation.y = 0.0
+    t2.transform.rotation.z = 0.0
+    t2.transform.rotation.w = 1.0
+    #tfm = tf2_msgs.msg.TFMessage([t2])
+
+    br.sendTransform(t2)
+
 def main():
     rospy.init_node('odom_to_tf2_broadcaster')
     agent_name =     rospy.get_param('~agentname')

@@ -10,8 +10,6 @@ import tf2_ros
 import geometry_msgs.msg
 from nav_msgs.msg import Odometry
 
-def handle_pose():
-    
 
 def main():
     rospy.init_node('tf2_turtle_broadcaster')

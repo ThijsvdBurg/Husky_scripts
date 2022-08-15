@@ -57,8 +57,11 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   src/scripts/odom_to_tf2_broadcaster.py
+  src/scripts/odom_to_tf2_to_ctr_broadcaster.py
   src/scripts/robot_to_zed_broadcaster.py
+  src/scripts/box_mk_to_box_ctr_broadcaster.py
   src/scripts/sync_husky_and_optitrack_topics.py
   src/scripts/tf2_listener.py
+  src/scripts/zed_listener.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
