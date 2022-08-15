@@ -4,16 +4,14 @@
 <!--      <node pkg="turtlesim" type="turtle_teleop_key" name="teleop" output="screen"/> -->
 
 
-<!--    <node name="husky_tf2_broadcaster" pkg="bop_ros_conversion" type="odom_to_tf2_broadcaster.py" respawn="false" output="screen" > -->
-    <node name="husky_tf2_broadcaster" pkg="bop_ros_conversion" type="odom_to_tf2_to_ctr_broadcaster.py" respawn="false" output="screen" >
+    <node name="husky_tf2_broadcaster" pkg="bop_ros_conversion" type="odom_to_tf2_broadcaster.py" respawn="false" output="screen" >
       <param name="agentname" type="string" value="robot" />
     </node>
-    <node name="box_tf2_broadcaster" pkg="bop_ros_conversion" type="odom_to_tf2_to_ctr_broadcaster.py" respawn="false" output="screen" >
-<!--    <node name="box_tf2_broadcaster" pkg="bop_ros_conversion" type="odom_to_tf2_broadcaster.py" respawn="false" output="screen" > -->
+    <node name="box_tf2_broadcaster" pkg="bop_ros_conversion" type="odom_to_tf2_broadcaster.py" respawn="false" output="screen" >
       <param name="agentname" type="string" value="object" /> 
     </node>
 
-<!--    <node name="tf2_listener" pkg="bop_ros_conversion" type="tf2_listener.py" respawn="false" output="screen" >
+    <node name="tf2_listener" pkg="bop_ros_conversion" type="tf2_listener.py" respawn="false" output="screen" >
       <param name="agentname1" type= "string" value="robot_optitrack"/>
       <param name="agentname2" type= "string" value="object_optitrack"/>
     </node>
@@ -21,5 +19,5 @@
     </node>
     <node name="tf2_box_opti_to_box_fixed_bc" pkg="bop_ros_conversion" type="box_mk_to_box_ctr_broadcaster.py" respawn="false" output="screen" >
     </node>
--->
+
 </launch>

@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<launch>
+<!--     <node pkg="turtlesim" type="turtlesim_node" name="sim"/> -->
+<!--      <node pkg="turtlesim" type="turtle_teleop_key" name="teleop" output="screen"/> -->
+
+
+    <node name="husky_tf2_broadcaster" pkg="bop_ros_conversion" type="odom_to_tf2_to_ctr_broadcaster.py" respawn="false" output="screen" >
+      <param name="agentname" type="string" value="robot" />
+      <param name="translation_x" type="float" value="0.1" />
+      <param name="translation_y" type="float" value="0.0" />
+      <param name="translation_z" type="float" value="-10.1" />
+      <param name="rotation_roll" type="float" value="0.0" />
+      <param name="rotation_pitch" type="float" value="0.0" />
+      <param name="rotation_yaw" type="float" value="3.14" />
+    </node>
+    <node name="box_tf2_broadcaster" pkg="bop_ros_conversion" type="odom_to_tf2_to_ctr_broadcaster.py" respawn="false" output="screen" >
+      <param name="agentname" type="string" value="object" /> 
+      <param name="translation_x" type="float" value="0.1" />
+      <param name="translation_y" type="float" value="0.2" />
+      <param name="translation_z" type="float" value="-0.2" />
+      <param name="rotation_roll" type="float" value="0.0" />
+      <param name="rotation_pitch" type="float" value="0.0" />
+      <param name="rotation_yaw" type="float" value="0.0" />
+    </node>
+
+</launch>
