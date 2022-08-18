@@ -63,5 +63,6 @@ catkin_install_python(PROGRAMS
   src/scripts/sync_husky_and_optitrack_topics.py
   src/scripts/tf2_listener.py
   src/scripts/zed_listener.py
+  src/scripts/transformerROS_listener.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

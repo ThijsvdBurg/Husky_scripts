@@ -10,14 +10,17 @@
     <node name="box_tf2_broadcaster" pkg="bop_ros_conversion" type="odom_to_tf2_broadcaster.py" respawn="false" output="screen" >
       <param name="agentname" type="string" value="object" /> 
     </node>
-
-    <node name="tf2_listener" pkg="bop_ros_conversion" type="tf2_listener.py" respawn="false" output="screen" >
-      <param name="agentname1" type= "string" value="robot_optitrack"/>
-      <param name="agentname2" type= "string" value="object_optitrack"/>
+    <node pkg="tf" type="static_transform_publisher" name="optitrack_1_broadcaster" args="1 0 -0.3 0 0 0 1 robot_optitrack base_link 200" />
+    <node pkg="tf" type="static_transform_publisher" name="optitrack_2_broadcaster" args="0.1 -0.1 -0.2 0 0 0 1 object_optitrack box_ctr 200" />
+    <node pkg="tf" type="static_transform_publisher" name="optitrack_3_broadcaster" args="-0.2 0 0.5 0 0 0 1 base_link zed_left 200" />
+    
+    <node name="tf_listener" pkg="bop_ros_conversion" type="zed_listener.py" respawn="false" output="screen" >
+      <param name="agentname1" type= "string" value="zed_left"/>
+      <param name="agentname2" type= "string" value="box_ctr"/>
     </node>
-    <node name="tf2_robot_to_cam_fixed_bc" pkg="bop_ros_conversion" type="robot_to_zed_broadcaster.py" respawn="false" output="screen" >
+    <!--<node name="tf2_robot_to_cam_fixed_bc" pkg="bop_ros_conversion" type="robot_to_zed_broadcaster.py" respawn="false" output="screen" >
     </node>
     <node name="tf2_box_opti_to_box_fixed_bc" pkg="bop_ros_conversion" type="box_mk_to_box_ctr_broadcaster.py" respawn="false" output="screen" >
-    </node>
+    </node>-->
 
 </launch>
