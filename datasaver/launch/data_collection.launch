@@ -1,8 +1,10 @@
+<?xml version="1.0"?>
 <launch>
 
 <!-- Set the nr of the exp on the server -->
 <arg name="exp_nr" default="0"/>
 <arg name="output_dir" default="/media/kingston_usb/results/"/>
+<arg name="output_dir_thijs" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220819/"/>
 <arg name="output_dir2" default="/home/administrator/bagfiles_susan_thijs/"/>
 <param name="exp_nr_param" value="$(arg exp_nr)" />
 
@@ -16,8 +18,13 @@
 
 <!-- Rosbag --> 
 <node name="record_topics_experiment" pkg="rosbag" type="record"
-      args="-O /home/susan/Documents/mocap_experiment/data/bags/exp_$(arg exp_nr) /Bebop1/pose /Bebop1/position_velocity_orientation_estimation /Bebop2/pose /Bebop2/position_velocity_orientation_estimation /odometry/filtered /cmd_vel /husky_velocity_controller/cmd_vel /joy_teleop/cmd_vel" 
+      args="-O $(arg output_dir_thijs)20220819_exp_$(arg exp_nr) /tf /mocap_node/Husky/Odom /mocap_node/Husky/pose /mocap_node/MMbox/Odom /mocap_node/MMbox/pose"
 />
+<!-- Rosbag  
+<node name="record_topics_experiment" pkg="rosbag" type="record"
+      args="-O /home/susan/Documents/mocap_experiment/data/bags/exp_$(arg exp_nr) /Bebop1/pose /Bebop1/position_velocity_orientation_estimation /Bebop2/pose /Bebop2/position_velocity_orientation_estimation /odometry/filtered /cmd_vel /husky_velocity_controller/cmd_vel /joy_teleop/cmd_vel" 
+/> -->
+
 <!--
 <node pkg="rosbag" type="record" name="rosbag_record_zed"
        args="record -O $(arg output_dir2)_sequence_$(arg exp_nr) /zed_node/left/camera_info_throttle /zed_node/left/image_rect_color_throttle /zed_node/right/camera_info_throttle /zed_node/right/image_rect_color_throttle /Bebop1/pose /Bebop1/position_velocity_orientation_estimation /Bebop2/pose /Bebop2/position_velocity_orientation_estimation /cmd_vel /husky_velocity_controller/cmd_vel /joy_teleop/cmd_vel" />
