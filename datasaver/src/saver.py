@@ -97,7 +97,8 @@ class Saver():
 
     def get_save_path(self):
         # make new directory and save data there
-        self.path = "/home/susan/Documents/mocap_experiment/data/exp_" + str(self.exp_nr_param) #os.path.join("./../data/exp_", str(self.exp_nr_param))
+        # self.path = "/home/susan/Documents/mocap_experiment/data/exp_" + str(self.exp_nr_param) #os.path.join("./../data/exp_", str(self.exp_nr_param))
+        self.path = "/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220819/20220819_exp_" + str(self.exp_nr_param) #os.path.join("./../data/exp_", str(self.exp_nr_param))
         os.mkdir(self.path)
 
     def save_run_info(self, shape, mass):
