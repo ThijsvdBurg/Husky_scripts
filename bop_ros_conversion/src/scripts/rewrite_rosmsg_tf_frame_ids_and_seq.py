@@ -16,7 +16,7 @@ def main():
     parser.add_argument("--suffix", help="Filename suffix (edit, crop or empty).")
     parser.add_argument("--link_name_robot", help="link name for robot, like opti, base or zed")
     parser.add_argument("--link_name_object", help="link name for object, like opti, box_top or box_centre")
-    parser.add_argument("--tf_id_robot", help="tf id name for robot, like opti, box_top or box_centre")
+    #parser.add_argument("--tf_id_robot", help="tf id name for robot, like opti, box_top or box_centre")
 
     args = parser.parse_args()
     start=args.start
@@ -38,43 +38,57 @@ def main():
     else:
         suffix="_%s" % args.suffix
 
+
     print("\nExtract data from the directory %s into the directory %s" %(source_dir,target_dir))
 
     # iterature through the start to the end rosbag, dependent on the argument "start" and "end"
     for i in range(start,end+1):
 
-        outbagpath=os.path.join(target_dir,"%s_sequence_%06i_edit.bag" % (date,i)) # %06i for 6 digits
-        if os.path.exists(outbagpath):
-            print("\nOutbagpath exists, skipping %s_sequence_%06i_edit.bag \n" % (args.date,i))
+        infilename="%s_exp_%07i%s.bag" % (args.date,i,suffix)
+        filepath = os.path.join(source_dir,infilename)
+        outfilename="%s_exp_%06i%s_edit.bag" % (args.date,i,suffix)
+        outbagpath=os.path.join(target_dir,outfilename) # %06i for 6 digits
+        if not os.path.exists(outbagpath):
+            print("\nOutbagpath exists, skipping %s \n" % (outfilename))
         else:
             # check if sourge bagfile exists first before creating a target bagfile object
-            filepath = os.path.join(source_dir,"%s_sequence_%06i%s.bag" % (args.date,i,suffix))
             if not os.path.exists(filepath):
-                print("\nInbagpath does not exist, skipping %s_sequence_%06i%s.bag \n" % (args.date,i,suffix))
+                print("\nInbagpath does not exist, skipping %s \n" % (filepath))
             else:
                 with rosbag.Bag(outbagpath,'w') as outbag:
                     #with rosbag.Bag(os.path.join(target_dir,"%s_sequence_edit.bag" % args.date), 'w') as outbag:
                     # print("Inbagpath",filepath)
                     inbag=rosbag.Bag(filepath)
                     # walk through messages
+                    k = 0
                     for topic, msg, t in inbag.read_messages():
                         if topic == "/mocap_node/Husky/Odom": # and msg.pose:
-                            outbag.write(husky_topic,msg,t) # t is the original timestamp, so we keep that
+                            print('') #if topic == "/mocap_node/Husky/Odom":')
+                            #outbag.write(husky_topic,msg,t) # t is the original timestamp, so we keep that
                         elif topic == "/mocap_node/Husky/pose": # and msg.pose:
-                            outbag.write(husky_topic,msg,t) # t is the original timestamp, so we keep that
-                        if topic == "/mocap_node/Husky/Odom": # and msg.pose:
-                            outbag.write(husky_topic,msg,t) # t is the original timestamp, so we keep that
-                        elif topic == "/mocap_node/Husky/pose": # and msg.pose:
-                            outbag.write(husky_topic,msg,t) # t is the original timestamp, so we keep that
+                            print('') #if topic == "/mocap_node/Husky/pose":')
+                            #outbag.write(husky_topic,msg,t) # t is the original timestamp, so we keep that
+                        elif topic == "/mocap_node/MMbox/Odom": # and msg.pose:
+                            print('')
+                            #outbag.write(husky_topic,msg,t) # t is the original timestamp, so we keep that
+                        elif topic == "/mocap_node/MMbox/pose": # and msg.pose:
+                            print('')
+                            #outbag.write(husky_topic,msg,t) # t is the original timestamp, so we keep that
                         # elif topic == "/Bebop2/position_velocity_orientation_estimation" and msg.pose:
                         #    outbag.write(object_topic,msg,t)
                         else: # for /tf
-                            if msg.child_frame_id == "Husky/base_link"
-                                msg.child_frame_id = "Husky/%s_link" % child_frame_id_robot
-                            else:
-                                msg.child_frame_id = "Husky/%s_link" % child_frame_id_object
-                            outbag.write(topic,msg,t)
+                            print('if all is well, /tf is shown next: \n',type(msg.transforms))
+                            # print('if all is well, t time is shown next: \n',t)
+                            #print('if all is well, k is shown next: \n',k)
 
+                            #if msg.transforms.child_frame_id == "Husky/base_link":
+                            #    msg.transforms.child_frame_id = "Husky/%s_link" % child_frame_id_robot
+                            #else:
+                            #    msg.transforms.child_frame_id = "Husky/%s_link" % child_frame_id_object
+                            #outbag.write(topic,msg,t)
+                        if k == 100:
+                            break
+                        k+=1
 
         # +=i
 
