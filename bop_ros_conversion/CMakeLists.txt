@@ -61,7 +61,7 @@ catkin_install_python(PROGRAMS
   src/scripts/robot_to_zed_broadcaster.py
   src/scripts/box_mk_to_box_ctr_broadcaster.py
   src/scripts/sync_husky_and_optitrack_topics.py
-  # src/scripts/tf2_listener.py
+  src/scripts/bag_to_csv_thijs.py
   src/scripts/tf2_to_posestamped_recorder.py
   src/scripts/zed_listener.py
   src/scripts/transformerROS_listener.py
