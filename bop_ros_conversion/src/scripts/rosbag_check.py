@@ -12,6 +12,8 @@ def main():
 
     parser = argparse.ArgumentParser(description="Rewrite header stamps and put them in new bag file")
     parser.add_argument("--source_dir", help="Directory containing rosbags.")
+    parser.add_argument("--bagfile", help="Directory containing rosbags.")
+
     parser.add_argument("--target_dir", help="Output directory.")
     parser.add_argument("--start", type=int, help="Start index number.")
     parser.add_argument("--end", type=int, help="End index number.")
@@ -29,7 +31,7 @@ def main():
 
     topic1 = '/Husky/Pose'
     topic2 = '/MMbox/Pose'
-
+    max_k = args.end
 
     # new (more logical) names for topics, instead of bebop1 and bebop2
     husky_pose_topic='/mocap_node/Husky/%s_link/pose' % args.link_name_robot
@@ -49,23 +51,26 @@ def main():
     print("\nExtract data from the directory %s into the directory %s" %(source_dir,target_dir))
 
     # iterature through the start to the end rosbag, dependent on the argument "start" and "end"
-    for i in range(start,end+1):
+    #for i in range(start,end+1):
 
-        infilename="%s_exp_%06i%s.bag" % (args.date,i,suffix)
-        filepath = os.path.join(source_dir,infilename)
-        # check if sourge bagfile exists first before creating a target bagfile object
-        if not os.path.exists(filepath):
-            print("\nInbagpath does not exist, skipping %s \n" % (filepath))
-        elif i<1000:
-            # print("Inbagpath",filepath)
-            inbag=rosbag.Bag(filepath)
-            print(inbag)
-            # walk through messages
-            k = 0
-            for topic, msg, t in inbag.read_messages():
-                print('topic: \n',topic)
+    #infilename="%s_exp_%06i%s.bag" % (args.date,i,suffix)
+    #filepath = os.path.join(source_dir,infilename)
+    filepath = args.bagfile
+    # check if sourge bagfile exists first before creating a target bagfile object
+    if not os.path.exists(filepath):
+        print("\nInbagpath does not exist, skipping %s \n" % (filepath))
+    else:
+        # print("Inbagpath",filepath)
+        inbag=rosbag.Bag(filepath)
+        print(inbag)
+        # walk through messages
+        k = 0
+        for topic, msg, t in inbag.read_messages():
+            if topic == '/mocap_node/MMbox/Odom' or topic == '/mocap_node/MMbox/pose' or topic == '/tf':
+                print('time: ',t)
+                print('topic: ',topic)
                 print('msg: \n',msg)
-                if k == 20:
+                if k == max_k:
                     break
                 k+=1
 
