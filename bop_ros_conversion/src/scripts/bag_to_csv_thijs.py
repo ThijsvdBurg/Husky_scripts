@@ -17,7 +17,7 @@ def main():
     """
     parser = argparse.ArgumentParser(description="Extract bagfile to csv")
     parser.add_argument("--src", help="Directory containing rosbags. Absolute paths are preferred")
-    parser.add_argument("--tgt", help="Output directory.")
+    #parser.add_argument("--tgt", help="Output directory.")
     parser.add_argument("--start", type=int, help="Start index number: 000001 to 000099 are just denoted as 1 to 99")
     parser.add_argument("--end", type=int, help="End index number; same syntax as start index number")
     parser.add_argument("--date", help="Filename date prefix.")
@@ -25,7 +25,8 @@ def main():
 
     args = parser.parse_args()
 
-    print("Extract data from %s into %s" %(args.src,args.tgt))
+    #print("Extract data from %s into %s" %(args.src,args.tgt))
+    print("Extract data from %s" %(args.src))
 
     for i in range(args.start, args.end+1):
 

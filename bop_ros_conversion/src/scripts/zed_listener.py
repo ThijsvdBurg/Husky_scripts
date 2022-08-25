@@ -24,7 +24,6 @@ def main():
     #		- Code cleanup
     #		- fix todos below
     #		- extract row-wise values and check if they are correct
-    #		- 
     rospy.init_node('zed_listener')
 
     base_frame_id = rospy.get_param('~agentname1')

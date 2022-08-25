@@ -63,8 +63,10 @@ catkin_install_python(PROGRAMS
   src/scripts/sync_husky_and_optitrack_topics.py
   src/scripts/bag_to_csv_thijs.py
   src/scripts/tf2_to_posestamped_recorder.py
+  src/scripts/tfstamped_broadcaster.py
   src/scripts/zed_listener.py
   src/scripts/transformerROS_listener.py
   src/scripts/rosbag_check.py
+  src/scripts/rewrite_rosmsg_header_timestamps.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
