@@ -41,7 +41,7 @@ def main():
     # iterature through the start to the end rosbag, dependent on the argument "start" and "end"
     for i in range(start,end+1):
 
-        outbagpath=os.path.join(target_dir,"%s_exp_%06i_edit.bag" % (args.date,i))
+        outbagpath=os.path.join(target_dir,"%s_exp_%06i_edit2.bag" % (args.date,i))
         # print("Outbagpath is: \n",outbagpath)
         if os.path.exists(outbagpath):
             print("\nOutbagpath exists, skipping %s_exp_%06i_edit.bag \n" % (args.date,i))

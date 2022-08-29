@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<launch>
+
+    <node name="tfstamped_broadcaster" pkg="bop_ros_conversion" type="tfstamped_broadcaster.py" respawn="false" output="screen" >
+    </node>
+    <!-- <node pkg="tf" type="static_transform_publisher" name="husky_opti_to_base_static_broadcaster" args="-.10501 .15934 -0.355879 0 0 0 Husky_zed_right Husky_base_link 200" /> -->
+    <!--
+    <node pkg="tf" type="static_transform_publisher" name="husky_zed_to_to_base_static_broadcaster" args="0.15934 .10501 -0.355879 0 0 0 Husky_zed_right Husky_base_link1 200" />
+    -->
+    <node pkg="tf" type="static_transform_publisher" name="husky_opti_to_base_static_broadcaster" args="-.013881934 .009032268 -.10728907 0 0 0 1 Husky_opti_link Husky_base_link 200" />
+    <node pkg="tf" type="static_transform_publisher" name="husky_base_to_zed_right_static_broadcaster" args="-0.1593366 -.1050237 0.3558767  0 0 0 1 Husky_base_link Husky_zed_right2 200" />
+    <node pkg="tf" type="static_transform_publisher" name="husky_base_to_zed_left_static_broadcaster" args="-0.1553935 .013355832 .35680165  0 0 0 1 Husky_base_link Husky_zed_left2 200" />
+    <node pkg="tf" type="static_transform_publisher" name="box_opti_to_top_ctr_static_broadcaster" args="-0.0091251 0.003978 -0.001673 0 0 0 1 MMbox_opti_link MMbox_top_ctr_2 200" />
+    <node pkg="tf" type="static_transform_publisher" name="box_top_ctr_to_ctr_static_broadcaster" args="0 0 -0.182 0 0 0 1 MMbox_top_ctr_2 MMbox_base_link 200" />
+    
+    <!--
+    <node pkg="tf" type="static_transform_publisher" name="optitrack_2_broadcaster" args="0.1 -0.1 -0.2 0 0 0 1 object_optitrack box_ctr 200" />
+    <node pkg="tf" type="static_transform_publisher" name="optitrack_3_broadcaster" args="-0.2 0 0.5 0 0 0 1 base_link zed_left 200" /> 
+    -->
+    <node pkg="rosbag" type="play" name="rosbag" args="-r 10 /home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220819/20220819_exp_000021_edit2.bag"/>
+        
+</launch>

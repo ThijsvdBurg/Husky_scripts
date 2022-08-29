@@ -2,21 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 author: Michael Grupp
-
-This file is part of evo (github.com/MichaelGrupp/evo).
-
-evo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-evo is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with evo.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import datetime
@@ -29,7 +14,6 @@ from geometry_msgs.msg import PoseStamped, TransformStamped
 import copy
 
 DESC = """Record a tf frame's trajectory to a geometry_msgs/PoseStamped bag."""
-
 
 class Recorder(object):
     def __init__(self, parent_frame, child_frame, new_child_frame, lookup_frequency, bagfile,
@@ -47,50 +31,33 @@ class Recorder(object):
 
     def run(self):
         msg_count = 0
-        time = rospy.get_rostime()
-        time.secs = 1661344252
-        time.nsecs= 765565395
-        two_topics = 0
-        new_child_frame = self.new_child_frame
-        #new_child_frame2= 'MMbox/opti_link'
         try:
-            print('1')
             bag = rosbag.Bag(self.bagfile, mode='a' if self.append else 'w')
-            # plaats deze erbuiten
             rate = rospy.Rate(self.lookup_frequency)
             last_stamp = rospy.Time()
             while not rospy.is_shutdown():
-                #print('2')
                 try:
-                    #print('3')
                     transform = self.tf_buffer.lookup_transform(
                         self.parent_frame, self.child_frame, rospy.Time())
                     #transform2 = self.tf_buffer.lookup_transform(
-                    #    self.parent_frame, self.child_frame2, rospy.Time())
+                    #    self.parent_frame2, self.child_frame2, rospy.Time())
                     #print('directly after loopup transform, the transform header stamp is:\n',transform.header.stamp)
                     rate.sleep()
                 except (tf2_ros.LookupException, tf2_ros.ConnectivityException,
                         tf2_ros.ExtrapolationException):
-                    #print('4')
                     rate.sleep()
                     continue
                 if last_stamp == transform.header.stamp:
-                    #print('5')
-                    #print('continued...')
                     continue
-                pose = transformstamped_to_posestamped(transform,time,new_child_frame)
-                #write to bag
+                pose = transformstamped_to_posestamped(transform)
                 print(pose)
                 bag.write(self.output_topic, pose, t=transform.header.stamp)
                 msg_count += 1
-                time.secs+=1
-                time.nsecs+= 102080
                 last_stamp = transform.header.stamp
                 rospy.loginfo_throttle(
                     2, "Recorded {} PoseStamped messages.".format(msg_count))
 
         except rospy.ROSInterruptException:
-            print('7')
             pass
         finally:
             rospy.loginfo_throttle(
@@ -99,15 +66,11 @@ class Recorder(object):
             rospy.loginfo("Finished recording.")
 
 
-def transformstamped_to_posestamped(transform_stamped,time,new_child_frame):
-    #pose_stamped = PoseStamped()
+def transformstamped_to_posestamped(transform_stamped):
     pose_stamped = TransformStamped()
-    #print('1 transform_stamped.header.stamp in method is:', transform_stamped.header.stamp)
-    #pose_stamped = transform_stamped
     pose_stamped = copy.deepcopy(transform_stamped)
-    #print('2 transform_stamped.header.stamp in method is:', transform_stamped.header.stamp)
-    pose_stamped.header.stamp = time
-    pose_stamped.child_frame_id = new_child_frame
+    #pose_stamped.header.stamp = time
+    #pose_stamped.child_frame_id = new_child_frame
     #print('3 transform_stamped.header.stamp in method is:', transform_stamped.header.stamp, pose_stamped.header.stamp)
     return pose_stamped
 

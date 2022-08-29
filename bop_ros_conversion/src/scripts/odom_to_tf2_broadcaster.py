@@ -14,7 +14,7 @@ def handle_pose(msg, agent_name):
 
     t.header.stamp = rospy.Time.now()
     t.header.frame_id = "world"
-    t.child_frame_id = '%s_optitrack' %agent_name
+    t.child_frame_id = '%s_opti_link' %agent_name
     t.transform.translation.x = msg.pose.pose.position.x
     t.transform.translation.y = msg.pose.pose.position.y
     t.transform.translation.z = msg.pose.pose.position.z
@@ -28,11 +28,12 @@ def handle_pose(msg, agent_name):
 
 def main():
     rospy.init_node('odom_to_tf2_broadcaster')
-    agent_name =     rospy.get_param('~agentname')
-    rospy.Subscriber('/sync/%s/pose' %agent_name,
+    agent_name1 =     rospy.get_param('~agentname1')
+    agent_name2 =     rospy.get_param('~agentname2')
+    rospy.Subscriber('/sync/%s/pose' %agent_name2,
                      Odometry,       # msg type which is also parsed to the callback
                      handle_pose,    # Callback
-                     agent_name      # 2nd argument supplied to callback
+                     agent_name1      # 2nd argument supplied to callback
                      )
     rospy.spin()
 

@@ -23,8 +23,8 @@ leftInfopub = rospy.Publisher('/sync/left/camera_info', CameraInfo, queue_size=1
 rightImpub = rospy.Publisher('/sync/right/image_rect', Image, queue_size=1000)
 rightInfopub = rospy.Publisher('/sync/right/camera_info', CameraInfo, queue_size=1000)
 #Robot and Object pose topics
-robotpub = rospy.Publisher('/sync/robot/pose', nav_msgs.msg.Odometry, queue_size=1000)
-objectpub = rospy.Publisher('/sync/object/pose', nav_msgs.msg.Odometry, queue_size=1000)
+robotpub = rospy.Publisher('/sync/Husky/pose', nav_msgs.msg.Odometry, queue_size=1000)
+objectpub = rospy.Publisher('/sync/MMbox/pose', nav_msgs.msg.Odometry, queue_size=1000)
 
 
 #dump rosmsg as json via a yaml dict
