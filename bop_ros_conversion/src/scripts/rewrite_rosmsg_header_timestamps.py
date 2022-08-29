@@ -24,6 +24,7 @@ def main():
     # new (more logical) names for topics, instead of bebop1 and bebop2
     husky_topic=	'/Husky/Pose'
     object_topic=	'/Box/Pose'
+    # the topic 1 and 2 are the expected incoming topic names
     #topic1 =		'/Bebop2/position_velocity_orientation_estimation'
     #topic2 =		'/Bebop1/position_velocity_orientation_estimation'
     topic1 =		'/tfstamped'
@@ -41,7 +42,7 @@ def main():
     # iterature through the start to the end rosbag, dependent on the argument "start" and "end"
     for i in range(start,end+1):
 
-        outbagpath=os.path.join(target_dir,"%s_exp_%06i_edit2.bag" % (args.date,i))
+        outbagpath=os.path.join(target_dir,"%s_exp_%06i_edit.bag" % (args.date,i))
         # print("Outbagpath is: \n",outbagpath)
         if os.path.exists(outbagpath):
             print("\nOutbagpath exists, skipping %s_exp_%06i_edit.bag \n" % (args.date,i))
@@ -62,8 +63,10 @@ def main():
                             #print(msg.header.stamp.nsecs)
                             # Rewrite correct header stamps to the 'faulty' Husky stamps, since that was the main machine on which was recorded, so that is easier.
                             t=msg.header.stamp
+                            # msg.header.stamp=t will keep the stamp of the computer's clock which was used to record the bagfile on
                             #msg.header.stamp.nsecs =t.nsecs
                             outbag.write(topic1,msg,t)
+                        #uncomment next section if you want to rewrite the second topic
                         #elif topic == topic2:
                         #    #print(msg.header.stamp.nsecs)
                         #    # Rewrite correct header stamps to the 'faulty' Husky stamps, since that was the main machine on which was recorded, so that is easier.
