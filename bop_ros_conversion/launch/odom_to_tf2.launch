@@ -1,17 +1,16 @@
 <?xml version="1.0"?>
 <launch>
-<!--     <node pkg="turtlesim" type="turtlesim_node" name="sim"/> -->
-<!--      <node pkg="turtlesim" type="turtle_teleop_key" name="teleop" output="screen"/> -->
 
-
+    <!-- from optitrack odom to tf2 broadcasters for husky and box -->
     <node name="husky_tf2_broadcaster" pkg="bop_ros_conversion" type="odom_to_tf2_broadcaster.py" respawn="false" output="screen" >
-      <param name="agentname1" type="string" value="Husky" />
-      <param name="agentname2" type="string" value="robot" />
+      <param name="agentname1" type="string" value="Husky" /> <!-- name for detecting it in the sync topic -->
+      <param name="agentname2" type="string" value="robot" /> <!-- child frame id for the tf topic -->
     </node>
     <node name="box_tf2_broadcaster" pkg="bop_ros_conversion" type="odom_to_tf2_broadcaster.py" respawn="false" output="screen" >
-      <param name="agentname1" type="string" value="MMbox" /> 
-      <param name="agentname2" type="string" value="object" /> 
+      <param name="agentname1" type="string" value="MMbox" /> <!-- name for detecting it in the sync topic -->
+      <param name="agentname2" type="string" value="object" /> <!-- child frame id for the tf topic --> 
     </node>
+    <!-- static transforms below to publish the different coordinate frames (husky base_plate and zed sensors and box centre) -->
     <node pkg="tf" type="static_transform_publisher" name="husky_opti_to_base_static_broadcaster" args="-.013881934 .009032268 -.10728907 0 0 0 1 Husky_opti_link Husky_base_link 200" />
     <node pkg="tf" type="static_transform_publisher" name="husky_base_to_zed_right_static_broadcaster" args="-0.1593366 -.1050237 0.3558767  0 0 0 1 Husky_base_link Husky_zed_right2 200" />
     <node pkg="tf" type="static_transform_publisher" name="husky_base_to_zed_left_static_broadcaster" args="-0.1553935 .013355832 .35680165  0 0 0 1 Husky_base_link Husky_zed_left2 200" />
@@ -19,16 +18,12 @@
     <node pkg="tf" type="static_transform_publisher" name="box_top_ctr_to_ctr_static_broadcaster" args="0 0 -0.182 0 0 0 1 MMbox_top_ctr_2 MMbox_base_link 200" />
 
 
-<!--
-    <node pkg="tf" type="static_transform_publisher" name="optitrack_1_broadcaster" args="1 0 -0.3 0 0 0 1 robot_optitrack base_link 200" />
-    <node pkg="tf" type="static_transform_publisher" name="optitrack_2_broadcaster" args="0.1 -0.1 -0.2 0 0 0 1 object_optitrack box_ctr 200" />
-    <node pkg="tf" type="static_transform_publisher" name="optitrack_3_broadcaster" args="-0.2 0 0.5 0 0 0 1 base_link zed_left 200" />
--->
-    
-    <!--<node name="tf_listener" pkg="bop_ros_conversion" type="zed_listener.py" respawn="false" output="screen" >
-      <param name="agentname1" type= "string" value="zed_left"/>
-      <param name="agentname2" type= "string" value="box_ctr"/>
-    </node>-->
+    <node name="odom_to_json_listener" pkg="bop_ros_conversion" type="odom_to_json_listener.py" respawn="false" output="screen" >
+      <!--<param name="parent_frame" type= "string" value="Husky_zed_left2"/>
+      <param name="child_frame" type= "string" value="MMbox_base_link"/>-->
+      <param name="parent_frame" type= "string" value="Husky_zed_left2"/>
+      <param name="child_frame" type= "string" value="MMbox_base_link"/>
+    </node>
     <!--<node name="tf2_robot_to_cam_fixed_bc" pkg="bop_ros_conversion" type="robot_to_zed_broadcaster.py" respawn="false" output="screen" >
     </node>
     <node name="tf2_box_opti_to_box_fixed_bc" pkg="bop_ros_conversion" type="box_mk_to_box_ctr_broadcaster.py" respawn="false" output="screen" >

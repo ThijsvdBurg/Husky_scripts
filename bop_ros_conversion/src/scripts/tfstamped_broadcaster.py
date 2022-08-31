@@ -14,7 +14,7 @@ def handle_pose(msg):
     t = TransformStamped()
     t = msg
 
-    t.header.stamp = rospy.Time.now()
+    #t.header.stamp = rospy.Time.now()
     #t.header.frame_id = "world"
     #t.child_frame_id = '%s_optitrack' %agent_name
     #t.transform.translation.x = msg.pose.pose.position.x

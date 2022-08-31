@@ -62,16 +62,15 @@ def main():
                         if topic == topic1:
                             #print(msg.header.stamp.nsecs)
                             # Rewrite correct header stamps to the 'faulty' Husky stamps, since that was the main machine on which was recorded, so that is easier.
-                            t=msg.header.stamp
                             # msg.header.stamp=t will keep the stamp of the computer's clock which was used to record the bagfile on
-                            #msg.header.stamp.nsecs =t.nsecs
+                            # the modification below will keep the msg.header timestamps, comment whichever suits your needs
+                            t=msg.header.stamp
                             outbag.write(topic1,msg,t)
                         #uncomment next section if you want to rewrite the second topic
                         #elif topic == topic2:
                         #    #print(msg.header.stamp.nsecs)
                         #    # Rewrite correct header stamps to the 'faulty' Husky stamps, since that was the main machine on which was recorded, so that is easier.
-                        #    msg.header.stamp.secs  = t.secs
-                        #    msg.header.stamp.nsecs = t.nsecs
+                        #    msg.header.stamp  = t
                         #    outbag.write(object_topic,msg,t)
                         #else: # to make all other topics join the new rosbag
                         #    outbag.write(topic,msg,t)

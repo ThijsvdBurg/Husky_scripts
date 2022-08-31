@@ -9,8 +9,13 @@ We therefore substituted the correct optitrack datapoints with the faulty Husky 
 
 Step-by-step:
 1. Record a new bagfile with the ```./src/scripts/rewrite_rosmsg_header_timestamps.py``` script
-2. Record a synced bagfile with the ```./src/scripts/sync_husky_and_optitrack_topics.py``` script
+2. Record a synced bagfile with the ```./src/scripts/sync_husky_and_optitrack_topics.py``` script. 
 Be sure to substitute any desired topic names in the scripts, also the script assumes that the format of the bagfile name is as following:
 ```<date in yyyymmdd>_exp_<exp number with 6 figures like 000124 for experiment 124>```
 
 
+# publish Odometry messages as transform messages
+
+1. Use ```roslaunch bop_ros_conversion odom_to_tf2.launch```
+2. Substitute values in the launchfile for your specific needs
+3. 

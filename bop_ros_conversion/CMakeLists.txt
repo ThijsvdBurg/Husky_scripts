@@ -65,9 +65,10 @@ catkin_install_python(PROGRAMS
   src/scripts/tf2_to_posestamped_recorder.py
   src/scripts/tf2_lookup.py
   src/scripts/tfstamped_broadcaster.py
-  src/scripts/zed_listener.py
+  src/scripts/odom_to_json_listener.py
   src/scripts/transformerROS_listener.py
   src/scripts/rosbag_check.py
   src/scripts/rewrite_rosmsg_header_timestamps.py
+  src/scripts/inspect_json.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
