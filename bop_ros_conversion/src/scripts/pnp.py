@@ -101,7 +101,7 @@ def get_img():
                         (945 /cr, 138 /cr)  # Mid Right top right
                       ], dtype="double")
 
-    figure_points_3D_2 = np.array([
+    figure_points_3D_zUp_xFor = np.array([
                             (0.0, 0.0, 6*spacing),                 # Top left
                             (0.0, 6*spacing, 6*spacing),           # Top right
                             (0.0, 0.0,       0.0),                 # Bottom Left
@@ -125,8 +125,8 @@ def get_img():
                                  [0,               focal_length_y, center[1] ],
                                  [0,               0,              1         ]
                              ], dtype = "double")
-    success, vector_rotation, vector_translation = cv2.solvePnP(figure_points_3D, image_points_2D, intrinsics, distortion_coeffs, flags=0)
-    world_frame_point2Dx, jacobian = cv2.projectPoints(np.array([(50.0, 0.0, 0.0)]), vector_rotation, vector_translation, intrinsics, distortion_coeffs)
+    success, vector_rotation, vector_translation = cv2.solvePnP(figure_points_3D_zUp_xFor, image_points_2D, intrinsics, distortion_coeffs, flags=0)
+    world_frame_point2Dx, jacobian = cv2.projectPoints(np.array([(1000.0, 0.0, 0.0)]), vector_rotation, vector_translation, intrinsics, distortion_coeffs)
     world_frame_point2Dy, jacobian = cv2.projectPoints(np.array([(0.0, 50.0, 0.0)]), vector_rotation, vector_translation, intrinsics, distortion_coeffs)
     world_frame_point2Dz, jacobian = cv2.projectPoints(np.array([(0.0, 0.0, 50.0)]), vector_rotation, vector_translation, intrinsics, distortion_coeffs)
     print('camcoords world origin: ',world_frame_point2Dx)
@@ -142,9 +142,10 @@ def get_img():
     #print(point2)
 
     # wp0 = int(
-    cv2.line(img, point1, point2, (255,0,0), 3)
+    # BGR, not RGB
+    cv2.line(img, point1, point2, (0,0,255), 1)
     cv2.line(img, point1, point3, (0,255,0), 1)
-    cv2.line(img, point1, point4, (0,0,255), 2)
+    cv2.line(img, point1, point4, (255,0,0), 1)
     #cv2.line(img, point1, point2, (255,255,255), 2)
 
     #print(success, '\n',vector_rotation, '\n', vector_translation, '\n') #, jacobian)
