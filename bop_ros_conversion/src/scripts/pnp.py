@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 import json
-import yaml
+#import yaml
 import argparse
 import math
 import cv2
@@ -63,8 +63,11 @@ def rotationMatrixToEulerAngles(R):
   return np.array([x, y, z])
 
  #def calc_extrins(img_path):
-def get_img():
-    img_path = '/home/pmvanderburg/noetic-husky/kalibr_workspace/bagfiles/20220908/sequence_000008_images/000240.png'
+def get_img(ubuntu):
+    if ubuntu:
+        img_path =  '/home/pmvanderburg/noetic-husky/kalibr_workspace/bagfiles/20220908/sequence_000008_images/000240.png'
+    else:
+        img_path = '/Users/pmvanderburg/Downloads/000240.png'
 #    success, vector_rotation, vector_translation = calc_extrins(path)
 #    print('Did it succeed?', success)
 #    print('Rotation and translation vector', vector_rotation, vector_translation)
@@ -100,24 +103,26 @@ def get_img():
                         (848 /cr, 137 /cr),  # Mid center top left
                         (945 /cr, 138 /cr)  # Mid Right top right
                       ], dtype="double")
+    whole= 6*spacing
+    half = 3*spacing
 
-    figure_points_3D_zUp_xFor = np.array([
-                            (0.0, 0.0, 6*spacing),                 # Top left
-                            (0.0, 6*spacing, 6*spacing),           # Top right
-                            (0.0, 0.0,       0.0),                 # Bottom Left
-                            (0.0, 6*spacing, 0.0),                 # Bottom right
-                            (0.0, 0.0,       3*spacing),           # Mid left top left #(6*spacing, 6*spacing, 0.0),
-                            (0.0, 3*spacing, 3*spacing),           # Mid center top left
-                            (0.0, 6*spacing, 3*spacing),           # Mid Right top left
-                        ])
     figure_points_3D = np.array([
-                            (6*spacing, 0.0      , 0.0),                 # Top left
-                            (6*spacing, 6*spacing, 0.0),           # Top right
+                            (0.0  , 0.0, whole),           # Top left
+                            (whole, 0.0, whole),           # Top right
+                            (0.0  , 0.0, 0.0  ),           # Bottom Left
+                            (whole, 0.0, 0.0  ),           # Bottom right
+                            (0.0  , 0.0, half ),           # Mid left top left #(whole, whole, 0.0),
+                            (half , 0.0, half ),           # Mid center top left
+                            (whole, 0.0, half ),           # Mid Right top left
+                        ])
+    figure_points_3D_2 = np.array([
+                            (whole, 0.0      , 0.0),                 # Top left
+                            (whole, whole, 0.0),           # Top right
                             (0.0      , 0.0      , 0.0),                 # Bottom Left
-                            (0.0      , 6*spacing, 0.0),                 # Bottom right
-                            (3*spacing, 0.0      , 0.0),           # Mid left top left #(6*spacing, 6*spacing, 0.0),
-                            (3*spacing, 3*spacing, 0.0),           # Mid center top left
-                            (3*spacing, 6*spacing, 0.0),           # Mid Right top left
+                            (0.0      , whole, 0.0),                 # Bottom right
+                            (half, 0.0      , 0.0),           # Mid left top left #(whole, whole, 0.0),
+                            (half, half, 0.0),           # Mid center top left
+                            (half, whole, 0.0),           # Mid Right top left
                         ])
 
     intrinsics = np.array([
@@ -125,10 +130,10 @@ def get_img():
                                  [0,               focal_length_y, center[1] ],
                                  [0,               0,              1         ]
                              ], dtype = "double")
-    success, vector_rotation, vector_translation = cv2.solvePnP(figure_points_3D_zUp_xFor, image_points_2D, intrinsics, distortion_coeffs, flags=0)
-    world_frame_point2Dx, jacobian = cv2.projectPoints(np.array([(1000.0, 0.0, 0.0)]), vector_rotation, vector_translation, intrinsics, distortion_coeffs)
+    success, vector_rotation, vector_translation = cv2.solvePnP(figure_points_3D, image_points_2D, intrinsics, distortion_coeffs, flags=0)
+    world_frame_point2Dx, jacobian = cv2.projectPoints(np.array([(500.0, 0.0, 0.0)]), vector_rotation, vector_translation, intrinsics, distortion_coeffs)
     world_frame_point2Dy, jacobian = cv2.projectPoints(np.array([(0.0, 50.0, 0.0)]), vector_rotation, vector_translation, intrinsics, distortion_coeffs)
-    world_frame_point2Dz, jacobian = cv2.projectPoints(np.array([(0.0, 0.0, 50.0)]), vector_rotation, vector_translation, intrinsics, distortion_coeffs)
+    world_frame_point2Dz, jacobian = cv2.projectPoints(np.array([(0.0, 0.0, 1000.0)]), vector_rotation, vector_translation, intrinsics, distortion_coeffs)
     print('camcoords world origin: ',world_frame_point2Dx)
 
     #for p in image_points_2D:
@@ -142,8 +147,12 @@ def get_img():
     #print(point2)
 
     # wp0 = int(
+<<<<<<< HEAD
     # BGR, not RGB
     cv2.line(img, point1, point2, (0,0,255), 1)
+=======
+    cv2.line(img, point1, point2, (0,0,255), 3)
+>>>>>>> 92d7682c4513910888f95a85d4a6e09760543f6c
     cv2.line(img, point1, point3, (0,255,0), 1)
     cv2.line(img, point1, point4, (255,0,0), 1)
     #cv2.line(img, point1, point2, (255,255,255), 2)
