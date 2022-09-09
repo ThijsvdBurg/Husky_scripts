@@ -4,6 +4,7 @@ import numpy as np
 #import bop_toolkit_lib
 import json
 import yaml
+import argparse
 from bop_toolkit_lib import inout
 
 
@@ -49,9 +50,14 @@ def inspect_json(scene_gt):
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Inspect json file contents")
+    parser.add_argument("--seq", type=int, help="sequence number to inspect")
+    args = parser.parse_args()
+    seq_no = args.seq
     #path = '/home/pmvanderburg/noetic-husky/data_acquisition/bop_datasets/tudl/train_real/000001/scene_gt.json'
     #path = '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/000001/scene_gt.json'
-    path = '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/000002/scene_gt.json'
+    #path = '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/000002/scene_gt.json'
+    path = '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/%06i/scene_gt.json' % seq_no
     scene_gt = load_json(path,keys_to_int=True)
     #print(scene_gt.keys())
     scene_gt_new=inspect_json(scene_gt)

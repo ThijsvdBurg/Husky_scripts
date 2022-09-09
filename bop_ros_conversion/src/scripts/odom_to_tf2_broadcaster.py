@@ -12,7 +12,7 @@ def handle_pose(msg, agent_name):
     br = tf2_ros.TransformBroadcaster()
     t = geometry_msgs.msg.TransformStamped()
     t.header.seq = msg.header.seq
-    t.header.stamp = rospy.Time.now()
+    t.header.stamp = msg.header.stamp #rospy.Time.now()
     t.header.frame_id = "world"
     t.child_frame_id = '%s_opti_link' %agent_name
     t.transform.translation.x = msg.pose.pose.position.x
@@ -24,6 +24,7 @@ def handle_pose(msg, agent_name):
     t.transform.rotation.y = msg.pose.pose.orientation.y
     t.transform.rotation.z = msg.pose.pose.orientation.z
     t.transform.rotation.w = msg.pose.pose.orientation.w
+    #print('tf sent with child frame ',t.child_frame_id)
     br.sendTransform(t)
     #msg_no+=1
 

@@ -57,6 +57,7 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   src/scripts/odom_to_tf2_broadcaster.py
+  src/scripts/odom_to_static_broadcaster.py
   src/scripts/odom_to_tf2_to_ctr_broadcaster.py
   src/scripts/robot_to_zed_broadcaster.py
   src/scripts/box_mk_to_box_ctr_broadcaster.py
@@ -66,9 +67,14 @@ catkin_install_python(PROGRAMS
   src/scripts/tf2_lookup.py
   src/scripts/tfstamped_broadcaster.py
   src/scripts/odom_to_json_listener.py
+  src/scripts/odom_to_json_listener_2.py
+  src/scripts/odom_to_json_listener_3.py
   src/scripts/transformerROS_listener.py
   src/scripts/rosbag_check.py
+  src/scripts/rosbag_crop.py
   src/scripts/rewrite_rosmsg_header_timestamps.py
+  src/scripts/rewrite_rosmsg_header_timestamps_calib.py
+  src/scripts/rewrite_rostopic_names.py
   src/scripts/inspect_json.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
