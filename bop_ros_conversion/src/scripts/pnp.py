@@ -147,12 +147,8 @@ def get_img(ubuntu):
     #print(point2)
 
     # wp0 = int(
-<<<<<<< HEAD
     # BGR, not RGB
     cv2.line(img, point1, point2, (0,0,255), 1)
-=======
-    cv2.line(img, point1, point2, (0,0,255), 3)
->>>>>>> 92d7682c4513910888f95a85d4a6e09760543f6c
     cv2.line(img, point1, point3, (0,255,0), 1)
     cv2.line(img, point1, point4, (255,0,0), 1)
     #cv2.line(img, point1, point2, (255,255,255), 2)
