@@ -8,16 +8,19 @@ import cv2
 import numpy as np
 import kalibr_common as kc
 
-#parser = argparse.ArgumentParser(description="Rewrite header stamps and put them in new bag file")
-#parser.add_argument("--src_im", help="image with the known coordinates.")
-#parser.add_argument("--tgt_dir", help="Output directory.")
+class Camera(object):
+  def __init__(self, **kwargs):
+    self.__dict__.update(kwargs)
+  #def __getitem__(self, item):
+  #  return self.Fruits[item]
 
-#args = parser.parse_args()
-#src_im = args.src_im
-#tgt_dir = args.tgt_dir
-
-def getCamParams():
-  print('nothing')
+def getCamParams(chainYaml,cam_no):
+  camchain = kc.ConfigReader.CameraChainParameters(chainYaml)
+  camConfig = camchain.getCameraParameters(cam_no)
+  cam_model, intrinsics = camConfig.getIntrinsics()
+  dist_model, dist_coeffs = camConfig.getDistortion()
+  resolution = camConfig.getResolution()
+  return cam_model, intrinsics, dist_model, dist_coeffs, resolution
 
 
 def cam3D_to_UV(intrins, Xc, Yc, Zc):
@@ -42,7 +45,6 @@ def world3DtoCam3D(R, t, Xw, Yw, Zw):
   Yc = cam3d[1]
   Zc = cam3d[2]
   return Xc, Yc, Zc
-
 
 
 def isRotationMatrix(R):
@@ -88,7 +90,6 @@ def get_img(ubuntu):
     spot_spacing_2 = 0.11500
     spot_white_border = (spot_spacing_2 - spot_spacing_1) * 0.5
     spot_block_pair = spot_spacing_2 + spot_spacing_1 + 2*spot_white_border
-    
     # sequence_000007_8_calib_joint.bag calibration, created on 2022-09-08
     # kalibr values for left cam
     # distortion: [-0.04844467  0.01017392  0.00105012 -0.00170879] +- [0.00088042 0.00051848 0.00028137 0.00016903]
@@ -206,8 +207,63 @@ def get_img(ubuntu):
     return img
 
 
-#if __name__ == '__main__':
-#    main()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="calculate camera pose relative to a known checkerboard")
+    parser.add_argument('--target', dest='targetYaml', help='Calibration target configuration as yaml file') #, required=True)
+    parser.add_argument('--cam', dest='chainYaml', help='Camera configuration as yaml file', required=True)
+    parser.add_argument("--src_im", help="image with the known coordinates.")
+    args = parser.parse_args()
+    #src_im = args.src_im
+    #tgt_dir = args.tgt_dir
+    chainYaml = args.chainYaml
+    ubuntu = 1 # 1 for running on ubuntu, 0 for macOS
 
+    spacing_1 = 0.034478
+    spacing_2 = spacing_1*0.3
+    spacing = 1000*(spacing_1+spacing_2)
 
+    spot_spacing_1 = 0.09000
+    spot_spacing_2 = 0.11500
+    spot_white_border = (spot_spacing_2 - spot_spacing_1) * 0.5
+    spot_block_pair = spot_spacing_2 + spot_spacing_1 + 2*spot_white_border
+    block = spot_spacing_2
+
+    im = Image(
+              path = args.src_im
+              calib_target = "spot" #2d_coords = {{},{},{}}
+              2D_coords = np.array([
+                        (748, 32 ),  # Top left black box intersection
+                        (946, 34 ),  # Top right
+                        (757, 234),  # Bottom Left (world origin)
+                        (943, 236),   # Bottom right
+                        (753, 136),  # Mid left top left
+                        (848, 137),  # Mid center top left
+                        (945, 138)  # Mid Right top right
+                      ], dtype="double")
+              # x up, y to the right, z into the screen
+              figure_points_3D_2 = np.array([
+                            (3*block, 1*block      , 0.0),                 # Top left
+                            (3*block, 8*block      , 0.0),                 # Top right
+                            (0.0    , 0.0          , 0.0),                 # Bottom Left
+                            (0.0    , 9*block      , 0.0),                 # Bottom right
+                            (half, 0.0      , 0.0),           # Mid left top left #(whole, whole, 0.0),
+                            (half, half, 0.0),           # Mid center top left
+                            (half, whole, 0.0),           # Mid Right top left
+                        ])
+              3D_coords = )
+    for i in range(0,2):
+        #cam_model_l, intrinsics_l, dist_model_l, dist_coeffs_l, resolution_l = getCamParams(chainYaml, 0)
+        cam_model, intrins, dist_mod, dist_coef, reso = getCamParams(chainYaml, i)
+        print(i)
+        cam[i] = Camera(
+                        model = cam_model,
+                        intrinsics = intrins,
+                        distortion_model = dist_mod,
+                        distortion_coeffs = dist_coef,
+                        resolution = reso
+                        )
+    #print(intrinsics[0])
+    print(cam[0].intrinsics[0])
+    print(cam[1].intrinsics[0])
+    get_img(ubuntu, cam, im)
 
