@@ -6,6 +6,7 @@ import argparse
 import math
 import cv2
 import numpy as np
+import kalibr_common as kc
 
 #parser = argparse.ArgumentParser(description="Rewrite header stamps and put them in new bag file")
 #parser.add_argument("--src_im", help="image with the known coordinates.")
@@ -14,6 +15,10 @@ import numpy as np
 #args = parser.parse_args()
 #src_im = args.src_im
 #tgt_dir = args.tgt_dir
+
+def getCamParams():
+  print('nothing')
+
 
 def cam3D_to_UV(intrins, Xc, Yc, Zc):
   camvec = np.array([Xc,Yc,Zc])
@@ -78,6 +83,12 @@ def get_img(ubuntu):
     spacing_1 = 0.034478
     spacing_2 = spacing_1*0.3
     spacing = 1000*(spacing_1+spacing_2)
+
+    spot_spacing_1 = 0.09000
+    spot_spacing_2 = 0.11500
+    spot_white_border = (spot_spacing_2 - spot_spacing_1) * 0.5
+    spot_block_pair = spot_spacing_2 + spot_spacing_1 + 2*spot_white_border
+    
     # sequence_000007_8_calib_joint.bag calibration, created on 2022-09-08
     # kalibr values for left cam
     # distortion: [-0.04844467  0.01017392  0.00105012 -0.00170879] +- [0.00088042 0.00051848 0.00028137 0.00016903]
