@@ -8,9 +8,18 @@ import cv2
 import numpy as np
 import kalibr_common as kc
 
-class Camera(object):
+class Camera():
   def __init__(self, **kwargs):
     self.__dict__.update(kwargs)
+  #def __getitem__(self, item):
+  #  return self.Fruits[item]
+
+class Image():
+  def __init__(self, path, twoD_points, threeD_points):
+    self.path = path
+    self.coords_2D = twoD_points
+    self.coords_3D = threeD_points
+  #  self.__dict__.update(kwargs)
   #def __getitem__(self, item):
   #  return self.Fruits[item]
 
@@ -20,7 +29,10 @@ def getCamParams(chainYaml,cam_no):
   cam_model, intrinsics = camConfig.getIntrinsics()
   dist_model, dist_coeffs = camConfig.getDistortion()
   resolution = camConfig.getResolution()
-  return cam_model, intrinsics, dist_model, dist_coeffs, resolution
+  dist_coeffs_np = np.zeros((4,1))
+  dist_coeffs_np[0] = dist_coeffs[0]; dist_coeffs_np[1] = dist_coeffs[1]; dist_coeffs_np[2] = dist_coeffs[2]; dist_coeffs_np[3] = dist_coeffs[3]
+  print(type(dist_coeffs_np))
+  return cam_model, intrinsics, dist_model, dist_coeffs_np, resolution
 
 
 def cam3D_to_UV(intrins, Xc, Yc, Zc):
@@ -70,91 +82,91 @@ def rotationMatrixToEulerAngles(R):
   return np.array([x, y, z])
 
  #def calc_extrins(img_path):
-def get_img(ubuntu):
-    if ubuntu:
-        img_path =  '/home/pmvanderburg/noetic-husky/kalibr_workspace/bagfiles/20220908/sequence_000008_images/000240.png'
-    else:
-        img_path = '/Users/pmvanderburg/Downloads/000240.png'
+def get_img(camera, image):
 #    success, vector_rotation, vector_translation = calc_extrins(path)
 #    print('Did it succeed?', success)
 #    print('Rotation and translation vector', vector_rotation, vector_translation)
-    img = cv2.imread(img_path)
-
-    size = img.shape
-    cr = 1280/1280
-    spacing_1 = 0.034478
-    spacing_2 = spacing_1*0.3
-    spacing = 1000*(spacing_1+spacing_2)
-
-    spot_spacing_1 = 0.09000
-    spot_spacing_2 = 0.11500
-    spot_white_border = (spot_spacing_2 - spot_spacing_1) * 0.5
-    spot_block_pair = spot_spacing_2 + spot_spacing_1 + 2*spot_white_border
+    img = cv2.imread(image.path)
+    print(type(camera[0].distortion_coeffs)) #.distortion_coeffs)
     # sequence_000007_8_calib_joint.bag calibration, created on 2022-09-08
     # kalibr values for left cam
     # distortion: [-0.04844467  0.01017392  0.00105012 -0.00170879] +- [0.00088042 0.00051848 0.00028137 0.00016903]
     # projection: [1094.3380438  1103.01770299  938.3323139   538.4169745 ] +- [0.26297523 0.24147777 0.34853305 0.16415627]
-    distortion_coeffs = np.zeros((4,1))
-    distortion_coeffs[0] = -0.04844467
-    distortion_coeffs[1] = 0.01017392
-    distortion_coeffs[2] = 0.00105012
-    distortion_coeffs[3] = -0.00170879
-    focal_length_x = 1094.3380438
-    focal_length_y = 1103.0177029
-    center = np.zeros((2,1)) # (size[1]/2, size[0]/2)
-    center[0] = 938.3323139 #632.02433372
-    center[1] = 538.4169745 #360.1654852
+    #distortion_coeffs = np.zeros((4,1))
+    #distortion_coeffs[0] = -0.04844467
+    #distortion_coeffs[1] = 0.01017392
+    #distortion_coeffs[2] = 0.00105012
+    #distortion_coeffs[3] = -0.00170879
+    #focal_length_x = 1094.3380438
+    #focal_length_y = 1103.0177029
+    #center = np.zeros((2,1))
+    #center[0] = 938.3323139 #632.02433372
+    #center[1] = 538.4169745 #360.1654852
 
     # Values below correspond with image 000240.png from sequence_000008_calib.bag
-    image_points_2D = np.array([
-                        (748 /cr, 32  /cr),  # Top left
-                        (946 /cr, 34  /cr),  # Top right
-                        (757 /cr, 234 /cr),  # Bottom Left
-                        (943 /cr, 236 /cr),   # Bottom right
-                        (753 /cr, 136 /cr),  # Mid left top left
-                        (848 /cr, 137 /cr),  # Mid center top left
-                        (945 /cr, 138 /cr)  # Mid Right top right
-                      ], dtype="double")
-    whole= 6*spacing
-    half = 3*spacing
+    #image_points_2D = np.array([
+    #                    (748 /cr, 32  /cr),  # Top left
+    #                    (946 /cr, 34  /cr),  # Top right
+    #                    (757 /cr, 234 /cr),  # Bottom Left
+    #                    (943 /cr, 236 /cr),   # Bottom right
+    #                    (753 /cr, 136 /cr),  # Mid left top left
+    #                    (848 /cr, 137 /cr),  # Mid center top left
+    #                    (945 /cr, 138 /cr)  # Mid Right top right
+    #                  ], dtype="double")
 
-    figure_points_3D = np.array([
-                            (0.0  , 0.0, whole),           # Top left
-                            (whole, 0.0, whole),           # Top right
-                            (0.0  , 0.0, 0.0  ),           # Bottom Left
-                            (whole, 0.0, 0.0  ),           # Bottom right
-                            (0.0  , 0.0, half ),           # Mid left top left #(whole, whole, 0.0),
-                            (half , 0.0, half ),           # Mid center top left
-                            (whole, 0.0, half ),           # Mid Right top left
-                        ])
-    figure_points_3D_2 = np.array([
-                            (whole, 0.0      , 0.0),                 # Top left
-                            (whole, whole, 0.0),           # Top right
-                            (0.0      , 0.0      , 0.0),                 # Bottom Left
-                            (0.0      , whole, 0.0),                 # Bottom right
-                            (half, 0.0      , 0.0),           # Mid left top left #(whole, whole, 0.0),
-                            (half, half, 0.0),           # Mid center top left
-                            (half, whole, 0.0),           # Mid Right top left
-                        ])
+    #figure_points_3D = np.array([
+    #                        (0.0  , 0.0, whole),           # Top left
+    #                        (whole, 0.0, whole),           # Top right
+    #                        (0.0  , 0.0, 0.0  ),           # Bottom Left
+    #                        (whole, 0.0, 0.0  ),           # Bottom right
+    #                        (0.0  , 0.0, half ),           # Mid left top left #(whole, whole, 0.0),
+    #                        (half , 0.0, half ),           # Mid center top left
+    #                        (whole, 0.0, half ),           # Mid Right top left
+    #                    ])
+    #figure_points_3D_2 = np.array([
+    #                        (whole, 0.0      , 0.0),                 # Top left
+    #                        (whole, whole, 0.0),           # Top right
+    #                        (0.0      , 0.0      , 0.0),                 # Bottom Left
+    #                        (0.0      , whole, 0.0),                 # Bottom right
+    #                        (half, 0.0      , 0.0),           # Mid left top left #(whole, whole, 0.0),
+    #                        (half, half, 0.0),           # Mid center top left
+    #                        (half, whole, 0.0),           # Mid Right top left
+    #                    ])
 
+    #intrinsics = np.array([
+    #                             [focal_length_x,  0,              center[0] ],
+    #                             [0,               focal_length_y, center[1] ],
+    #                             [0,               0,              1         ]
+    #                         ], dtype = "double")
+    cam = camera[0]
     intrinsics = np.array([
-                                 [focal_length_x,  0,              center[0] ],
-                                 [0,               focal_length_y, center[1] ],
-                                 [0,               0,              1         ]
-                             ], dtype = "double")
-    success, vector_rotation, vector_translation = cv2.solvePnP(figure_points_3D, image_points_2D, intrinsics, distortion_coeffs, flags=0)
-    world_frame_point2Dx, jacobian = cv2.projectPoints(np.array([(500.0, 0.0, 0.0)]), vector_rotation, vector_translation, intrinsics, distortion_coeffs)
-    world_frame_point2Dy, jacobian = cv2.projectPoints(np.array([(0.0, 50.0, 0.0)]), vector_rotation, vector_translation, intrinsics, distortion_coeffs)
-    world_frame_point2Dz, jacobian = cv2.projectPoints(np.array([(0.0, 0.0, 1000.0)]), vector_rotation, vector_translation, intrinsics, distortion_coeffs)
-    print('camcoords world origin: ',world_frame_point2Dx)
+                                 [cam.intrinsics[0], 0                , cam.intrinsics[2] ],
+                                 [0,                 cam.intrinsics[1], cam.intrinsics[3] ],
+                                 [0,                 0                , 1                 ]
+                          ], dtype = "double")
+    print(intrinsics)
+
+    #mage.coords3D
+    #2D_coords = image.coords2D
+    #cam = camera[0]
+    #success, vrot, vtrans = cv2.solvePnP(figure_points_3D, image_points_2D, intrinsics, distortion_coeffs, flags=0)
+    success, vrot, vtrans = cv2.solvePnP(image.coords_3D, image.coords_3D, intrinsics, cam.distortion_coeffs, flags=0)
+    #world_frame_point2Dx, jacobian = cv2.projectPoints(np.array([(500.0, 0.0 , 0.0  )]), vrot, vtrans, intrinsics, distortion_coeffs)
+    #world_frame_point2Dy, jacobian = cv2.projectPoints(np.array([(0.0  , 50.0, 0.0  )]), vrot, vtrans, intrinsics, distortion_coeffs)
+    #world_frame_point2Dz, jacobian = cv2.projectPoints(np.array([(0.0  , 0.0, 1000.0)]), vrot, vtrans, intrinsics, distortion_coeffs)
+    #print('camcoords world origin: ',world_frame_point2Dx)
 
     #for p in image_points_2D:
     #    cv2.circle(img, (int(p[0]), int(p[1])), 3, (0,0,255), -1)
 
-    point1 = ( int(image_points_2D[2][0]), int(image_points_2D[2][1]))
-    point2 = ( int(world_frame_point2Dx[0][0][0]), int(world_frame_point2Dx[0][0][1]))
-    point3 = ( int(world_frame_point2Dy[0][0][0]), int(world_frame_point2Dy[0][0][1]))
-    point4 = ( int(world_frame_point2Dz[0][0][0]), int(world_frame_point2Dz[0][0][1]))
+    point1 = ( int(image.coords_2D[2][0]), int(image.coords_2D[2][1]))
+    #point2 = ( int(world_frame_point2Dx[0][0][0]), int(world_frame_point2Dx[0][0][1]))
+    #point3 = ( int(world_frame_point2Dy[0][0][0]), int(world_frame_point2Dy[0][0][1]))
+    #point4 = ( int(world_frame_point2Dz[0][0][0]), int(world_frame_point2Dz[0][0][1]))
+    #point1 = ( int(image_points_2D[2][0]), int(image_points_2D[2][1]))
+    #point2 = ( int(world_frame_point2Dx[0][0][0]), int(world_frame_point2Dx[0][0][1]))
+    #point3 = ( int(world_frame_point2Dy[0][0][0]), int(world_frame_point2Dy[0][0][1]))
+    #point4 = ( int(world_frame_point2Dz[0][0][0]), int(world_frame_point2Dz[0][0][1]))
     #print(point1)
     #print(point2)
 
@@ -165,13 +177,13 @@ def get_img(ubuntu):
     cv2.line(img, point1, point4, (255,0,0), 1)
     #cv2.line(img, point1, point2, (255,255,255), 2)
 
-    #print(success, '\n',vector_rotation, '\n', vector_translation, '\n') #, jacobian)
+    #print(success, '\n',vrot, '\n', vtrans, '\n') #, jacobian)
 
 
-    rotM = cv2.Rodrigues(vector_rotation)[0]
+    rotM = cv2.Rodrigues(vrot)[0]
     #rvec_back = cv2.Rodrigues(rotM)
     eulerangles = rotationMatrixToEulerAngles(rotM)
-    cameraPosition = -np.matrix(rotM).T * np.matrix(vector_translation)
+    cameraPosition = -np.matrix(rotM).T * np.matrix(vtrans)
 
 
     #print("Camera Matrix :")
@@ -179,11 +191,11 @@ def get_img(ubuntu):
     #print("Distortion Matrix:")
     #print(distortion_coeffs)
     print("Rotation Vector:")
-    print(vector_rotation)
+    print(vrot)
     #print("Rotation Vector back:")
     #print(rvec_back)
     print("Translation Vector:")
-    print(vector_translation)
+    print(vtrans)
     print("rotation matrix: ")
     print(rotM)
     print("euler angles: ")
@@ -195,7 +207,7 @@ def get_img(ubuntu):
     Yw = 0
     Zw = 0
 
-    Xc, Yc, Zc = world3DtoCam3D(rotM, vector_translation, Xw, Yw, Zw)
+    Xc, Yc, Zc = world3DtoCam3D(rotM, vtrans, Xw, Yw, Zw)
     print('Xc Yc Zc is: ',Xc, Yc, Zc)
     u, v = cam3D_to_UV(intrinsics, Xc, Yc, Zc)
     #print(type(img))
@@ -216,7 +228,6 @@ if __name__ == '__main__':
     #src_im = args.src_im
     #tgt_dir = args.tgt_dir
     chainYaml = args.chainYaml
-    ubuntu = 1 # 1 for running on ubuntu, 0 for macOS
 
     spacing_1 = 0.034478
     spacing_2 = spacing_1*0.3
@@ -228,33 +239,50 @@ if __name__ == '__main__':
     spot_block_pair = spot_spacing_2 + spot_spacing_1 + 2*spot_white_border
     block = spot_spacing_2
 
+    x = np.zeros((7,1))
+    y = np.zeros((7,1))
+    # 000017.png uit 20220909_sequence_imu_000018/left/
+    x[0] = 614 ; y[0] = 286                   # Top left
+    x[1] = 1176; y[1] = 284                   # Top right
+    x[2] = 560 ; y[2] = 544                   # Bottom Left
+    x[3] = 1319; y[3] = 539                   # Bottom right
+    x[4] = 715 ; y[4] = 376                   # Midline, 2 blocks to the right
+    x[5] = 897 ; y[5] = 375                   # Midline, 4 blocks to the right
+    x[6] = 1079; y[6] = 374                   # Midline, 6 blocks to the right
+    coords = np.array(
+                      [   (x[0], y[0] ),                   # Top left
+                          (x[1], y[1] ),                   # Top right
+                          (x[2], y[2] ),                   # Bottom Left
+                          (x[3], y[3] ),                   # Bottom right
+                          (x[4], y[4] ),                   # Midline, 2 blocks to the right
+                          (x[5], y[5] ),                   # Midline, 4 blocks to the right
+                          (x[6], y[6] ),                   # Midline, 6 blocks to the right
+                      ], dtype="double"),
+    cam = dict()
+    points = np.zeros((7,2))
+    pointstd = np.zeros((7,3))
     im = Image(
-              path = args.src_im
-              calib_target = "spot" #2d_coords = {{},{},{}}
-              2D_coords = np.array([
-                        (748, 32 ),  # Top left black box intersection
-                        (946, 34 ),  # Top right
-                        (757, 234),  # Bottom Left (world origin)
-                        (943, 236),   # Bottom right
-                        (753, 136),  # Mid left top left
-                        (848, 137),  # Mid center top left
-                        (945, 138)  # Mid Right top right
-                      ], dtype="double")
+              args.src_im,
+              #2D_coords = np.zeros((6,2))
+              #calib_target = "spot", #2d_coords = {{},{},{}}
+              points,
+              pointstd
+              )
+
               # x up, y to the right, z into the screen
-              figure_points_3D_2 = np.array([
-                            (3*block, 1*block      , 0.0),                 # Top left
-                            (3*block, 8*block      , 0.0),                 # Top right
-                            (0.0    , 0.0          , 0.0),                 # Bottom Left
-                            (0.0    , 9*block      , 0.0),                 # Bottom right
-                            (half, 0.0      , 0.0),           # Mid left top left #(whole, whole, 0.0),
-                            (half, half, 0.0),           # Mid center top left
-                            (half, whole, 0.0),           # Mid Right top left
-                        ])
-              3D_coords = )
+              #3D_coords = np.array([
+              #              (3*block, 1*block      , 0.0),                 # Top left
+              #              (3*block, 8*block      , 0.0),                 # Top right
+              #              (0.0    , 0.0          , 0.0),                 # Bottom Left
+              #              (0.0    , 9*block      , 0.0),                 # Bottom right
+              #              (2*block, 2*block      , 0.0),           # Midline, 2 blocks to the right
+              #              (2*block, 4*block      , 0.0),           # Midline, 4 blocks to the right
+              #              (2*block, 6*block      , 0.0),           # Midline, 6 blocks to the right
+              #          ] dtype="double"),
+    #print(im.2D_coords)
     for i in range(0,2):
         #cam_model_l, intrinsics_l, dist_model_l, dist_coeffs_l, resolution_l = getCamParams(chainYaml, 0)
         cam_model, intrins, dist_mod, dist_coef, reso = getCamParams(chainYaml, i)
-        print(i)
         cam[i] = Camera(
                         model = cam_model,
                         intrinsics = intrins,
@@ -263,7 +291,7 @@ if __name__ == '__main__':
                         resolution = reso
                         )
     #print(intrinsics[0])
-    print(cam[0].intrinsics[0])
+    print(type(cam[0].distortion_coeffs))
     print(cam[1].intrinsics[0])
-    get_img(ubuntu, cam, im)
+    img = get_img(cam, im)
 
