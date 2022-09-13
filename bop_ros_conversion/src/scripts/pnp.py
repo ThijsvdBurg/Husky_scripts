@@ -15,10 +15,10 @@ class Camera():
   #  return self.Fruits[item]
 
 class Image():
-  def __init__(self, path, twoD_points, threeD_points):
+  def __init__(self, path, coords_2D, coords_3D):
     self.path = path
-    self.coords_2D = twoD_points
-    self.coords_3D = threeD_points
+    self.coords_2D = coords_2D
+    self.coords_3D = coords_3D
   #  self.__dict__.update(kwargs)
   #def __getitem__(self, item):
   #  return self.Fruits[item]
@@ -31,13 +31,11 @@ def getCamParams(chainYaml,cam_no):
   resolution = camConfig.getResolution()
   dist_coeffs_np = np.zeros((4,1))
   dist_coeffs_np[0] = dist_coeffs[0]; dist_coeffs_np[1] = dist_coeffs[1]; dist_coeffs_np[2] = dist_coeffs[2]; dist_coeffs_np[3] = dist_coeffs[3]
-  print(type(dist_coeffs_np))
   return cam_model, intrinsics, dist_model, dist_coeffs_np, resolution
 
 
 def cam3D_to_UV(intrins, Xc, Yc, Zc):
   camvec = np.array([Xc,Yc,Zc])
-  print(camvec)
   uvw = np.dot( intrins, camvec )
   u = uvw[0] / uvw[2]
   v = uvw[1] / uvw[2]
@@ -87,7 +85,8 @@ def get_img(camera, image):
 #    print('Did it succeed?', success)
 #    print('Rotation and translation vector', vector_rotation, vector_translation)
     img = cv2.imread(image.path)
-    print(type(camera[0].distortion_coeffs)) #.distortion_coeffs)
+
+    size = img.shape #print(type(camera[0].distortion_coeffs)) #.distortion_coeffs)
     # sequence_000007_8_calib_joint.bag calibration, created on 2022-09-08
     # kalibr values for left cam
     # distortion: [-0.04844467  0.01017392  0.00105012 -0.00170879] +- [0.00088042 0.00051848 0.00028137 0.00016903]
@@ -123,46 +122,50 @@ def get_img(camera, image):
     #                        (half , 0.0, half ),           # Mid center top left
     #                        (whole, 0.0, half ),           # Mid Right top left
     #                    ])
-    #figure_points_3D_2 = np.array([
-    #                        (whole, 0.0      , 0.0),                 # Top left
-    #                        (whole, whole, 0.0),           # Top right
-    #                        (0.0      , 0.0      , 0.0),                 # Bottom Left
-    #                        (0.0      , whole, 0.0),                 # Bottom right
-    #                        (half, 0.0      , 0.0),           # Mid left top left #(whole, whole, 0.0),
-    #                        (half, half, 0.0),           # Mid center top left
-    #                        (half, whole, 0.0),           # Mid Right top left
-    #                    ])
+    block = 0.115
+    points_3D = np.array([
+                            (0.0    , 1*block  , 3*block),             # Top left
+                            (0.0    , 8*block  , 3*block),             # Top right
+                            (0.0    , 0.0      , 0.0    ),             # Bottom Left
+                            (0.0    , 9*block  , 0.0    ),             # Bottom right
+                            (0.0    , 2*block  , 2*block),             # Midline, 2 blocks to the right
+                            (0.0    , 4*block  , 2*block),             # Midline, 4 blocks to the right
+                            (0.0    , 6*block  , 2*block),             # Midline, 6 blocks to the right
+                        ])
 
     #intrinsics = np.array([
     #                             [focal_length_x,  0,              center[0] ],
     #                             [0,               focal_length_y, center[1] ],
     #                             [0,               0,              1         ]
     #                         ], dtype = "double")
+
+    # select left camera
     cam = camera[0]
+    # convert intrinsics to the desired numpy array format for opencv
     intrinsics = np.array([
                                  [cam.intrinsics[0], 0                , cam.intrinsics[2] ],
                                  [0,                 cam.intrinsics[1], cam.intrinsics[3] ],
                                  [0,                 0                , 1                 ]
                           ], dtype = "double")
-    print(intrinsics)
+    print(type(image.coords_2D))
 
     #mage.coords3D
     #2D_coords = image.coords2D
     #cam = camera[0]
     #success, vrot, vtrans = cv2.solvePnP(figure_points_3D, image_points_2D, intrinsics, distortion_coeffs, flags=0)
-    success, vrot, vtrans = cv2.solvePnP(image.coords_3D, image.coords_3D, intrinsics, cam.distortion_coeffs, flags=0)
-    #world_frame_point2Dx, jacobian = cv2.projectPoints(np.array([(500.0, 0.0 , 0.0  )]), vrot, vtrans, intrinsics, distortion_coeffs)
-    #world_frame_point2Dy, jacobian = cv2.projectPoints(np.array([(0.0  , 50.0, 0.0  )]), vrot, vtrans, intrinsics, distortion_coeffs)
-    #world_frame_point2Dz, jacobian = cv2.projectPoints(np.array([(0.0  , 0.0, 1000.0)]), vrot, vtrans, intrinsics, distortion_coeffs)
+    success, vrot, vtrans = cv2.solvePnP(image.coords_3D,image.coords_2D, intrinsics, cam.distortion_coeffs, flags=0)
+    world_frame_point2Dx, jacobian = cv2.projectPoints(np.array([(500.0, 0.0 , 0.0  )]), vrot, vtrans, intrinsics, cam.distortion_coeffs)
+    world_frame_point2Dy, jacobian = cv2.projectPoints(np.array([(0.0  , 50.0, 0.0  )]), vrot, vtrans, intrinsics, cam.distortion_coeffs)
+    world_frame_point2Dz, jacobian = cv2.projectPoints(np.array([(0.0  , 0.0, 1000.0)]), vrot, vtrans, intrinsics, cam.distortion_coeffs)
     #print('camcoords world origin: ',world_frame_point2Dx)
 
     #for p in image_points_2D:
     #    cv2.circle(img, (int(p[0]), int(p[1])), 3, (0,0,255), -1)
 
     point1 = ( int(image.coords_2D[2][0]), int(image.coords_2D[2][1]))
-    #point2 = ( int(world_frame_point2Dx[0][0][0]), int(world_frame_point2Dx[0][0][1]))
-    #point3 = ( int(world_frame_point2Dy[0][0][0]), int(world_frame_point2Dy[0][0][1]))
-    #point4 = ( int(world_frame_point2Dz[0][0][0]), int(world_frame_point2Dz[0][0][1]))
+    point2 = ( int(world_frame_point2Dx[0][0][0]), int(world_frame_point2Dx[0][0][1]))
+    point3 = ( int(world_frame_point2Dy[0][0][0]), int(world_frame_point2Dy[0][0][1]))
+    point4 = ( int(world_frame_point2Dz[0][0][0]), int(world_frame_point2Dz[0][0][1]))
     #point1 = ( int(image_points_2D[2][0]), int(image_points_2D[2][1]))
     #point2 = ( int(world_frame_point2Dx[0][0][0]), int(world_frame_point2Dx[0][0][1]))
     #point3 = ( int(world_frame_point2Dy[0][0][0]), int(world_frame_point2Dy[0][0][1]))
@@ -213,10 +216,10 @@ def get_img(camera, image):
     #print(type(img))
     cv2.circle(img, (int(u), int(v)), 3, (255,255,255), 1)
     #print('u and v are: ',u, v)
-    #cv2.imshow("Final",img)
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
-    return img
+    cv2.imshow("Final",img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    #return img
 
 
 if __name__ == '__main__':
@@ -241,6 +244,7 @@ if __name__ == '__main__':
 
     x = np.zeros((7,1))
     y = np.zeros((7,1))
+
     # 000017.png uit 20220909_sequence_imu_000018/left/
     x[0] = 614 ; y[0] = 286                   # Top left
     x[1] = 1176; y[1] = 284                   # Top right
@@ -257,29 +261,41 @@ if __name__ == '__main__':
                           (x[4], y[4] ),                   # Midline, 2 blocks to the right
                           (x[5], y[5] ),                   # Midline, 4 blocks to the right
                           (x[6], y[6] ),                   # Midline, 6 blocks to the right
-                      ], dtype="double"),
+                      ], dtype="double")
     cam = dict()
-    points = np.zeros((7,2))
-    pointstd = np.zeros((7,3))
     im = Image(
               args.src_im,
               #2D_coords = np.zeros((6,2))
               #calib_target = "spot", #2d_coords = {{},{},{}}
-              points,
-              pointstd
-              )
+              coords_2D = np.array(
+                      [   (x[0], y[0] ),                   # Top left
+                          (x[1], y[1] ),                   # Top right
+                          (x[2], y[2] ),                   # Bottom Left
+                          (x[3], y[3] ),                   # Bottom right
+                          (x[4], y[4] ),                   # Midline, 2 blocks to the right
+                          (x[5], y[5] ),                   # Midline, 4 blocks to the right
+                          (x[6], y[6] ),                   # Midline, 6 blocks to the right
+                      ], dtype="double"),
 
               # x up, y to the right, z into the screen
-              #3D_coords = np.array([
-              #              (3*block, 1*block      , 0.0),                 # Top left
-              #              (3*block, 8*block      , 0.0),                 # Top right
-              #              (0.0    , 0.0          , 0.0),                 # Bottom Left
-              #              (0.0    , 9*block      , 0.0),                 # Bottom right
-              #              (2*block, 2*block      , 0.0),           # Midline, 2 blocks to the right
-              #              (2*block, 4*block      , 0.0),           # Midline, 4 blocks to the right
-              #              (2*block, 6*block      , 0.0),           # Midline, 6 blocks to the right
-              #          ] dtype="double"),
-    #print(im.2D_coords)
+              coords_3D = np.array([
+                            (0.0    , 1*block  , 3*block),             # Top left
+                            (0.0    , 8*block  , 3*block),             # Top right
+                            (0.0    , 0.0      , 0.0    ),             # Bottom Left
+                            (0.0    , 9*block  , 0.0    ),             # Bottom right
+                            (0.0    , 2*block  , 2*block),             # Midline, 2 blocks to the right
+                            (0.0    , 4*block  , 2*block),             # Midline, 4 blocks to the right
+                            (0.0    , 6*block  , 2*block)              # Midline, 6 blocks to the right
+                            #(3*block, 1*block      , 0.0),                 # Top left
+                            #(3*block, 8*block      , 0.0),                 # Top right
+                            #(0.0    , 0.0          , 0.0),                 # Bottom Left
+                            #(0.0    , 9*block      , 0.0),                 # Bottom right
+                            #(2*block, 2*block      , 0.0),           # Midline, 2 blocks to the right
+                            #(2*block, 4*block      , 0.0),           # Midline, 4 blocks to the right
+                            #(2*block, 6*block      , 0.0),           # Midline, 6 blocks to the right
+                        ], dtype="double")
+              )
+    print(im.coords_3D)
     for i in range(0,2):
         #cam_model_l, intrinsics_l, dist_model_l, dist_coeffs_l, resolution_l = getCamParams(chainYaml, 0)
         cam_model, intrins, dist_mod, dist_coef, reso = getCamParams(chainYaml, i)
@@ -291,7 +307,7 @@ if __name__ == '__main__':
                         resolution = reso
                         )
     #print(intrinsics[0])
-    print(type(cam[0].distortion_coeffs))
-    print(cam[1].intrinsics[0])
-    img = get_img(cam, im)
+    #print(type(cam[0].distortion_coeffs))
+    #print(cam[1].intrinsics[0])
+    get_img(cam, im)
 
