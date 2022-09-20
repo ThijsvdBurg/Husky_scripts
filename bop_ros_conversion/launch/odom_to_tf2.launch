@@ -25,9 +25,9 @@
     <node pkg="tf" type="static_transform_publisher" name="box_top_ctr_to_ctr_static_broadcaster" args="0 0 -0.182 0 0 0 1 MMbox_top_ctr_2 MMbox_base_link $(arg static_ms)" />
     -->
     <node name="static_tf2_broadcaster_base" pkg="bop_ros_conversion" type="odom_to_static_broadcaster.py" respawn="false" output="screen" >
-      <param name="topicname" type="string" value="/sync/robot/pose" />           <!-- name for detecting it in the sync topic -->
+      <param name="topicname" type="string" value="/sync/robot/pose" />          <!-- name for detecting it in the sync topic -->
       <param name="parentname" type="string" value="Husky_opti_link" />          <!-- child frame id for the tf topic --> 
-      <param name="childname" type="string" value="Husky_base_link" /> <!-- name for detecting it in the sync topic -->
+      <param name="childname" type="string" value="Husky_base_link" />           <!-- name for detecting it in the sync topic -->
     </node>
     <node name="static_tf2_broadcaster_zedl" pkg="bop_ros_conversion" type="odom_to_static_broadcaster.py" respawn="false" output="screen" >
       <param name="topicname" type="string" value="/sync/robot/pose" />           <!-- name for detecting it in the sync topic -->
@@ -49,8 +49,8 @@
     <node name="odom_to_json_listener" pkg="bop_ros_conversion" type="odom_to_json_listener.py" respawn="false" output="screen" >
       <!--<param name="parent_frame" type= "string" value="Husky_zed_left2"/>
       <param name="child_frame" type= "string" value="MMbox_base_link"/>
-      <param name="parent_frame" type= "string" value="Husky_zed_left_mk_link"/>-->
-      <param name="parent_frame" type= "string" value="Husky_zed_left_sensor_link"/>
+      <param name="parent_frame" type= "string" value="Husky_zed_left_sensor_link"/>-->
+      <param name="parent_frame" type= "string" value="Husky_zed_left_mk_link"/>
       <param name="child_frame" type= "string" value="MMbox_base_link"/>
       <param name="sequence_number" type="int" value="$(arg sequence_number)"/>
       <param name="lookup_rate" value="$(arg json_frequency)"/>

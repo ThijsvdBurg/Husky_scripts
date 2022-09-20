@@ -25,6 +25,7 @@ class Image():
     self.coords_2D = coords_2D
     self.coords_3D = coords_3D
     self.tilesize = tilesize
+    print(self.coords_3D)
     #self.boardlocation = boardlocation
   #def __getitem__(self, item):
   #  return self.Fruits[item]
@@ -95,44 +96,6 @@ def get_img(camera, image, leftright, args):
         camno = 1
     else:
         camno = 0
-    #print((camera[camno].distortion_coeffs)) #.distortion_coeffs)
-    #print((camera[camno].intrinsics)) #.distortion_coeffs)
-    #print((camera[camno].resolution)) #.distortion_coeffs)
-    # sequence_000007_8_calib_joint.bag calibration, created on 2022-09-08
-    # kalibr values for left cam
-    # distortion: [-0.04844467  0.01017392  0.00105012 -0.00170879] +- [0.00088042 0.00051848 0.00028137 0.00016903]
-    # projection: [1094.3380438  1103.01770299  938.3323139   538.4169745 ] +- [0.26297523 0.24147777 0.34853305 0.16415627]
-    #distortion_coeffs = np.zeros((4,1))
-    #distortion_coeffs[0] = -0.04844467
-    #distortion_coeffs[1] = 0.01017392
-    #distortion_coeffs[2] = 0.00105012
-    #distortion_coeffs[3] = -0.00170879
-    #focal_length_x = 1094.3380438
-    #focal_length_y = 1103.0177029
-    #center = np.zeros((2,1))
-    #center[0] = 938.3323139 #632.02433372
-    #center[1] = 538.4169745 #360.1654852
-
-    # Values below correspond with image 000240.png from sequence_000008_calib.bag
-    #image_points_2D = np.array([
-    #                    (748 /cr, 32  /cr),  # Top left
-    #                    (946 /cr, 34  /cr),  # Top right
-    #                    (757 /cr, 234 /cr),  # Bottom Left
-    #                    (943 /cr, 236 /cr),   # Bottom right
-    #                    (753 /cr, 136 /cr),  # Mid left top left
-    #                    (848 /cr, 137 /cr),  # Mid center top left
-    #                    (945 /cr, 138 /cr)  # Mid Right top right
-    #                  ], dtype="double")
-
-    #figure_points_3D = np.array([
-    #                        (0.0  , 0.0, whole),           # Top left
-    #                        (whole, 0.0, whole),           # Top right
-    #                        (0.0  , 0.0, 0.0  ),           # Bottom Left
-    #                        (whole, 0.0, 0.0  ),           # Bottom right
-    #                        (0.0  , 0.0, half ),           # Mid left top left #(whole, whole, 0.0),
-    #                        (half , 0.0, half ),           # Mid center top left
-    #                        (whole, 0.0, half ),           # Mid Right top left
-    #                    ])
 
     # select camera
     cam = camera[camno]
@@ -144,7 +107,8 @@ def get_img(camera, image, leftright, args):
                           ], dtype = "double")
     #print('image coords 2D: \n',(image.coords_2D))
 
-    success, vrot, vtrans = cv2.solvePnP(image.coords_3D,image.coords_2D, intrinsics, cam.distortion_coeffs, flags=0)
+    success, vrot_init, vtrans_init = cv2.solvePnP(image.coords_3D,image.coords_2D, intrinsics, cam.distortion_coeffs, flags=0)
+    vrot, vtrans = cv2.solvePnPRefineLM(image.coords_3D,image.coords_2D, intrinsics, cam.distortion_coeffs, vrot_init, vtrans_init)
     world_frame_point2Dx, jacobian = cv2.projectPoints(np.array([(9*image.tilesize, 0.0 , 0.0  )]), vrot, vtrans, intrinsics, cam.distortion_coeffs)
     world_frame_point2Dy, jacobian = cv2.projectPoints(np.array([(0.0 , 3*image.tilesize, 0.0  )]), vrot, vtrans, intrinsics, cam.distortion_coeffs)
     world_frame_point2Dz, jacobian = cv2.projectPoints(np.array([(0.0 , 0.0 , 4*image.tilesize )]), vrot, vtrans, intrinsics, cam.distortion_coeffs)
@@ -158,8 +122,15 @@ def get_img(camera, image, leftright, args):
     #elif image.boardlocation == "wall":
     #    origin_idx = 0
     if args.seq_num == "000019":
-        origin_idx = 5
-    elif args.seq_num == "000018":
+        if args.im_num == '000029':
+            origin_idx = 4
+        elif args.im_num == '000025':
+            origin_idx = 0
+        else:
+            origin_idx = 5
+    elif args.seq_num == '000020':
+        origin_idx = 2
+    else: #lif args.seq_num == "000018":
         origin_idx = 0
 
     # define the locations for the world coordinate axes to visualise in the image
@@ -211,29 +182,51 @@ def get_img(camera, image, leftright, args):
     print(eulerdeg)
     print("cam pos with respect to the world origin: ")
     print(cameraPosition)
+    print('camera tilt angle is :', eulerdeg[0])
 
     # backproject a point far from the origin to see if it alignes nicely
     if args.seq_num == "000018":
         Xw = 9*image.tilesize
         Yw = 0*image.tilesize
         Zw = 3*image.tilesize #4*block
+
     if args.seq_num == "000019":
-        Xw = 4*image.tilesize
+        Xw = 5*image.tilesize
         Yw =-2*image.tilesize
         Zw = 0*image.tilesize #4*block
+        bp_idx = 3
+    if args.seq_num == "000019" and args.im_num == '000025':
+        Xw =-4*image.tilesize
+        Yw = 3*image.tilesize
+        Zw = 0*image.tilesize #4*block
+        bp_idx = 3
+    if args.seq_num == "000015":
+        Xw = 4*image.tilesize
+        Yw = 0*image.tilesize
+        Zw = 4*image.tilesize #4*block
+    if args.seq_num == "000020":
+        Xw = 5*image.tilesize
+        Yw = 0*image.tilesize
+        Zw = -4*image.tilesize #4*block
     Xc, Yc, Zc = world3DtoCam3D(rotM, vtrans, Xw, Yw, Zw)
     print('Xc Yc Zc is: ',Xc, Yc, Zc)
-    # bp for backprojected
+
+    # calculate pixel coordinates of backprojected 3D point
     bpu, bpv = cam3D_to_UV(intrinsics, Xc, Yc, Zc)
-    cv2.circle(img, (int(bpu), int(bpv)), 3, (255,255,255), 1)
+    error = math.sqrt( (abs(image.coords_2D[bp_idx][0] - bpu))**2 +  (abs(image.coords_2D[bp_idx][1] - bpv))**2 )
+    print('reprojection error in pixels is: ',error)
+    circle_radius = 2
+    circle_thickness = 1
+    # bp for backprojected
+    cv2.circle(img, (int(bpu), int(bpv)), circle_radius+1, (0,0,0), circle_thickness)
     # also visualise all manually annotated points to verify that they were correct
-    cv2.circle(img, (int(image.coords_2D[0][0]), int(image.coords_2D[0][1])), 3, (0,0,255), 1)
-    cv2.circle(img, (int(image.coords_2D[1][0]), int(image.coords_2D[1][1])), 3, (0,255,0), 1)
-    cv2.circle(img, (int(image.coords_2D[2][0]), int(image.coords_2D[2][1])), 3, (255,0,0), 1)
-    cv2.circle(img, (int(image.coords_2D[3][0]), int(image.coords_2D[3][1])), 3, (0,255,255), 1)
-    cv2.circle(img, (int(image.coords_2D[4][0]), int(image.coords_2D[4][1])), 3, (255,255,0), 1)
-    cv2.circle(img, (int(image.coords_2D[5][0]), int(image.coords_2D[5][1])), 3, (255,0,255), 1)
-    cv2.circle(img, (int(image.coords_2D[6][0]), int(image.coords_2D[6][1])), 3, (255,255,255), 1)
+    cv2.circle(img, (int(image.coords_2D[0][0]), int(image.coords_2D[0][1])), circle_radius, (0,0,255), circle_thickness)
+    cv2.circle(img, (int(image.coords_2D[1][0]), int(image.coords_2D[1][1])), circle_radius, (0,255,0), circle_thickness)
+    cv2.circle(img, (int(image.coords_2D[2][0]), int(image.coords_2D[2][1])), circle_radius, (255,0,0), circle_thickness)
+    cv2.circle(img, (int(image.coords_2D[3][0]), int(image.coords_2D[3][1])), circle_radius, (0,255,255), circle_thickness)
+    cv2.circle(img, (int(image.coords_2D[4][0]), int(image.coords_2D[4][1])), circle_radius, (255,255,0), circle_thickness)
+    cv2.circle(img, (int(image.coords_2D[5][0]), int(image.coords_2D[5][1])), circle_radius, (255,0,255), circle_thickness)
+    cv2.circle(img, (int(image.coords_2D[6][0]), int(image.coords_2D[6][1])), circle_radius, (255,255,255), circle_thickness)
     #print('u and v are: ',u, v)
     #cv2.imshow("Final",img)
     #cv2.waitKey(0)
@@ -274,6 +267,19 @@ if __name__ == '__main__':
     print('image number is is ',args.im_num)
     print('image file path is: ',args.inpath)
 
+
+    # SEQUENCE 20220909_000015 wallmounted
+    if args.seq_num == '000015':
+        if leftright == 'left':
+            if args.im_num == '000011':
+                # seq 000015 im 000011 right cam from 20220909_sequence_imu_000015/left/000011.png
+                x[0] = 1294 ; y[0] = 587                   # Bottom Left
+                x[1] = 1503 ; y[1] = 556                   # 2 right, 1 up
+                x[2] = 1835 ; y[2] = 390                   # 4 right, 3 up
+                x[3] = 1527 ; y[3] = 455                   # 2 right, 2 up
+                x[4] = 1552 ; y[4] = 346                   # 2 right, 3 up
+                x[5] = 1457 ; y[5] = 216                   # 1 right, 4 up
+                x[6] = 1880 ; y[6] = 255                   # 4 right, 4 up
 
     # SEQUENCE 20220909_000018 wallmounted
     if args.seq_num == '000018':
@@ -374,14 +380,78 @@ if __name__ == '__main__':
                 x[5] = 867 ; y[5] = 499                   # Midline, 4 blocks to the right
                 x[6] = 993 ; y[6] = 499                   # Midline, 6 blocks to the right
 
+        elif args.im_num == '000029':
+            if leftright == 'left':
+            # left camera 000029.png uit 20220909_sequence_imu_000019/left/
+                print('seq 19 left im 16')
+                x[0] = 602 ; y[0] = 628                   # Bottom Left
+                x[1] = 715 ; y[1] = 559                   # Top left
+                x[2] = 1204; y[2] = 532                    # Top right
+                x[3] = 1258; y[3] = 628                   # Bottom right
+                x[4] = 932 ; y[4] = 531                   # Midline, 2 blocks to the right
+                x[5] = 1094; y[5] = 628                   # Midline, 4 blocks to the right
+                x[6] = 765 ; y[6] = 628                   # Midline, 6 blocks to the right
+            else:
+            # right camera 000029.png uit 20220909_sequence_imu_000019/right/
+                x[0] = 580 ; y[0] = 549                   # Bottom Left
+                x[1] = 694 ; y[1] = 477                   # Top left
+                x[2] = 1109; y[2] = 478                   # Top right
+                x[3] = 1207; y[3] = 550                   # Bottom right
+                x[4] = 742 ; y[4] = 499                   # Midline, 2 blocks to the right
+                x[5] = 867 ; y[5] = 499                   # Midline, 4 blocks to the right
+                x[6] = 993 ; y[6] = 499                   # Midline, 6 blocks to the right
+        elif args.im_num == '000025':
+            if leftright == 'right':
+            # right camera 000025.png uit 20220909_sequence_imu_000019/
+                print('seq 19 right im 25')
+                x[0] = 927 ; y[0] = 621                   # Bottom Left
+                x[1] = 766 ; y[1] = 621                   # Top left
+                x[2] = 528 ; y[2] = 620                    # Top right
+                x[3] = 664 ; y[3] = 528                   # Bottom right
+                x[4] = 741 ; y[4] = 503                   # Midline, 2 blocks to the right
+                x[5] = 932 ; y[5] = 504                   # Midline, 4 blocks to the right
+                x[6] = 1142; y[6] = 556                   # Midline, 6 blocks to the right
 
     #floor mounted board 2D coordinates
    # if args.seq_num == '000019':
 
 
 
+    if args.im_num == '000017' and args.seq_num == '000020':
+        x = np.zeros((12,1))
+        y = np.zeros((12,1))
+        # seq 000020 im 000017 left cam
+        x[0] = 431 ; y[0] = 382                   # Bottom Left
+        x[1] = 690 ; y[1] = 241                   # 2 right, 1 up
+        x[2] = 981 ; y[2] = 241                   # 4 right, 3 up
+        x[3] = 1270; y[3] = 245                   # 2 right, 2 up
+        x[4] = 1553; y[4] = 250                   # 2 right, 3 up
+        x[5] = 1523; y[5] = 390                   # 1 right, 4 up
+        x[6] = 1655; y[6] = 392                   # 4 right, 4 up
+        x[7] = 1560; y[7] = 737                   # 4 right, 4 up
+        x[8] = 1348; y[8] = 632                   # 4 right, 4 up
+        x[9] = 975 ; y[9] = 513                   # 4 right, 4 up
+        x[10]= 598 ; y[10]= 628                   # 4 right, 4 up
+        x[11]= 476 ; y[11]= 627                   # 4 right, 4 up
 
-    coords = np.array(
+
+        coords = np.array(
+                      [   (x[0], y[0] ),                   # Bottom left
+                          (x[1], y[1] ),                   # Top left
+                          (x[2], y[2] ),                   # Top right
+                          (x[3], y[3] ),                   # Bottom right
+                          (x[4], y[4] ),                   # Midline, 2 blocks to the right
+                          (x[5], y[5] ),                   # Midline, 4 blocks to the right
+                          (x[6], y[6] ),                   # Midline, 6 blocks to the right
+                          (x[7], y[7] ),                   # Midline, 6 blocks to the right
+                          (x[8], y[8] ),                   # Midline, 6 blocks to the right
+                          (x[9], y[9] ),                   # Midline, 6 blocks to the right
+                          (x[10], y[10] ),                 # Midline, 6 blocks to the right
+                          (x[11], y[11] ),                 # Midline, 6 blocks to the right
+                      ], dtype="double")
+
+    else:
+        coords = np.array(
                       [   (x[0], y[0] ),                   # Bottom left
                           (x[1], y[1] ),                   # Top left
                           (x[2], y[2] ),                   # Top right
@@ -390,8 +460,33 @@ if __name__ == '__main__':
                           (x[5], y[5] ),                   # Midline, 4 blocks to the right
                           (x[6], y[6] ),                   # Midline, 6 blocks to the right
                       ], dtype="double")
+
+
+
     if args.seq_num == "000019": #floor mounted
-        worldcoords = np.array([
+        if args.im_num == '000029':
+            worldcoords = np.array([
+                            (-4*block,-3*block , 0.0 ),             # Bottom Left
+                            (-3*block,-1*block , 0.0 ),             # Top left
+                            (4*block , 0*block , 0.0 ),             # Top right
+                            (4*block ,-3*block , 0.0 ),             # Bottom right
+                            (0*block , 0*block , 0.0 ),             # Top center
+                            (2*block ,-3*block , 0.0 ),             # mid right
+                            (-2*block,-3*block , 0.0 )              # mid left
+                        ], dtype="double")
+        elif args.im_num == '000025' and leftright == 'right':
+            worldcoords = np.array([
+                            ( 0*block , 0*block , 0.0 ),             # Bottom Left
+                            (-2*block , 0*block , 0.0 ),             # Top left
+                            (-5*block , 0*block , 0.0 ),             # Top right
+                            (-4*block , 3*block , 0.0 ),             # Bottom right
+                            (-3*block , 4*block , 0.0 ),             # Top center
+                            ( 0*block , 4*block , 0.0 ),             # mid right
+                            ( 3*block , 2*block , 0.0 )              # mid left
+                        ], dtype="double")
+
+        else:
+            worldcoords = np.array([
                             (-4*block,-2*block , 0.0 ),             # Bottom Left
                             (-3*block, 1*block , 0.0 ),             # Top left
                             (4*block , 1*block , 0.0 ),             # Top right
@@ -411,6 +506,24 @@ if __name__ == '__main__':
                             (4*block , 0.0 , 2*block),             # Midline, 4 blocks to the right
                             (6*block , 0.0 , 2*block)              # Midline, 6 blocks to the right
                         ], dtype="double")
+    elif args.seq_num == "000020": # wall mounted
+        worldcoords = np.array([
+                            (-4*block, 0.0 ,-1*block),             # Top left
+                            (-2*block, 0.0 , 0*block),             # Top right
+                            (0.0     , 0.0 , 0.0    ),             # Bottom Left
+                            (2*block , 0.0 , 0*block),             # Bottom right
+                            (4*block , 0.0 , 0*block),             # Midline, 2 blocks to the right
+                            (4*block , 0.0 ,-1*block),             # Midline, 4 blocks to the right
+                            (5*block , 0.0 ,-1*block),              # Midline, 6 blocks to the right
+                            (5*block , 0.0 ,-4*block),              # Midline, 6 blocks to the right
+                            (3*block , 0.0 ,-3*block),              # Midline, 6 blocks to the right
+                            (0*block , 0.0 ,-2*block),              # Midline, 6 blocks to the right
+                            (-3*block, 0.0 ,-3*block),              # Midline, 6 blocks to the right
+                            (-4*block, 0.0 ,-3*block)              # Midline, 6 blocks to the right
+                        ], dtype="double")
+
+
+
     cam = dict()
     im = Image(
               args.inpath,
