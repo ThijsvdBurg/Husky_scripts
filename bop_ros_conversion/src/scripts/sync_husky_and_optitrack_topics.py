@@ -27,15 +27,6 @@ robotpub = rospy.Publisher('/sync/Husky/pose', nav_msgs.msg.Odometry, queue_size
 objectpub = rospy.Publisher('/sync/MMbox/pose', nav_msgs.msg.Odometry, queue_size=1000)
 
 
-#dump rosmsg as json via a yaml dict
-def msg2json(msg):
-  ''' Convert a ROS message to JSON format'''
-  print('msg type is: ', type(msg) )
-  print('type after str(msg) is : ', type( str(msg) ) )
-  y = yaml.load(str(msg), Loader=yaml.FullLoader)
-  print('type after yaml load is: ', type(y) )
-  return json.dumps(y,indent=4)
-
 # When topics are synced, they should be put in a new bag file together, do this with a launchfile
 def callback(leftcaminfo,leftcamim,rightcaminfo,rightcamim,robotpos,objectpos):
 
