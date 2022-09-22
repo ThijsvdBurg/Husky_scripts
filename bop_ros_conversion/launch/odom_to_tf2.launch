@@ -40,9 +40,9 @@
       <param name="childname" type="string" value="Husky_zed_right_mk_link" /> <!-- name for detecting it in the sync topic -->
     </node>
     <node name="static_tf2_broadcaster_boxctr" pkg="bop_ros_conversion" type="odom_to_static_broadcaster.py" respawn="false" output="screen" >
-      <param name="topicname" type="string" value="/sync/object/pose" />           <!-- name for detecting it in the sync topic -->
+      <param name="topicname" type="string" value="/sync/object/pose" />         <!-- name for detecting it in the sync topic -->
       <param name="parentname" type="string" value="MMbox_opti_link" />          <!-- child frame id for the tf topic --> 
-      <param name="childname" type="string" value="MMbox_base_link" /> <!-- name for detecting it in the sync topic -->
+      <param name="childname" type="string" value="MMbox_base_link" />           <!-- name for detecting it in the sync topic -->
     </node>
     
 
@@ -60,5 +60,5 @@
     <node name="tf2_box_opti_to_box_fixed_bc" pkg="bop_ros_conversion" type="box_mk_to_box_ctr_broadcaster.py" respawn="false" output="screen" >
     </node>-->
     
-    <node pkg="rosbag" type="play" name="rosbag" args="-r $(arg bagrate) -d 2.5 $(arg bagpath)" />
+    <!-- <node pkg="rosbag" type="play" name="rosbag" args="-r $(arg bagrate) -d 2.5 $(arg bagpath)" /> -->
 </launch>

@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<launch> 
+
+  <arg name="bagpath" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705_exp_000001_synced.bag" />
+  <arg name="bagrate" default=".1" />
+  <arg name="sequence_number" default="1" />
+  <arg name="json_frequency" default="100" />
+  <arg name="static_ms" default="100" />
+  <arg name="test_dist" default="1" />
+  <arg name="zed_focal_len" default="0.00212" />
+  <arg name="cam_pitch" default="23.31" />
+
+    <!-- from optitrack odom to tf2 broadcasters for husky and box -->
+    <node name="husky_tf2_broadcaster" pkg="bop_ros_conversion" type="odom_to_tf2_broadcaster.py" respawn="false" output="screen" >
+      <param name="agentname1" type="string" value="Husky" /> <!-- name for detecting it in the sync topic -->
+      <param name="agentname2" type="string" value="robot" /> <!-- child frame id for the tf topic -->
+    </node>
+  
+    <node name="box_tf2_broadcaster" pkg="bop_ros_conversion" type="odom_to_tf2_broadcaster.py" respawn="false" output="screen" >
+      <param name="agentname1" type="string" value="MMbox" /> <!-- name for detecting it in the sync topic -->
+      <param name="agentname2" type="string" value="object" /> <!-- child frame id for the tf topic --> 
+    </node>
+    <!-- static transforms below to publish the different coordinate frames (husky base_plate and zed sensors and box centre) -->
+    <node pkg="tf" type="static_transform_publisher" name="world_frame_bc_x" args="$(arg test_dist) 0 0 0 0 0 1 world x_link $(arg static_ms)" />
+    <node pkg="tf" type="static_transform_publisher" name="world_frame_bc_y" args="0 $(arg test_dist) 0 0 0 0 1 world y_link $(arg static_ms)" />
+    <node pkg="tf" type="static_transform_publisher" name="world_frame_bc_z" args="0 0 $(arg test_dist) 0 0 0 1 world z_link $(arg static_ms)" />
+
+    <node name="static_tf2_broadcaster_base" pkg="bop_ros_conversion" type="odom_to_static_broadcaster.py" respawn="false" output="screen" >
+      <param name="topicname"  type="string" value="/sync/robot/pose" />          <!-- name for detecting it in the sync topic -->
+      <param name="parentname" type="string" value="Husky_opti_link" />          <!-- parent frame id for the tf topic -->
+      <param name="childname"  type="string" value="Husky_base_link" />           <!-- child frame id for the tf topic -->
+    </node>
+    <node name="static_tf2_broadcaster_zedl" pkg="bop_ros_conversion" type="odom_to_static_broadcaster.py" respawn="false" output="screen" >
+      <param name="topicname"  type="string" value="/sync/robot/pose" />       <!-- name for detecting it in the sync topic -->
+      <param name="parentname" type="string" value="Husky_base_link" />        <!-- parent frame id for the tf topic -->
+      <param name="childname"  type="string" value="Husky_zed_left_mk_link" /> <!-- child frame id for the tf topic -->
+      <param name="campitch"                 value="$(arg cam_pitch)" />       <!-- pitching angle of the zed camera -->
+    </node>
+    <node name="static_tf2_broadcaster_zedsl" pkg="bop_ros_conversion" type="odom_to_static_broadcaster.py" respawn="false" output="screen" >
+      <param name="topicname"  type="string" value="/sync/robot/pose" />           <!-- name for detecting it in the sync topic -->
+      <param name="parentname" type="string" value="Husky_zed_left_mk_link" />     <!-- parent frame id for the tf topic -->
+      <param name="childname"  type="string" value="Husky_zed_left_sensor_link" /> <!-- child frame id for the tf topic -->
+      <param name="focal_length"             value="$(arg zed_focal_len)" />       <!-- focal length of the zed camera -->
+    </node>
+    <node name="static_tf2_broadcaster_zedr" pkg="bop_ros_conversion" type="odom_to_static_broadcaster.py" respawn="false" output="screen" >
+      <param name="topicname"  type="string" value="/sync/robot/pose" />           <!-- name for detecting it in the sync topic -->
+      <param name="parentname" type="string" value="Husky_zed_left_mk_link" />          <!-- parent frame id for the tf topic -->
+      <param name="childname"  type="string" value="Husky_zed_right_mk_link" /> <!-- child frame id for the tf topic -->
+    </node>
+    <node name="static_tf2_broadcaster_zedsr" pkg="bop_ros_conversion" type="odom_to_static_broadcaster.py" respawn="false" output="screen" >
+      <param name="topicname"  type="string" value="/sync/robot/pose" />            <!-- name for detecting it in the sync topic -->
+      <param name="parentname" type="string" value="Husky_zed_left_sensor_link" />  <!-- parent frame id for the tf topic -->
+      <param name="childname"  type="string" value="Husky_zed_right_sensor_link" /> <!-- child frame id for the tf topic -->
+      <param name="focal_length" value="$(arg zed_focal_len)" />                    <!-- focal length of the zed camera -->
+      <param name="campitch" value="$(arg cam_pitch)" />                            <!-- pitching angle of the zed camera -->
+    </node>
+    <node name="static_tf2_broadcaster_boxctr" pkg="bop_ros_conversion" type="odom_to_static_broadcaster.py" respawn="false" output="screen" >
+      <param name="topicname"  type="string" value="/sync/object/pose" />           <!-- name for detecting it in the sync topic -->
+      <param name="parentname" type="string" value="MMbox_opti_link" />          <!-- parent frame id for the tf topic -->
+      <param name="childname"  type="string" value="MMbox_base_link" /> <!-- child frame id for the tf topic -->
+    </node>
+
+    <!--
+    <node pkg="tf" type="static_transform_publisher" name="zed_mk_to_sensor" args="0 0 0 0 0 1.0 0 Husky_base_link Husky_zed_left_sensor_link2 $(arg static_ms)" />
+    -->
+    <!--    <node pkg="tf" type="static_transform_publisher" name="box_opti_to_top_ctr_static_broadcaster" args="-0.0091251 0.003978 -0.001673 0 0 0 1 MMbox_opti_link MMbox_top_ctr_2 $(arg static_ms)" />
+    <node pkg="tf" type="static_transform_publisher" name="box_top_ctr_to_ctr_static_broadcaster" args="0 0 -0.182 0 0 0 1 MMbox_top_ctr_2 MMbox_base_link $(arg static_ms)" />
+    -->
+    <!--<node name="tf2_robot_to_cam_fixed_bc" pkg="bop_ros_conversion" type="robot_to_zed_broadcaster.py" respawn="false" output="screen" >
+    </node>
+    <node name="tf2_box_opti_to_box_fixed_bc" pkg="bop_ros_conversion" type="box_mk_to_box_ctr_broadcaster.py" respawn="false" output="screen" >
+    </node>-->
+    
+    <!--
+    <node pkg="rosbag" type="play" name="rosbag" args="-r $(arg bagrate) -d 2.5 $(arg bagpath)" /> 
+    -->
+</launch>
