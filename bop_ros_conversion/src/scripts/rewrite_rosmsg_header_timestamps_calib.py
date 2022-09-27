@@ -40,9 +40,10 @@ def main():
                     # walk through messages
                     for topic, msg, t in inbag.read_messages():
                         #if topic == topic1:
-                            #print(msg.header.stamp.nsecs)
-                            # Rewrite correct header stamps to the 'faulty' Husky stamps, since that was the main machine on which was recorded, so that is easier.
-                        msg.header.stamp=t  #will keep the stamp of the computer's clock which was used to record the bagfile on
+                        print('before',msg.header.stamp.secs)
+                        msg.header.stamp.secs=msg.header.stamp.secs-2  #will subtract 1 from orig timestamp to create dummy values for tf 
+                        print('after',msg.header.stamp.secs)
+                        #msg.header.stamp=t  #will keep the stamp of the computer's clock which was used to record the bagfile on
                             # the modification below will keep the msg.header timestamps, comment whichever suits your needs
                             # t=msg.header.stamp
                         outbag.write(topic,msg,t)

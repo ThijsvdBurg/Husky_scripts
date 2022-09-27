@@ -7,6 +7,36 @@ import tf
 import tf2_ros
 from bop_toolkit_lib import inout
 import time
+from geometry_msgs.msg import TransformStamped
+import math
+import numpy as np
+
+
+def check_discrepancy(last_tf, current_tf):
+    disc_x = current_tf.transform.translation.x - last_tf.transform.translation.x
+    disc_y = current_tf.transform.translation.y - last_tf.transform.translation.y
+    disc_z = current_tf.transform.translation.z - last_tf.transform.translation.z
+    disc_qx = current_tf.transform.rotation.x - last_tf.transform.rotation.x
+    disc_qy = current_tf.transform.rotation.y - last_tf.transform.rotation.y
+    disc_qz = current_tf.transform.rotation.z - last_tf.transform.rotation.z
+    disc_qw = current_tf.transform.rotation.w - last_tf.transform.rotation.w
+    trans = np.array([abs(disc_x),abs(disc_y),abs(disc_z)])
+    rot = np.array([abs(disc_qx),abs(disc_qy),abs(disc_qz),abs(disc_qw)])
+    #print('trans:', trans,'\n', 'rot:', rot)
+    #print(np.dot(trans,trans))
+    disc = math.sqrt( np.dot(trans,trans) + np.dot(rot,rot) )
+    return disc
+
+def transform_init():
+    tf = TransformStamped()
+    tf.transform.translation.x = 0
+    tf.transform.translation.y = 0
+    tf.transform.translation.z = 0
+    tf.transform.rotation.x = 0
+    tf.transform.rotation.y = 0
+    tf.transform.rotation.z = 0
+    tf.transform.rotation.w = 0
+    return tf
 
 class ROSTransformerHandler (object):
     tform = tf.TransformerROS()
@@ -42,12 +72,12 @@ def main():
     target_frame_id = rospy.get_param('~child_frame')
     scene_num = rospy.get_param('~sequence_number')
     lookup_rate = rospy.get_param('~lookup_rate')
-
+    sleep_before =  rospy.get_param('~sleeptime')
     tfBuffer = tf2_ros.Buffer()
     listener = tf2_ros.TransformListener(tfBuffer)
     tfl = tf.TransformListener()
     rate=rospy.Rate(lookup_rate)
-    rospy.sleep(1.0)
+    rospy.sleep(sleep_before)
     obj_id = 1
 
 
@@ -60,6 +90,9 @@ def main():
     ROS_TRANSFORMER_HANDLER = ROSTransformerHandler()
     image_num = 0
     gt_6d_pose_data = {}
+    discrepancy_threshold_upper = .001
+    discrepancy_threshold = .0001
+    #discrepancy_threshold = .01
 
     if os.path.exists(json_6d_path):
         with open(json_6d_path, "r") as gt_scene:
@@ -69,8 +102,9 @@ def main():
         mkdir(scenes_path)
 
     with open(json_6d_path, 'w+') as gt_path:
-    #if 2>1:
         last_stamp = rospy.Time()
+        last_transform = transform_init()
+        print(last_transform)
         while not rospy.is_shutdown():
             try:
                 #now = rospy.Time(0) #rospy.Time.now()
@@ -80,9 +114,10 @@ def main():
                 #current_time = rospy.Time.from_sec(time.time())
                 #nanosec = current_time.to_nsec()
                 #trans = ROS_TRANSFORMER_HANDLER.get_transform_matrix(base_frame_id, target_frame_id, tfBuffer)
-                #print(transform)
                 #if seq==0:
                 #    break
+                transform_discrepancy = check_discrepancy(last_transform, transform)
+                last_transform = transform
                 rate.sleep()
             except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as e:
                 continue
@@ -92,10 +127,21 @@ def main():
                 #print('continued...')
                 continue
 
+
+            if transform_discrepancy < discrepancy_threshold:
+                print('transform_discrep is lower than threshold:',transform_discrepancy,'\nskipped because of duplicate transform')
+                continue
+
+            image_num+=1
+            print('transform_discrepancy',transform_discrepancy)
+
+            if transform_discrepancy < discrepancy_threshold_upper:
+                print('skipped because of static robot and object')
+                continue
+
             # bop toolkit annotation lines
             #seq = trans.header.seq
             tf_cam_to_object = tfl.asMatrix(target_frame_id,transform.header)
-
 
             translation = list(tf_cam_to_object[0:3, 3 ]*1000   )  # convert meter to mm
             rotation    =      tf_cam_to_object[0:3,0:3].tolist()  # rotation matrix
@@ -103,13 +149,15 @@ def main():
             #scene_gt2 = save_gt(rotation, translation, obj_id)
             scene_gt[image_num] = [{
                 'header_stamp': str(transform.header.stamp),
+                'header_diff': str(transform.header.stamp - last_stamp),
+                'transform_discrepancy': str(transform_discrepancy),
                 'cam_R_m2c': rotation,
                 'cam_t_m2c': translation,
                 'obj_id': int(obj_id)
                  }]
             #print('komt ie nog hier langs na een "continued..."? Alleen als de bagfile draait...')
-            image_num+=1
             last_stamp = transform.header.stamp
+            #last_transform = transform
             #print('timestamp updated')
             rospy.loginfo_throttle(
                     1, "Recorded {} transformations.".format(image_num))
