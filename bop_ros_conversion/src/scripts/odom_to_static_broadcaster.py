@@ -6,13 +6,30 @@ import rospy
 #import sys
 # Because of transformations
 import tf_conversions
-import utils
+import numpy as np
 import math
 import tf2_ros
 #import geometry_msgs.msg
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import TransformStamped
 
+def euler_to_quaternion(r,p,y):
+    """
+    Convert an Euler angle to a quaternion.
+    Input
+    :param roll: The roll (rotation around x-axis) angle in radians.
+    :param pitch: The pitch (rotation around y-axis) angle in radians.
+    :param yaw: The yaw (rotation around z-axis) angle in radians.
+    Output
+    :return qx, qy, qz, qw: The orientation in quaternion [x,y,z,w] format
+    """
+    quats = np.zeros((4,1))
+    quats[0] = np.sin(r/2) * np.cos(p/2) * np.cos(y/2) - np.cos(r/2) * np.sin(p/2) * np.sin(y/2)
+    quats[1] = np.cos(r/2) * np.sin(p/2) * np.cos(y/2) + np.sin(r/2) * np.cos(p/2) * np.sin(y/2)
+    quats[2] = np.cos(r/2) * np.cos(p/2) * np.sin(y/2) - np.sin(r/2) * np.sin(p/2) * np.cos(y/2)
+    quats[3] = np.cos(r/2) * np.cos(p/2) * np.cos(y/2) + np.sin(r/2) * np.sin(p/2) * np.sin(y/2)
+
+    return quats #[qx, qy, qz, qw]
 
 def handle_pose(msg):
     parent_name =   rospy.get_param('~parentname')
@@ -58,7 +75,7 @@ def handle_pose(msg):
         campitch=    0            / 360 * 2 * math.pi
         camyaw  =  -90            / 360 * 2 * math.pi
         # TODO werkt nog niet, op de een of andere stomme manier
-        quats = utils.euler_to_quaternion(camroll, campitch, camyaw)
+        quats = euler_to_quaternion(camroll, campitch, camyaw)
         t.transform.rotation.x = quats[0]
         t.transform.rotation.y = quats[1]
         t.transform.rotation.z = quats[2]

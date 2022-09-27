@@ -1,8 +1,41 @@
 #!/usr/bin/env python
 import math
 import numpy as np
+
+class angleConv():
+    def __init__(self):
+        self.quats = np.zeros((4,1))
+
+    def reset(self):
+        self.quats[0] = 0
+        self.quats[1] = 0
+        self.quats[2] = 0
+        self.quats[3] = 0
+
+    def euler_to_quaternion(self,r,p,y):
+        """
+        Convert an Euler angle to a quaternion.
+        Input
+        :param roll: The roll (rotation around x-axis) angle in radians.
+        :param pitch: The pitch (rotation around y-axis) angle in radians.
+        :param yaw: The yaw (rotation around z-axis) angle in radians.
+        Output
+        :return qx, qy, qz, qw: The orientation in quaternion [x,y,z,w] format
+        """
+        qx = np.sin(r/2) * np.cos(p/2) * np.cos(y/2) - np.cos(r/2) * np.sin(p/2) * np.sin(y/2)
+        qy = np.cos(r/2) * np.sin(p/2) * np.cos(y/2) + np.sin(r/2) * np.cos(p/2) * np.sin(y/2)
+        qz = np.cos(r/2) * np.cos(p/2) * np.sin(y/2) - np.sin(r/2) * np.sin(p/2) * np.cos(y/2)
+        qw = np.cos(r/2) * np.cos(p/2) * np.cos(y/2) + np.sin(r/2) * np.sin(p/2) * np.sin(y/2)
+        self.quats[0] = qx
+        self.quats[1] = qy
+        self.quats[2] = qz
+        self.quats[3] = qw
+        return self.quats
+
+
+
+
 def euler_to_quaternion(r,p,y):
-    import numpy as np # Scientific computing library for Python
     """
     Convert an Euler angle to a quaternion.
     Input

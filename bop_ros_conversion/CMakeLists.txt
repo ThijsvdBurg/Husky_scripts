@@ -41,8 +41,8 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
-# include
+include_directories(include
+  /home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bop_ros_conversion/src/scripts/utils
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -76,5 +76,8 @@ catkin_install_python(PROGRAMS
   src/scripts/rewrite_rosmsg_header_timestamps_calib.py
   src/scripts/rewrite_rostopic_names.py
   src/scripts/inspect_json.py
+  src/scripts/import_test.py
+  src/scripts/quat_to_euler.py
+  #src/scripts/utils/quat_to_euler.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
