@@ -67,8 +67,7 @@ catkin_install_python(PROGRAMS
   src/scripts/tf2_lookup.py
   src/scripts/tfstamped_broadcaster.py
   src/scripts/odom_to_json_listener.py
-  src/scripts/odom_to_json_listener_2.py
-  src/scripts/odom_to_json_listener_3.py
+  src/scripts/odom_to_json_listener_4.py
   src/scripts/transformerROS_listener.py
   src/scripts/rosbag_check.py
   src/scripts/rosbag_crop.py

@@ -8,7 +8,7 @@
   <arg name="json_frequency" default="100" />
   <arg name="zed_focal_len" default="0.00212" />
   <arg name="cam_pitch" default="23.31" />
-  <arg name="sleepbf" default="3.9" /> <!-- this value works well for 20220705_exp_000001_synced  -->
+  <arg name="sleepbf" default="3.95" /> <!-- this value works well for 20220705_exp_000001_synced  -->
   <arg name="bagdelay" default="4.5" /> <!-- this value works well for 20220705_exp_000001_synced  -->
 
     <!-- from optitrack odom to tf2 broadcasters for husky and box -->
@@ -65,17 +65,32 @@
     </node>
 
     <node name="odom_to_json_listener" pkg="bop_ros_conversion" type="odom_to_json_listener.py" respawn="false" output="screen" >
-      <!--
+<!--
       <param name="parent_frame" type= "string" value="Husky_zed_left2"/>
       <param name="child_frame" type= "string" value="MMbox_base_link"/>
       <param name="parent_frame" type= "string" value="Husky_zed_left_sensor_link"/> 
       -->
+
       <param name="parent_frame" type= "string" value="Husky_zed_left_sensor_link"/>
       <param name="child_frame" type= "string" value="MMbox_base_link"/>
       <param name="sequence_number" type="int" value="$(arg sequence_number)"/>
       <param name="lookup_rate" value="$(arg json_frequency)"/>
       <param name="sleeptime" value="$(arg sleepbf)"/>
     </node> 
+      <!--
+    <node name="odom_to_json_listener_tt" pkg="bop_ros_conversion" type="odom_to_json_listener_4.py" respawn="false" output="screen" >
+
+      <param name="parent_frame" type= "string" value="Husky_zed_left2"/>
+      <param name="child_frame" type= "string" value="MMbox_base_link"/>
+      <param name="parent_frame" type= "string" value="Husky_zed_left_sensor_link"/> 
+
+      <param name="parent_frame" type= "string" value="Husky_zed_left_sensor_link"/>
+      <param name="child_frame" type= "string" value="MMbox_base_link"/>
+      <param name="sequence_number" type="int" value="$(arg sequence_number)"/>
+      <param name="lookup_rate" value="$(arg json_frequency)"/>
+      <param name="sleeptime" value="$(arg sleepbf)"/>
+    </node> 
+      -->
     
     <!--<node name="tf2_robot_to_cam_fixed_bc" pkg="bop_ros_conversion" type="robot_to_zed_broadcaster.py" respawn="false" output="screen" >
     </node>

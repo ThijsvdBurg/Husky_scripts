@@ -11,21 +11,41 @@ from geometry_msgs.msg import TransformStamped
 import math
 import numpy as np
 
+def filter_list(imnum, headerstamp,mag):
+    scene_gt_filter = [{
+                'image_number': imnum,
+                'header_stamp': str(headerstamp),
+                'tf_magnitude': str(mag)
+                 }]
+    return scene_gt_filter
+def gt_list(tf, rotation, translation, obj_id):
+    scene_gt = [{
+                'header_stamp': str(tf.header.stamp),
+                'cam_R_m2c': rotation,
+                'cam_t_m2c': translation,
+                'obj_id': int(obj_id)
+                 }]
+    return scene_gt
+def aux_list(tf_stamp, last_stamp, mag):
+    scene_gt_aux = [{
+                   'header_stamp': str(tf_stamp),
+                   'header_diff': str(tf_stamp - last_stamp),
+                   'transform_magnitude': str(mag),
+                   }]
+    return scene_gt_aux
 
-def check_discrepancy(last_tf, current_tf):
-    disc_x = current_tf.transform.translation.x - last_tf.transform.translation.x
-    disc_y = current_tf.transform.translation.y - last_tf.transform.translation.y
-    disc_z = current_tf.transform.translation.z - last_tf.transform.translation.z
-    disc_qx = current_tf.transform.rotation.x - last_tf.transform.rotation.x
-    disc_qy = current_tf.transform.rotation.y - last_tf.transform.rotation.y
-    disc_qz = current_tf.transform.rotation.z - last_tf.transform.rotation.z
-    disc_qw = current_tf.transform.rotation.w - last_tf.transform.rotation.w
-    trans = np.array([abs(disc_x),abs(disc_y),abs(disc_z)])
-    rot = np.array([abs(disc_qx),abs(disc_qy),abs(disc_qz),abs(disc_qw)])
-    #print('trans:', trans,'\n', 'rot:', rot)
-    #print(np.dot(trans,trans))
-    disc = math.sqrt( np.dot(trans,trans) + np.dot(rot,rot) )
-    return disc
+def transformMagnitude(current_tf, last_tf, multiplier):
+    disc_x  = current_tf.transform.translation.x - last_tf.transform.translation.x
+    disc_y  = current_tf.transform.translation.y - last_tf.transform.translation.y
+    disc_z  = current_tf.transform.translation.z - last_tf.transform.translation.z
+    disc_qx = current_tf.transform.rotation.x    - last_tf.transform.rotation.x
+    disc_qy = current_tf.transform.rotation.y    - last_tf.transform.rotation.y
+    disc_qz = current_tf.transform.rotation.z    - last_tf.transform.rotation.z
+    disc_qw = current_tf.transform.rotation.w    - last_tf.transform.rotation.w
+    trans   = np.array([abs(disc_x) ,abs(disc_y) ,abs(disc_z)              ])
+    rot     = np.array([abs(disc_qx),abs(disc_qy),abs(disc_qz),abs(disc_qw)])
+    transform_mag = math.sqrt( np.dot(trans,trans) + np.dot(rot,rot) ) * multiplier
+    return transform_mag
 
 def transform_init():
     tf = TransformStamped()
@@ -35,7 +55,7 @@ def transform_init():
     tf.transform.rotation.x = 0
     tf.transform.rotation.y = 0
     tf.transform.rotation.z = 0
-    tf.transform.rotation.w = 0
+    tf.transform.rotation.w = 1.0
     return tf
 
 class ROSTransformerHandler (object):
@@ -80,93 +100,119 @@ def main():
     rospy.sleep(sleep_before)
     obj_id = 1
 
-
-
     #TODO change this when actually converting
     scenes_directory = '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/'
     scenes_path =  os.path.join(scenes_directory, f"{scene_num:06}")
     json_6d_path = os.path.join(scenes_path, "scene_gt.json")
+    json_6d_aux_path = os.path.join(scenes_path, "scene_gt_aux.json")
+    json_6d_filter_path = os.path.join(scenes_path, "scene_gt_filter.json")
     scene_gt = {}
+    scene_filter = {}
+    scene_aux = {}
     ROS_TRANSFORMER_HANDLER = ROSTransformerHandler()
     image_num = 0
     gt_6d_pose_data = {}
-    discrepancy_threshold_upper = .001
-    discrepancy_threshold = .0001
-    #discrepancy_threshold = .01
+    discrepancy_multiplier = 1000
+    discrepancy_threshold_upper = 2.000 # to filter the static transforms
+
+#    if os.path.exists(json_6d_path):
+#        with open(json_6d_path, "r") as gt_scene:
+#            gt_6d_pose_data = json.load(gt_scene)
+#    elif not os.path.exists(scenes_path):
+#        print('folder does not exist yet...\ncreating')
+#        mkdir(scenes_path)
 
     if os.path.exists(json_6d_path):
-        with open(json_6d_path, "r") as gt_scene:
-            gt_6d_pose_data = json.load(gt_scene)
-    elif not os.path.exists(scenes_path):
+        print('output file already existed, overwriting')
+    if not os.path.exists(scenes_path):
         print('folder does not exist yet...\ncreating')
         mkdir(scenes_path)
 
     with open(json_6d_path, 'w+') as gt_path:
         last_stamp = rospy.Time()
         last_transform = transform_init()
-        print(last_transform)
+        dummy_tf       = transform_init()
+        #print(last_transform)
         while not rospy.is_shutdown():
             try:
-                #now = rospy.Time(0) #rospy.Time.now()
                 t = tfBuffer.get_latest_common_time(base_frame_id, target_frame_id)
-                #print(t)
-                transform = tfBuffer.lookup_transform(base_frame_id, target_frame_id, t, timeout=rospy.Duration(10.0))
-                #current_time = rospy.Time.from_sec(time.time())
-                #nanosec = current_time.to_nsec()
-                #trans = ROS_TRANSFORMER_HANDLER.get_transform_matrix(base_frame_id, target_frame_id, tfBuffer)
-                #if seq==0:
-                #    break
-                transform_discrepancy = check_discrepancy(last_transform, transform)
-                last_transform = transform
+                #past = t - rospy.Duration(.2) #print(t)
+
+                transform_cam_object = tfBuffer.lookup_transform(
+                    base_frame_id,
+                    target_frame_id,
+                    t,
+                    timeout=rospy.Duration(1.0)
+                )
+                # transform from previous robot location to the current TODO check if these values are closely related to the excel values
+                transform_base = tfBuffer.lookup_transform_full(
+                    target_frame=base_frame_id,
+                    target_time=t,
+                    source_frame=base_frame_id,
+                    source_time=last_stamp,
+                    fixed_frame='world',
+                    timeout=rospy.Duration(1.0)
+                )
+                #transform_magnitude = transform_magnituge(last_transform, transform)
+                last_transform = transform_cam_object
                 rate.sleep()
+                current_stamp = transform_cam_object.header.stamp
             except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as e:
                 continue
                 rate.sleep()
                 print(e)
-            if last_stamp == transform.header.stamp:
-                #print('continued...')
+
+            stampdiff = current_stamp - last_stamp
+            stampdiff_sec = stampdiff.to_sec() # floating point
+            stampdiff_nsec = stampdiff.to_nsec()
+            #print('type of stampdiff is : ',type(stampdiff_sec),type(stampdiff_nsec))
+            #print('stampdiff is : ',stampdiff_sec,stampdiff_nsec)
+
+            stampdiff_int = stampdiff_sec * 1000000000
+
+            if last_stamp == current_stamp or stampdiff_int < 20000000 or current_stamp == 1655219049426688671:
+                print('continued...')
                 continue
 
+            transform_magnitude = transformMagnitude(transform_base, dummy_tf, discrepancy_multiplier)
+            #print('tf discrep base is:\n',transform_magnitude)                #current_time = rospy.Time.from_sec(time.time())
 
-            if transform_discrepancy < discrepancy_threshold:
-                print('transform_discrep is lower than threshold:',transform_discrepancy,'\nskipped because of duplicate transform')
-                continue
+            #if transform_discrepancy < discrepancy_threshold_low:
+            #    print('transform_discrep is lower than threshold:',transform_discrepancy,'\nskipped because of duplicate transform')
+            #    continue
 
             image_num+=1
-            print('transform_discrepancy',transform_discrepancy)
+            #print('transform_magnitude',transform_magnitude)
+            last_stamp = current_stamp
 
-            if transform_discrepancy < discrepancy_threshold_upper:
-                print('skipped because of static robot and object')
+
+            if transform_magnitude < discrepancy_threshold_upper and image_num > 1:
+                print('skipped because of static robot, movement magnitude is ', transform_magnitude, ' which is lower than ',discrepancy_threshold_upper)
+                scene_filter[image_num] = filter_list(image_num, current_stamp,transform_magnitude)
                 continue
 
             # bop toolkit annotation lines
             #seq = trans.header.seq
-            tf_cam_to_object = tfl.asMatrix(target_frame_id,transform.header)
+            tf_cam_to_object = tfl.asMatrix(target_frame_id,transform_cam_object.header)
 
             translation = list(tf_cam_to_object[0:3, 3 ]*1000   )  # convert meter to mm
             rotation    =      tf_cam_to_object[0:3,0:3].tolist()  # rotation matrix
-            #TODO change name
-            #scene_gt2 = save_gt(rotation, translation, obj_id)
-            scene_gt[image_num] = [{
-                'header_stamp': str(transform.header.stamp),
-                'header_diff': str(transform.header.stamp - last_stamp),
-                'transform_discrepancy': str(transform_discrepancy),
-                'cam_R_m2c': rotation,
-                'cam_t_m2c': translation,
-                'obj_id': int(obj_id)
-                 }]
+
+            #scene_filter[image_num] = filter_list(image_num, current_stamp, transform_magnitude)
+            scene_gt    [image_num] = gt_list(transform_cam_object, rotation, translation, obj_id)
+            scene_aux   [image_num] = aux_list(current_stamp, last_stamp, transform_magnitude)
+
             #print('komt ie nog hier langs na een "continued..."? Alleen als de bagfile draait...')
-            last_stamp = transform.header.stamp
             #last_transform = transform
             #print('timestamp updated')
             rospy.loginfo_throttle(
-                    1, "Recorded {} transformations.".format(image_num))
+                    1, "Recorded {} transformations at last timestamp {}.".format(image_num, last_stamp))
 
-            #TODO waarom publishen?
-            #tfpub.publish(trans)
     print('end main')
     rospy.loginfo("Recorded {} transformations.".format(image_num))
-    inout.save_scene_gt_list(json_6d_path, scene_gt)
+    inout.save_scene_gt_list(json_6d_path       , scene_gt    )
+    inout.save_scene_gt_list(json_6d_filter_path, scene_filter)
+    inout.save_scene_gt_list(json_6d_aux_path   , scene_aux   )
 
 if __name__ == '__main__':
     main()
