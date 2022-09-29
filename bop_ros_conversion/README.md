@@ -10,6 +10,8 @@ We therefore substituted the correct optitrack datapoints with the faulty Husky 
 
 Step-by-step:
 1. Record a new bagfile with the ```./src/scripts/rewrite_rosmsg_header_timestamps.py``` script
+example usage:
+'''rosrun bop_ros_conversion rewrite_rosmsg_header_timestamps.py --source_dir '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705' --target_dir '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705' --start 100 --end 102 --date 20220705'''
 2. Record a synced bagfile with the ```./src/scripts/sync_husky_and_optitrack_topics.py``` script. 
 Be sure to substitute any desired topic names in the scripts, also the script assumes that the format of the bagfile name is as following:
 ```<date in yyyymmdd>_exp_<exp number with 6 figures like 000124 for experiment 124>``` 
