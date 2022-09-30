@@ -12,15 +12,24 @@ Step-by-step:
 1. Record a new bagfile with the ```./src/scripts/rewrite_rosmsg_header_timestamps.py``` script <br />
 example usage: <br />
 ```rosrun bop_ros_conversion rewrite_rosmsg_header_timestamps.py --source_dir '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705' --target_dir '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705' --start 100 --end 102 --date 20220705```
-2. Record a synced bagfile with the ```./src/scripts/sync_husky_and_optitrack_topics.py``` script. 
-Be sure to substitute any desired topic names in the scripts, also the script assumes that the format of the bagfile name is as following:
+
+2. Record a synced bagfile with the ```./launch/record_synced_bags.launch``` script. 
+Be sure to substitute the topic names in the scripts and the script assumes that the format of the bagfile name is as follows:
 ```<date in yyyymmdd>_exp_<exp number with 6 figures like 000124 for experiment 124>``` 
+for example:
+```20220705_exp_000098_edit.bag``` for a the 98th rosbag recorded on 05 07 2022 which was edited to have matching header stamps
 or
-```<date in yyyymmdd>_sequence_<exp number with 6 figures like 000124 for experiment 124>```
+```<date in yyyymmdd>_sequence_<exp number with 6 figures like 000124 for experiment 124>``` <br />
 
+Example usage:
+```
+roslaunch bop_ros_conversion record_synced_bags.launch output_dir:='/media/pmvanderburg/T7/bagfiles/20220705' date:=20220705 bagrate:='1' sync_slop:='0.02' exp_nr:='000109'
+```
 
-# publish Odometry messages as transform messages
+# publish Odometry messages as transform messages and save the GT in a json BOP format
 
-1. Use ```roslaunch bop_ros_conversion odom_to_tf2.launch```
+1. Use ```roslaunch bop_ros_conversion odom_to_tf2.launch``` 
+or 
+```export exp_nr=30 <br /> roslaunch bop_ros_conversion odom_to_tf2.launch json_frequency:=10 sequence_number:=$exp_nr``` 
 2. Substitute values in the launchfile for your specific needs
 3. 

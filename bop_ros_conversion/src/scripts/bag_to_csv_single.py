@@ -4,7 +4,8 @@ from bagpy import bagreader
 import pandas as pd
 
 def main():
-  bagpath = '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/2022-09-27-07-23-59_rw3.bag'
+  #bagpath = '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/2022-09-27-07-23-59_rw3.bag'
+  bagpath = '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705/20220705_exp_000100_edit.bag'
   b = bagreader(bagpath)
 
   # get the list of topics

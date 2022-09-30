@@ -24,10 +24,21 @@ def main():
     # new (more logical) names for topics, instead of bebop1 and bebop2
     husky_topic=	'/Husky/Pose'
     object_topic=	'/Box/Pose'
+
+    #topics:      /Bebop1/position_velocity_orientation_estimation   1215 msgs    : nav_msgs/Odometry
+    #             /Bebop2/position_velocity_orientation_estimation   1215 msgs    : nav_msgs/Odometry
+    #             /husky_velocity_controller/cmd_vel                 1549 msgs    : geometry_msgs/Twist
+    #             /joy_teleop/cmd_vel                                1553 msgs    : geometry_msgs/Twist
+    #             /zed_node/left/camera_info_throttle                  57 msgs    : sensor_msgs/CameraInfo
+    #             /zed_node/left/image_rect_color_throttle             56 msgs    : sensor_msgs/Image
+    #             /zed_node/right/camera_info_throttle                 56 msgs    : sensor_msgs/CameraInfo
+    #             /zed_node/right/image_rect_color_throttle            56 msgs    : sensor_msgs/Image
+
     # the topic 1 and 2 are the expected incoming topic names
-    #topic1 =		'/Bebop2/position_velocity_orientation_estimation'
-    #topic2 =		'/Bebop1/position_velocity_orientation_estimation'
-    topic1 =		'/tfstamped'
+    topic1 =		'/Bebop1/position_velocity_orientation_estimation'
+    topic2 =		'/Bebop2/position_velocity_orientation_estimation'
+    topic3 =            '/zed_node'
+    #topic1 =		'/tfstamped'
     #topic2 =		'/Bebop1/position_velocity_orientation_estimation'
 
     # prevent filename suffix to be filled to "None" when no suffix arg is supplied
@@ -41,30 +52,37 @@ def main():
 
     # iterature through the start to the end rosbag, dependent on the argument "start" and "end"
     for i in range(start,end+1):
-        outbagpath=os.path.join(target_dir,"%s_exp_%06i_edit.bag" % (args.date,i))
+        name_outbag = "%s_exp_%06i_edit.bag" % (args.date,i)
+        name_inbag  = "%s_exp_%06i%s.bag"    % (args.date,i,suffix)
+        outbagpath=os.path.join(target_dir,name_outbag)
         # print("Outbagpath is: \n",outbagpath)
         if os.path.exists(outbagpath):
-            print("\nOutbagpath exists, skipping %s_exp_%06i_edit.bag \n" % (args.date,i))
+            print("\nOutbagpath exists, skipping ", name_outbag)
         else:
             # check if sourge bagfile exists first before creating a target bagfile object
-            filepath = os.path.join(source_dir,"%s_exp_%06i%s.bag" % (args.date,i,suffix))
+            filepath = os.path.join(source_dir,name_inbag)
             if not os.path.exists(filepath):
-                print("\nInbagpath does not exist, skipping %s_exp_%06i%s.bag \n" % (args.date,i,suffix))
+                print("\nInbagpath does not exist, skipping ",name_inbag)
             else:
                 with rosbag.Bag(outbagpath,'w') as outbag:
                     #with rosbag.Bag(os.path.join(target_dir,"%s_exp_edit.bag" % args.date), 'w') as outbag:
                     # print("Inbagpath",filepath)
                     inbag=rosbag.Bag(filepath)
-
                     # walk through messages
                     for topic, msg, t in inbag.read_messages():
-                        #if topic == topic1:
-                            #print(msg.header.stamp.nsecs)
+                        if topic == topic1 or topic == topic2 or topic.__contains__(topic3):
+                            #print(topic) #'topic ',topic,' contains ', topic3) #msg.header.stamp.nsecs)
                             # Rewrite correct header stamps to the 'faulty' Husky stamps, since that was the main machine on which was recorded, so that is easier.
-                        msg.header.stamp=t will keep the stamp of the computer's clock which was used to record the bagfile on
-                            # the modification below will keep the msg.header timestamps, comment whichever suits your needs
+
+                            msg.header.stamp = t #will keep the stamp of the computer's clock which was used to record the bagfile on
+                            # the modification below will keep the msg.header timestamps, uncomment whichever suits your needs
                             # t=msg.header.stamp
-                        outbag.write(topic1,msg,t)
+
+                            if topic == topic1:
+                                topic = husky_topic
+                            if topic == topic2:
+                                topic = object_topic
+                            outbag.write(topic,msg,t)
                         #uncomment next section if you want to rewrite the second topic
                         #elif topic == topic2:
                         #    #print(msg.header.stamp.nsecs)
