@@ -58,6 +58,6 @@ CATKIN_IGNORE
 # ROS files
 *.bag
 bagfiles
-
+gt_jsons
 
 .DS_Store
