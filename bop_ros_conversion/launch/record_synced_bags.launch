@@ -9,7 +9,7 @@
 <arg name="exp_nr" default="000100"/>
 <arg name="date" default="20220705"/>
 <arg name="output_dir" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/$(arg date)" />
-<arg name="sync_slop" default="0.05" />
+<arg name="sync_slop" default="0.02" />
 <arg name="bagdelay" default="0" /> <!-- this value works well for 20220705_exp_0001**  -->
 <arg name="bagrate" default="1" /> <!-- running it faster would yield incorrect rosbags and maybe a loss of realtime properties -->
 <arg name="bagpath" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705/$(arg date)_exp_$(arg exp_nr)_edit.bag" />

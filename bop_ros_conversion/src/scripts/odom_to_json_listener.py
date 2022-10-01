@@ -52,29 +52,11 @@ def transform_init():
     tf.transform.translation.x = 0
     tf.transform.translation.y = 0
     tf.transform.translation.z = 0
-    tf.transform.rotation.x = 0
-    tf.transform.rotation.y = 0
-    tf.transform.rotation.z = 0
-    tf.transform.rotation.w = 1.0
+    tf.transform.rotation.x    = 0
+    tf.transform.rotation.y    = 0
+    tf.transform.rotation.z    = 0
+    tf.transform.rotation.w    = 1.0
     return tf
-
-class ROSTransformerHandler (object):
-    tform = tf.TransformerROS()
-    #static_tfs = {}
-
-    def get_transform_matrix(self, frame_a, frame_b, tfb):
-        #t = rospy.Time(0)
-        t = self.tform.getLatestCommonTime(frame_a, frame_b)
-        #print('latestcommontime  =',t2)
-        #trans, rot = self.tform.lookupTransform(frame_a, frame_b, t)
-        trans = tfb.lookup_transform(frame_a, frame_b, t, timeout=rospy.Duration(10.0))
-        #mat = self.tform.fromTranslationRotation(trans, rot) # only for TransformerROS
-        #mat = mat.tolist()
-        #except (tf.LookupException, tf.Exception):
-        #    return []
-        #print(mat)
-        #print(trans)
-        return trans
 
 def mkdir(path):
     os.mkdir(path)
@@ -88,11 +70,13 @@ def main():
     rospy.init_node('json_listener')
 
     #ROSPARAMETER parsing
-    base_frame_id = rospy.get_param('~parent_frame')
+    base_frame_id   = rospy.get_param('~parent_frame')
     target_frame_id = rospy.get_param('~child_frame')
-    scene_num = rospy.get_param('~sequence_number')
-    lookup_rate = rospy.get_param('~lookup_rate')
-    sleep_before =  rospy.get_param('~sleeptime')
+    scene_num       = rospy.get_param('~sequence_number')
+    lookup_rate     = rospy.get_param('~lookup_rate')
+    sleep_before    = rospy.get_param('~sleeptime')
+    DEBUG           = rospy.get_param('~debug')
+
     tfBuffer = tf2_ros.Buffer()
     listener = tf2_ros.TransformListener(tfBuffer)
     tfl = tf.TransformListener()
@@ -101,7 +85,7 @@ def main():
     obj_id = 1
 
     #TODO change this when actually converting
-    scenes_directory = '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/'
+    scenes_directory = '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705'
     scenes_path =  os.path.join(scenes_directory, f"{scene_num:06}")
     json_6d_path = os.path.join(scenes_path, "scene_gt.json")
     json_6d_aux_path = os.path.join(scenes_path, "scene_gt_aux.json")
@@ -109,8 +93,8 @@ def main():
     scene_gt = {}
     scene_filter = {}
     scene_aux = {}
-    ROS_TRANSFORMER_HANDLER = ROSTransformerHandler()
-    image_num = 0
+    #ROS_TRANSFORMER_HANDLER = ROSTransformerHandler()
+    image_num = -2
     gt_6d_pose_data = {}
     discrepancy_multiplier = 1000
     discrepancy_threshold_upper = 2.000 # to filter the static transforms
@@ -129,14 +113,17 @@ def main():
         mkdir(scenes_path)
 
     with open(json_6d_path, 'w+') as gt_path:
-        last_stamp = rospy.Time()
+        last_stamp1 = rospy.Time()
+        last_stamp2 = rospy.Time()
         last_transform = transform_init()
         dummy_tf       = transform_init()
         #print(last_transform)
         while not rospy.is_shutdown():
             try:
                 t = tfBuffer.get_latest_common_time(base_frame_id, target_frame_id)
-                #past = t - rospy.Duration(.2) #print(t)
+                #past = t - rospy.Duration(.2) #
+                if DEBUG:
+                    print('latest common time is:',t)
 
                 transform_cam_object = tfBuffer.lookup_transform(
                     base_frame_id,
@@ -144,12 +131,15 @@ def main():
                     t,
                     timeout=rospy.Duration(1.0)
                 )
+
+                #if DEBUG:
+                    #print('transform from cam to object',transform_cam_object)
                 # transform from previous robot location to the current TODO check if these values are closely related to the excel values
                 transform_base = tfBuffer.lookup_transform_full(
                     target_frame=base_frame_id,
                     target_time=t,
                     source_frame=base_frame_id,
-                    source_time=last_stamp,
+                    source_time=last_stamp1,
                     fixed_frame='world',
                     timeout=rospy.Duration(1.0)
                 )
@@ -162,16 +152,19 @@ def main():
                 rate.sleep()
                 print(e)
 
-            stampdiff = current_stamp - last_stamp
+            stampdiff = current_stamp - last_stamp1
             stampdiff_sec = stampdiff.to_sec() # floating point
             stampdiff_nsec = stampdiff.to_nsec()
             #print('type of stampdiff is : ',type(stampdiff_sec),type(stampdiff_nsec))
             #print('stampdiff is : ',stampdiff_sec,stampdiff_nsec)
 
             stampdiff_int = stampdiff_sec * 1000000000
+            if DEBUG:
+                    print('current stamp:',current_stamp)
+                    print('stamp difference:',stampdiff)
 
-            if last_stamp == current_stamp or stampdiff_int < 20000000 or current_stamp == 1655219049426688671:
-                print('continued...')
+            if last_stamp1 == current_stamp or stampdiff_int < 20000000 or current_stamp == 1655219049426688671:
+                #print('continued...')
                 continue
 
             transform_magnitude = transformMagnitude(transform_base, dummy_tf, discrepancy_multiplier)
@@ -182,11 +175,10 @@ def main():
             #    continue
 
             image_num+=1
-            #print('transform_magnitude',transform_magnitude)
-            last_stamp = current_stamp
+            # gets updated already here since we need an updated last_stamp for when the script reaches past the first continue if construct 
+            last_stamp1 = current_stamp
 
-
-            if transform_magnitude < discrepancy_threshold_upper and image_num > 1:
+            if transform_magnitude < discrepancy_threshold_upper and image_num > -1:
                 print('skipped because of static robot, movement magnitude is ', transform_magnitude, ' which is lower than ',discrepancy_threshold_upper)
                 scene_filter[image_num] = filter_list(image_num, current_stamp,transform_magnitude)
                 continue
@@ -198,21 +190,45 @@ def main():
             translation = list(tf_cam_to_object[0:3, 3 ]*1000   )  # convert meter to mm
             rotation    =      tf_cam_to_object[0:3,0:3].tolist()  # rotation matrix
 
-            #scene_filter[image_num] = filter_list(image_num, current_stamp, transform_magnitude)
-            scene_gt    [image_num] = gt_list(transform_cam_object, rotation, translation, obj_id)
-            scene_aux   [image_num] = aux_list(current_stamp, last_stamp, transform_magnitude)
+            # we need a second last_stamp to be able to generate valid stampdiff values for the auxiliary list (containing information to monitor the process)
+            # laststamp2 gets updated after the construction of scene_aux to prevent stampdiff to return 0
+
+            if image_num >= 0:
+                #scene_filter[image_num] = filter_list(image_num, current_stamp, transform_magnitude)
+                scene_gt    [image_num] = gt_list(transform_cam_object, rotation, translation, obj_id)
+                scene_aux   [image_num] = aux_list(current_stamp, last_stamp2, transform_magnitude)
+                last_stamp2 = current_stamp
 
             #print('komt ie nog hier langs na een "continued..."? Alleen als de bagfile draait...')
             #last_transform = transform
             #print('timestamp updated')
             rospy.loginfo_throttle(
-                    1, "Recorded {} transformations at last timestamp {}.".format(image_num, last_stamp))
+                    1, "Recorded {} transformations at last timestamp {}.".format(image_num, last_stamp2))
 
     print('end main')
-    rospy.loginfo("Recorded {} transformations.".format(image_num))
+    rospy.loginfo("Recorded {} transformations.".format(image_num+1))
     inout.save_scene_gt_list(json_6d_path       , scene_gt    )
     inout.save_scene_gt_list(json_6d_filter_path, scene_filter)
     inout.save_scene_gt_list(json_6d_aux_path   , scene_aux   )
 
 if __name__ == '__main__':
     main()
+
+
+class ROSTransformerHandler (object):
+    tform = tf.TransformerROS()
+    #static_tfs = {}
+
+    def get_transform_matrix(self, frame_a, frame_b, tfb):
+        #t = rospy.Time(0)
+        t = self.tform.getLatestCommonTime(frame_a, frame_b)
+        #print('latestcommontime  =',t2)
+        #trans, rot = self.tform.lookupTransform(frame_a, frame_b, t)
+        trans = tfb.lookup_transform(frame_a, frame_b, t, timeout=rospy.Duration(10.0))
+        #mat = self.tform.fromTranslationRotation(trans, rot) # only for TransformerROS
+        #mat = mat.tolist()
+        #except (tf.LookupException, tf.Exception):
+        #    return []
+        #print(mat)
+        #print(trans)
+        return trans

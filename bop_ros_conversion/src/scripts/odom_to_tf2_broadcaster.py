@@ -33,7 +33,7 @@ def main():
     agent_name1 =     rospy.get_param('~agentname1')
     agent_name2 =     rospy.get_param('~agentname2')
     #msg_no=0
-    rospy.Subscriber('/sync/%s/pose' %agent_name2,
+    rospy.Subscriber('/sync/%s/pose' %agent_name1,
                      Odometry,       # msg type which is also parsed to the callback
                      handle_pose,    # Callback
                      agent_name1     # 2nd argument supplied to callback

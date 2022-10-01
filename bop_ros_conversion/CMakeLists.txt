@@ -74,6 +74,7 @@ catkin_install_python(PROGRAMS
   src/scripts/rewrite_rosmsg_header_timestamps.py
   src/scripts/rewrite_rosmsg_header_timestamps_calib.py
   src/scripts/rewrite_rostopic_names.py
+  src/scripts/rewrite_header_node.py
   src/scripts/inspect_json.py
   src/scripts/import_test.py
   src/scripts/quat_to_euler.py
