@@ -45,11 +45,10 @@ p = {
 dp_split = dataset_params.get_split_params(
   p['datasets_path'], p['dataset'], p['dataset_split'], p['dataset_split_type'])
 
-print(dp_split)
+#print(dp_split)
 
 scene_ids = dataset_params.get_present_scene_ids(dp_split)
 print(scene_ids)
-'''
 for scene_id in scene_ids:
   print(scene_id)
 
@@ -57,8 +56,8 @@ for scene_id in scene_ids:
     print('image id number was skipped :)')
   scene_gt = inout.load_scene_gt(
     dp_split['scene_gt_tpath'].format(scene_id=scene_id))
-  
+
   scene_gt_info = {}
   im_ids = sorted(scene_gt.keys())
   last_id = scene_id
-'''
+
