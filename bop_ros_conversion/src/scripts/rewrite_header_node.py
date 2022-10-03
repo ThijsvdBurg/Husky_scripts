@@ -36,7 +36,7 @@ def main():
           if i == crop_max+1:
             break
           #print('before',msg.header.stamp.secs)
-          msg.header.stamp.secs=msg.header.stamp.secs-2  #will subtract 1 from orig timestamp to create dummy values for tf 
+          msg.header.stamp.secs=msg.header.stamp.secs-3  #will subtract 1 from orig timestamp to create dummy values for tf 
           #print('after',msg.header.stamp.secs)
           #msg.header.stamp=t  #will keep the stamp of the computer's clock which was used to record the bagfile on
             # the modification below will keep the msg.header timestamps, comment whichever suits your needs

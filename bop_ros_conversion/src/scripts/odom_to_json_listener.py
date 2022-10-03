@@ -5,7 +5,11 @@ import os
 import json
 import tf
 import tf2_ros
+
 from bop_toolkit_lib import inout
+from pybop_lib.stamp_utils import assertStamp
+from pybop_lib.stamp_utils import getFirstStamp
+
 import time
 from geometry_msgs.msg import TransformStamped
 import math
@@ -72,6 +76,7 @@ def main():
     #ROSPARAMETER parsing
     base_frame_id   = rospy.get_param('~parent_frame')
     target_frame_id = rospy.get_param('~child_frame')
+    bagpath         = rospy.get_param('~bagpath')
     scene_num       = rospy.get_param('~sequence_number')
     lookup_rate     = rospy.get_param('~lookup_rate')
     sleep_before    = rospy.get_param('~sleeptime')
@@ -98,6 +103,9 @@ def main():
     gt_6d_pose_data = {}
     discrepancy_multiplier = 1000
     discrepancy_threshold_upper = 2.000 # to filter the static transforms
+    topic_name='/sync/Husky/pose'
+
+    first_stamp, num_msgs = getFirstStamp(bagpath, topic_name)
 
 #    if os.path.exists(json_6d_path):
 #        with open(json_6d_path, "r") as gt_scene:
@@ -133,7 +141,7 @@ def main():
                 )
 
                 #if DEBUG:
-                    #print('transform from cam to object',transform_cam_object)
+                #    print('transform from cam to object',transform_cam_object)
                 # transform from previous robot location to the current TODO check if these values are closely related to the excel values
                 transform_base = tfBuffer.lookup_transform_full(
                     target_frame=base_frame_id,
@@ -162,29 +170,37 @@ def main():
             if DEBUG:
                     print('current stamp:',current_stamp)
                     print('stamp difference:',stampdiff)
+                    print('tf base to prev timestep:',transform_base)
 
-            if last_stamp1 == current_stamp or stampdiff_int < 20000000 or current_stamp == 1655219049426688671:
+            if last_stamp1 == current_stamp or stampdiff_int < 50000000: # or current_stamp == 1655219049426688671:
                 #print('continued...')
                 continue
 
             transform_magnitude = transformMagnitude(transform_base, dummy_tf, discrepancy_multiplier)
-            #print('tf discrep base is:\n',transform_magnitude)                #current_time = rospy.Time.from_sec(time.time())
 
-            #if transform_discrepancy < discrepancy_threshold_low:
-            #    print('transform_discrep is lower than threshold:',transform_discrepancy,'\nskipped because of duplicate transform')
-            #    continue
-
+            # image_num gets increased already here since we wish to have a filtered list of static transformations
+            # with unique values for each image id
             image_num+=1
-            # gets updated already here since we need an updated last_stamp for when the script reaches past the first continue if construct 
+
+            # gets updated already here since we need an updated last_stamp for when the script reaches past the first continue if construct
             last_stamp1 = current_stamp
 
-            if transform_magnitude < discrepancy_threshold_upper and image_num > -1:
+            if transform_magnitude < discrepancy_threshold_upper and image_num > 0:
                 print('skipped because of static robot, movement magnitude is ', transform_magnitude, ' which is lower than ',discrepancy_threshold_upper)
                 scene_filter[image_num] = filter_list(image_num, current_stamp,transform_magnitude)
                 continue
-
-            # bop toolkit annotation lines
-            #seq = trans.header.seq
+            # to automatically check if the first timestamp is corresponding with the timestamp found at image_num = 0,
+            # we assert it here wrt an upper and lower bound
+            if image_num == 0:
+                assertStamp(current_stamp, first_stamp, rospy.Duration(.025))
+                '''
+                print('first timestamp in bag is:', first_timestamp, ' and the current stamp is: ', current_stamp)
+                if current_stamp < (first_timestamp-timestamp_bound):
+                    print('The current stamp is lower than expected, try sleepbf:=2.0')
+                if current_stamp > (first_timestamp+timestamp_bound):
+                    print('The current stamp is higher than expected, try sleepbf:=1.4')
+                assert current_stamp > (first_timestamp-timestamp_bound) and current_stamp < (first_timestamp+timestamp_bound)
+                '''
             tf_cam_to_object = tfl.asMatrix(target_frame_id,transform_cam_object.header)
 
             translation = list(tf_cam_to_object[0:3, 3 ]*1000   )  # convert meter to mm
@@ -192,21 +208,19 @@ def main():
 
             # we need a second last_stamp to be able to generate valid stampdiff values for the auxiliary list (containing information to monitor the process)
             # laststamp2 gets updated after the construction of scene_aux to prevent stampdiff to return 0
-
             if image_num >= 0:
                 #scene_filter[image_num] = filter_list(image_num, current_stamp, transform_magnitude)
                 scene_gt    [image_num] = gt_list(transform_cam_object, rotation, translation, obj_id)
                 scene_aux   [image_num] = aux_list(current_stamp, last_stamp2, transform_magnitude)
                 last_stamp2 = current_stamp
 
-            #print('komt ie nog hier langs na een "continued..."? Alleen als de bagfile draait...')
-            #last_transform = transform
-            #print('timestamp updated')
             rospy.loginfo_throttle(
                     1, "Recorded {} transformations at last timestamp {}.".format(image_num, last_stamp2))
 
     print('end main')
-    rospy.loginfo("Recorded {} transformations.".format(image_num+1))
+    rospy.loginfo("Recorded {} transformations. We expected {}.".format(image_num+1, num_msgs))
+    #if image_num+1 == num_msgs
+    assert image_num+1 == num_msgs
     inout.save_scene_gt_list(json_6d_path       , scene_gt    )
     inout.save_scene_gt_list(json_6d_filter_path, scene_filter)
     inout.save_scene_gt_list(json_6d_aux_path   , scene_aux   )
