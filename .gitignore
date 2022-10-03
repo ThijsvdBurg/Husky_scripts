@@ -61,3 +61,6 @@ bagfiles
 gt_jsons
 
 .DS_Store
+
+# python eggs
+*.egg-info
