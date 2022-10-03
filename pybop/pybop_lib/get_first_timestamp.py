@@ -7,27 +7,19 @@
 """Get first timestamp from a rosbag.
 """
 
-import os
-import argparse
+# import os
+# import argparse
 import rosbag
-import sys
+# import sys
 
-def main():
+def get_Timestamp(bagpath,topic_name):
   """Extract an image sequence from a rosbag.
   """
-  parser = argparse.ArgumentParser(description="Extract images from a ROS bag.")
 
-  parser.add_argument("--bag_file", help="Input ROS bag.")
-  #parser.add_argument("--output_dir", help="Output directory.")
-  parser.add_argument("--topic", help="topic.")
-  # parser.add_argument("--intrinsics_topic", help="Topic containing CameraInfo.")
-
-  args = parser.parse_args()
-
-  bag = rosbag.Bag(args.bag_file, "r")
+  bag = rosbag.Bag(bagpath, "r")
 
   count = 0
-  for topic, msg, t in bag.read_messages(topics=[args.topic]):
+  for topic, msg, t in bag.read_messages(topics=[topic_name]):
     if msg.header.seq == 1:
       first_timestamp = msg.header.stamp
     count+=1
@@ -35,7 +27,7 @@ def main():
       break
     bag.close()
 
-  print(first_timestamp)
+  return first_timestamp  
 
 if __name__ == '__main__':
   main()
