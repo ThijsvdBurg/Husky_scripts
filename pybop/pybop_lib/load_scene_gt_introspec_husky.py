@@ -47,7 +47,7 @@ dp_split = dataset_params.get_split_params(
 
 print(dp_split)
 
-'''scene_ids = dataset_params.get_present_scene_ids(dp_split)
+scene_ids = dataset_params.get_present_scene_ids(dp_split)
 print(scene_ids)
 last_id = 0
 for scene_id in scene_ids:
@@ -62,5 +62,3 @@ for scene_id in scene_ids:
   im_ids = sorted(scene_gt.keys())
   print(im_ids)
   last_id = scene_id
-
-'''
