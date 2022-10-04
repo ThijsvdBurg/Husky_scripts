@@ -68,9 +68,9 @@ def mkdir(path):
 def main():
     #TODO:
     #		- Code cleanup
-    #		- fix todos below
-    #		- FIXED extract row-wise values and check if they are correct
-    #           - make timestamp based if construct functioning
+    #		- DONE fix todos below
+    #		- DONE extract row-wise values and check if they are correct
+    #           - DONE make timestamp based if construct functioning
     rospy.init_node('json_listener')
 
     #ROSPARAMETER parsing

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from urllib import robotparser
 import rosbag
 import rospy
