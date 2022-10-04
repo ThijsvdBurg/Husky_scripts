@@ -8,6 +8,7 @@
 """
 
 import os
+from turtle import right
 #import argparse
 import cv2
 import rosbag
@@ -26,6 +27,8 @@ def main():
   split_type       =  rospy.get_param('split_type')       # export to train, val or test directory
   left_topic       =  rospy.get_param('~lefttop')         # topic name for left image stream
   right_topic      =  rospy.get_param('~righttop')        # topic name for right image stream
+  left_cam         =  rospy.get_param('~leftcamtop')      # topic name for left image stream
+  right_cam        =  rospy.get_param('~rightcamtop')     # topic name for right image stream
   # parser.add_argument("--bag_file", help="Input ROS bag.")
   # parser.add_argument("--output_dir", help="Output directory.")
   # parser.add_argument("--image_topic", help="Image topic.")
@@ -50,19 +53,31 @@ def main():
     os.makedirs(scenes_path_right)
     print("created {}".format(scenes_path))
 
+    left_info = {}
+    right_info = {}
     countl = 0
     countr = 0
+    countcamleft = 0
+    countcamright = 0
 
-    for topic, msg, t in bag.read_messages(topics=[left_topic, right_topic]):
+    for topic, msg, t in bag.read_messages(topics=[left_topic, right_topic, left_cam, right_cam]):
       cv_image = bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
       if topic == left_topic:
         cv2.imwrite(os.path.join(scenes_path,      "%06i.png" % countl), cv_image)
         countl+=1
         print("Wrote left image %i" % countl)
-      else:
+      elif topic == right_topic:
         cv2.imwrite(os.path.join(scenes_path_right,"%06i.png" % countr), cv_image)
         countr+=1
         print("Wrote right image %i" % countr)
+      elif topic == left_cam:
+        # cv2.imwrite(os.path.join(scenes_path_right,"%06i.png" % countr), cv_image)
+        countcamleft+=1
+        
+        # print("Wrote right image
+      else:
+        right_info[countcamright] = extract_cam_info(msg)
+        countcamright+=1
 
   else:
     print('path exists, assuming that images exist inside, aborting')

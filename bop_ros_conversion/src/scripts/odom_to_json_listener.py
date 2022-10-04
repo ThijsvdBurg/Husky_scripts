@@ -209,6 +209,7 @@ def main():
                 #scene_filter[image_num] = filter_list(image_num, current_stamp, transform_magnitude)
                 scene_gt    [image_num] = gt_list(transform_cam_object, rotation, translation, obj_id)
                 scene_aux   [image_num] = aux_list(current_stamp, last_stamp2, transform_magnitude)
+
                 last_stamp2 = current_stamp
 
             rospy.loginfo_throttle(
@@ -221,10 +222,10 @@ def main():
     inout.save_scene_gt_list(json_6d_path       , scene_gt    )
     inout.save_scene_gt_list(json_6d_filter_path, scene_filter)
     inout.save_scene_gt_list(json_6d_aux_path   , scene_aux   )
+    #inout.save_scene_gt_list(json_caminfo_path  , camera_scene)
 
 if __name__ == '__main__':
     main()
-
 
 class ROSTransformerHandler (object):
     tform = tf.TransformerROS()
