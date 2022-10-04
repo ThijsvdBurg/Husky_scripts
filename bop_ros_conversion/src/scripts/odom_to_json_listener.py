@@ -76,12 +76,13 @@ def main():
     #ROSPARAMETER parsing
     base_frame_id   = rospy.get_param('~parent_frame')
     target_frame_id = rospy.get_param('~child_frame')
-    bagpath         = rospy.get_param('~bagpath')
-    scene_num       = rospy.get_param('~sequence_number')
+    bagpath         = rospy.get_param('bagpath')
+    scene_num       = rospy.get_param('sequence_number')
     lookup_rate     = rospy.get_param('~lookup_rate')
     sleep_before    = rospy.get_param('~sleeptime')
     DEBUG           = rospy.get_param('~debug')
-    data_path       = rospy.get_param('~dataset_path')
+    data_path       = rospy.get_param('dataset_path')
+    split_type      = rospy.get_param('split_type')
 
     tfBuffer = tf2_ros.Buffer()
     listener = tf2_ros.TransformListener(tfBuffer)
@@ -92,16 +93,16 @@ def main():
 
     #TODO change this when actually converting
     scenes_directory = data_path #'/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705'
-    scenes_path =  os.path.join(scenes_directory, f"{scene_num:06}")
+    scenes_path =  os.path.join(scenes_directory, split_type, f"{scene_num:06}")
     json_6d_path = os.path.join(scenes_path, "scene_gt.json")
     json_6d_aux_path = os.path.join(scenes_path, "scene_gt_aux.json")
     json_6d_filter_path = os.path.join(scenes_path, "scene_gt_filter.json")
-    scene_gt = {}
-    scene_filter = {}
-    scene_aux = {}
-    #ROS_TRANSFORMER_HANDLER = ROSTransformerHandler()
+    scene_gt         = {}
+    scene_filter     = {}
+    scene_aux        = {}
+    gt_6d_pose_data  = {}
+    # -2 accounts for the two dummy transforms which are expected to be recorded to kick-start the pipeline
     image_num = -2
-    gt_6d_pose_data = {}
     discrepancy_multiplier = 1000
     discrepancy_threshold_upper = 2.000 # to filter the static transforms
     topic_name='/sync/Husky/pose'

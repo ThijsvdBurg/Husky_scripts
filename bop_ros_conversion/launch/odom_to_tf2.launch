@@ -16,19 +16,27 @@
   <arg name="DEBUG" default="0" />
   <arg name="dummy_crop" default="1" />
   <arg name="node_start_delay" default="2.5" />  
-  
+  <arg name="split_type" default="train" />  
+
+  <param name="bagpath" type="string" value="$(arg bagpath)" />
+  <param name="dataset_path" type="" value="$(arg dataset_path)" />
+  <param name="sequence_number" type="" value="$(arg sequence_number)" />
+  <param name="split_type" type="" value="$(arg split_type)" />
+  <!--<param name="" type="" value="$(arg )" /> -->
+
 
     <!-- create dummybag for consistent tf_lookup behaviour -->
     <node pkg="bop_ros_conversion" type="rewrite_header_node.py" name="ros_rewrite_header_delay" respawn="false" output="screen" >
-      <param name="src" type="string" value="$(arg bagpath)" />
+      <!--<param name="src" type="string" value="$(arg bagpath)" />-->
       <param name="tgt" type="string" value="$(arg dummybagpath)" />
       <param name="crop" type="bool"  value="$(arg dummy_crop)" />
     </node>
     <!-- bag_to_images -->
     <node pkg="bop_ros_conversion" type="bag_to_image_node.py" name="rosbag_to_images" respawn="false" output="screen" >
-      <param name="src" type="string" value="$(arg bagpath)" />
-      <param name="dataset_path" type="string" value="$(arg dataset_path)" />
-      <param name="sequence_number" type="int" value="$(arg sequence_number)"/>
+      <!--<param name="src" type="string" value="$(arg bagpath)" />
+      <param name="dataset_path" type="string" value="$(arg dataset_path)" /> 
+      <param name="split_type" type="string" value="$(arg split_type)" />
+      <param name="sequence_number" type="int" value="$(arg sequence_number)"/>-->
       <param name="lefttop" type="string" value="/sync/left/image_rect" />
       <param name="righttop" type="string" value="/sync/right/image_rect" />
     </node>
@@ -94,32 +102,13 @@
 
       <param name="parent_frame" type= "string" value="Husky_zed_left_sensor_link"/>
       <param name="child_frame" type= "string" value="MMbox_base_link"/>
-      <param name="bagpath" type="string" value="$(arg bagpath)"/>
+      <!--<param name="bagpath" type="string" value="$(arg bagpath)"/>
       <param name="dataset_path" type="string" value="$(arg dataset_path)"/>
-      <param name="sequence_number" type="int" value="$(arg sequence_number)"/>
+      <param name="sequence_number" type="int" value="$(arg sequence_number)"/> -->
       <param name="lookup_rate" value="$(arg json_frequency)"/>
       <param name="sleeptime" value="$(arg sleepbf)"/>
       <param name="debug" value="$(arg DEBUG)"/>
     </node> 
-    <!--
-    <node name="odom_to_json_listener_tt" pkg="bop_ros_conversion" type="odom_to_json_listener_4.py" respawn="false" output="screen" >
-
-      <param name="parent_frame" type= "string" value="Husky_zed_left2"/>
-      <param name="child_frame" type= "string" value="MMbox_base_link"/>
-      <param name="parent_frame" type= "string" value="Husky_zed_left_sensor_link"/> 
-
-      <param name="parent_frame" type= "string" value="Husky_zed_left_sensor_link"/>
-      <param name="child_frame" type= "string" value="MMbox_base_link"/>
-      <param name="sequence_number" type="int" value="$(arg sequence_number)"/>
-      <param name="lookup_rate" value="$(arg json_frequency)"/>
-      <param name="sleeptime" value="$(arg sleepbf)"/>
-    </node> 
-    -->
-    
-    <!--<node name="tf2_robot_to_cam_fixed_bc" pkg="bop_ros_conversion" type="robot_to_zed_broadcaster.py" respawn="false" output="screen" >
-    </node>
-    <node name="tf2_box_opti_to_box_fixed_bc" pkg="bop_ros_conversion" type="box_mk_to_box_ctr_broadcaster.py" respawn="false" output="screen" >
-    </node>-->
     
     <!-- <node pkg="rosbag" type="play" name="rosbag_dummy" args="-r 0.5$(arg bagrate) $(arg dummybagpath)" />  -->
     <node pkg="rosbag" type="play" name="rosbag_dummy" args="-r .5 -u 3 $(arg dummybagpath)" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " />

@@ -20,9 +20,10 @@ def main():
   """
   # rospy.init_node()
   rospy.init_node('bag_to_image_node')
-  source_dir       =  rospy.get_param('~src')             # path to rosbag
-  scenes_directory =  rospy.get_param('~dataset_path')    # path to resulting images
-  scene_num        =  rospy.get_param('~sequence_number') # sequence/experiment number
+  source_dir       =  rospy.get_param('bagpath')          # path to rosbag
+  scenes_directory =  rospy.get_param('dataset_path')     # path to resulting images
+  scene_num        =  rospy.get_param('sequence_number')  # sequence/experiment number
+  split_type       =  rospy.get_param('split_type')       # export to train, val or test directory
   left_topic       =  rospy.get_param('~lefttop')         # topic name for left image stream
   right_topic      =  rospy.get_param('~righttop')        # topic name for right image stream
   # parser.add_argument("--bag_file", help="Input ROS bag.")
@@ -37,8 +38,8 @@ def main():
 
   bag = rosbag.Bag(source_dir, "r")
 
-  scenes_path       = os.path.join(scenes_directory, f"{scene_num:06}", "rgb"      )
-  scenes_path_right = os.path.join(scenes_directory, f"{scene_num:06}", "rgb_right")
+  scenes_path       = os.path.join(scenes_directory, split_type, f"{scene_num:06}", "rgb"      )
+  scenes_path_right = os.path.join(scenes_directory, split_type, f"{scene_num:06}", "rgb_right")
 
   print("Extract images from {} on topic {} into {}".format(source_dir,left_topic,scenes_path))
 
