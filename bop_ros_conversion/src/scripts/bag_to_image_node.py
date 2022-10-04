@@ -45,8 +45,8 @@ def main():
   if not os.path.exists(scenes_path):
   #if not os.access(scenes_path,os.W_OK)==True:
     print('target dir not existing, creating the directory')
-    os.mkdir(scenes_path)
-    os.mkdir(scenes_path_right)
+    os.makedirs(scenes_path)
+    os.makedirs(scenes_path_right)
     print("created {}".format(scenes_path))
 
     countl = 0

@@ -3,7 +3,7 @@
 
   <arg name="bagpath" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705_exp_000001_synced.bag" />
   <arg name="dummybagpath" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705/20220705_exp_000100_dummy.bag" />
-  <arg name="dataset_path" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705" />
+  <arg name="dataset_path" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/bop_datasets/husky" />
   <arg name="bagrate" default="1" />
   <arg name="sequence_number" default="1" />
   <arg name="json_frequency" default="50" /> <!-- this value works well for 20220705_exp_0001**_synced  -->
