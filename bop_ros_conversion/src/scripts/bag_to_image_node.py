@@ -15,6 +15,7 @@ import rosbag
 import rospy
 import sys
 from cv_bridge import CvBridge
+from pybop_lib.bag_to_camerainfo import extractCamInfo
 
 def main():
   """Extract an image sequence from a rosbag.
@@ -71,13 +72,12 @@ def main():
         countr+=1
         print("Wrote right image %i" % countr)
       elif topic == left_cam:
-        # cv2.imwrite(os.path.join(scenes_path_right,"%06i.png" % countr), cv_image)
+        left_info[countcamleft] = extractCamInfo(msg)     
         countcamleft+=1
-        
-        # print("Wrote right image
       else:
-        right_info[countcamright] = extract_cam_info(msg)
+        right_info[countcamright] = extractCamInfo(msg)
         countcamright+=1
+
 
   else:
     print('path exists, assuming that images exist inside, aborting')
@@ -85,6 +85,7 @@ def main():
 
   bag.close()
 
+  
   return
 
 if __name__ == '__main__':
