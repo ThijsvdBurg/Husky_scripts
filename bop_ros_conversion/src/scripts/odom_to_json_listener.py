@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import rospy
 import os
+from os import mkdir 
 
 import json
 import tf
@@ -15,6 +16,7 @@ from geometry_msgs.msg import TransformStamped
 import math
 import numpy as np
 
+# TODO move to pybop utils
 def filter_list(imnum, headerstamp,mag):
     scene_gt_filter = [{
                 'image_number': imnum,
@@ -62,8 +64,7 @@ def transform_init():
     tf.transform.rotation.w    = 1.0
     return tf
 
-def mkdir(path):
-    os.mkdir(path)
+
 
 def main():
     #TODO:
@@ -100,13 +101,15 @@ def main():
     scene_gt         = {}
     scene_filter     = {}
     scene_aux        = {}
-    gt_6d_pose_data  = {}
+    # gt_6d_pose_data  = {}
+    
     # -2 accounts for the two dummy transforms which are expected to be recorded to kick-start the pipeline
     image_num = -2
     discrepancy_multiplier = 1000
-    discrepancy_threshold_upper = 2.000 # to filter the static transforms
+    discrepancy_threshold_upper = 2.000 # max threshold to filter the static transforms
+    
     topic_name='/sync/Husky/pose'
-
+    # get first timestamp from bagfile to compare to the 0th recorded transform, also get total number of messages to use for assertion later
     first_stamp, num_msgs = getFirstStamp(bagpath, topic_name)
 
 #    if os.path.exists(json_6d_path):
@@ -125,7 +128,7 @@ def main():
     with open(json_6d_path, 'w+') as gt_path:
         last_stamp1 = rospy.Time()
         last_stamp2 = rospy.Time()
-        last_transform = transform_init()
+        #last_transform = transform_init()
         dummy_tf       = transform_init()
         #print(last_transform)
         while not rospy.is_shutdown():
@@ -164,9 +167,9 @@ def main():
 
             stampdiff = current_stamp - last_stamp1
             stampdiff_sec = stampdiff.to_sec() # floating point
-            stampdiff_nsec = stampdiff.to_nsec()
-            #print('type of stampdiff is : ',type(stampdiff_sec),type(stampdiff_nsec))
-            #print('stampdiff is : ',stampdiff_sec,stampdiff_nsec)
+            # stampdiff_nsec = stampdiff.to_nsec()
+            # print('type of stampdiff is : ',type(stampdiff_sec),type(stampdiff_nsec))
+            # print('stampdiff is : ',stampdiff_sec,stampdiff_nsec)
 
             stampdiff_int = stampdiff_sec * 1000000000
             if DEBUG:
@@ -180,7 +183,7 @@ def main():
 
             transform_magnitude = transformMagnitude(transform_base, dummy_tf, discrepancy_multiplier)
 
-            # image_num gets increased already here since we wish to have a filtered list of static transformations
+            # updating iamge_num here is necessary since we wish to have a filtered list of static transformations
             # with unique values for each image id
             image_num+=1
 
@@ -192,17 +195,9 @@ def main():
                 scene_filter[image_num] = filter_list(image_num, current_stamp,transform_magnitude)
                 continue
             # to automatically check if the first timestamp is corresponding with the timestamp found at image_num = 0,
-            # we assert it here wrt an upper and lower bound
+            # we assert it here wrt an upper and lower bound, which is the original first timestamp ±25 million nanoseconds (rospy duration 0.025)
             if image_num == 0:
                 assertStamp(current_stamp, first_stamp, rospy.Duration(.025))
-                '''
-                print('first timestamp in bag is:', first_timestamp, ' and the current stamp is: ', current_stamp)
-                if current_stamp < (first_timestamp-timestamp_bound):
-                    print('The current stamp is lower than expected, try sleepbf:=2.0')
-                if current_stamp > (first_timestamp+timestamp_bound):
-                    print('The current stamp is higher than expected, try sleepbf:=1.4')
-                assert current_stamp > (first_timestamp-timestamp_bound) and current_stamp < (first_timestamp+timestamp_bound)
-                '''
             tf_cam_to_object = tfl.asMatrix(target_frame_id,transform_cam_object.header)
 
             translation = list(tf_cam_to_object[0:3, 3 ]*1000   )  # convert meter to mm
