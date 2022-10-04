@@ -9,14 +9,14 @@ import numpy as np
 def msg_to_info(K, u, v, depth_scale):
   print(type(K))
   print(K)
-  #fx, fy, cx, cy = K[0, 0], K[1, 1], K[0, 2], K[1, 2]
+  fx, fy, cx, cy = K[0], K[4], K[2], K[5]
   #im_size = (u, v)
 
   cam = {
-  #  'im_size': (im_size[0], im_size[1]),
-  #  'K': np.array([[fx,   0.0,   cx],
-  #                 [0.0,   fy,   cy],
-  #                 [0.0,  0.0,   1.0]])
+    'im_size': (u,v),
+    'K': np.array([[fx,   0.0,   cx],
+                   [0.0,   fy,   cy],
+                   [0.0,  0.0,   1.0]])
         }
   cam['depth_scale'] = float(depth_scale)
 
