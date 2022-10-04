@@ -13,7 +13,7 @@ from bop_toolkit_lib import dataset_params
 
 p = {
   # See dataset_params.py for options.
-  'dataset': 'tudl',
+  'dataset': 'husky',
 
   # Dataset split. Options: 'train', 'val', 'test'.
   'dataset_split': 'train',
