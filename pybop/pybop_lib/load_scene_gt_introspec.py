@@ -53,13 +53,16 @@ last_id = 0
 for scene_id in scene_ids:
   print(scene_id)
 
-  if scene_id-1 != last_id:
-    print('scene id number was skipped :)')
+  scene_camera = inout.load_scene_camera(
+    dp_split['scene_camera_tpath'].format(scene_id=scene_id))
   scene_gt = inout.load_scene_gt(
     dp_split['scene_gt_tpath'].format(scene_id=scene_id))
+  dp_camera = dataset_params.get_camera_params(p['datasets_path'], p['dataset'],None)
 
+  print('dp camera is',dp_camera)
   scene_gt_info = {}
   im_ids = sorted(scene_gt.keys())
-  print(im_ids)
+  #print(im_ids)
+  #print('scene camera 0 is :',scene_camera[0])
   last_id = scene_id
 

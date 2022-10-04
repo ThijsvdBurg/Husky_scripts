@@ -7,17 +7,17 @@ import numpy as np
 #    - methods with i/o
 #    - load json 
 def msg_to_info(K, u, v, depth_scale):
-
-  fx, fy, cx, cy = K[0, 0], K[1, 1], K[0, 2], K[1, 2]
-  im_size = (u, v)
+  print(type(K))
+  print(K)
+  #fx, fy, cx, cy = K[0, 0], K[1, 1], K[0, 2], K[1, 2]
+  #im_size = (u, v)
 
   cam = {
-    'im_size': (im_size[0], im_size[1]),
-    'K': np.array([[fx,   0.0,   cx],
-                   [0.0,   fy,   cy],
-                   [0.0,  0.0,   1.0]])
+  #  'im_size': (im_size[0], im_size[1]),
+  #  'K': np.array([[fx,   0.0,   cx],
+  #                 [0.0,   fy,   cy],
+  #                 [0.0,  0.0,   1.0]])
         }
-  
   cam['depth_scale'] = float(depth_scale)
 
   return cam
@@ -43,4 +43,4 @@ def extractCamInfo(msg):
   v = msg.width
   depth_scale = 1.0
   cam_info = msg_to_info(K,u,v,depth_scale)
-  return cam_info  
+  return cam_info
