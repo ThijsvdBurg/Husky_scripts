@@ -3,6 +3,7 @@
 
   <arg name="bagpath" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705_exp_000001_synced.bag" />
   <arg name="dummybagpath" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705/20220705_exp_000100_dummy.bag" />
+  <arg name="dataset_path" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705" />
   <arg name="bagrate" default="1" />
   <arg name="sequence_number" default="1" />
   <arg name="json_frequency" default="50" /> <!-- this value works well for 20220705_exp_0001**_synced  -->
@@ -24,9 +25,10 @@
       <param name="crop" type="bool"  value="$(arg dummy_crop)" />
     </node>
     <!-- bag_to_images -->
-    <node pkg="bop_ros_conversion" type="bag_to_images_node.py" name="rosbag_to_images" respawn="false" output="screen" >
+    <node pkg="bop_ros_conversion" type="bag_to_image_node.py" name="rosbag_to_images" respawn="false" output="screen" >
       <param name="src" type="string" value="$(arg bagpath)" />
-      <param name="tgt" type="string" value="$(arg dummybagpath)" />
+      <param name="dataset_path" type="string" value="$(arg dataset_path)" />
+      <param name="sequence_number" type="int" value="$(arg sequence_number)"/>
       <param name="lefttop" type="string" value="/sync/left/image_rect" />
       <param name="righttop" type="string" value="/sync/right/image_rect" />
     </node>
@@ -93,6 +95,7 @@
       <param name="parent_frame" type= "string" value="Husky_zed_left_sensor_link"/>
       <param name="child_frame" type= "string" value="MMbox_base_link"/>
       <param name="bagpath" type="string" value="$(arg bagpath)"/>
+      <param name="dataset_path" type="string" value="$(arg dataset_path)"/>
       <param name="sequence_number" type="int" value="$(arg sequence_number)"/>
       <param name="lookup_rate" value="$(arg json_frequency)"/>
       <param name="sleeptime" value="$(arg sleepbf)"/>

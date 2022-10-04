@@ -20,10 +20,11 @@ def main():
   """
   # rospy.init_node()
   rospy.init_node('bag_to_image_node')
-  source_dir  =  rospy.get_param('~src')      # path to rosbag
-  target_dir  =  rospy.get_param('~tgt')      # path to resulting images
-  left_topic  =  rospy.get_param('~lefttop')  # topic name for left image stream
-  right_topic =  rospy.get_param('~righttop') # topic name for right image stream
+  source_dir       =  rospy.get_param('~src')             # path to rosbag
+  scenes_directory =  rospy.get_param('~dataset_path')    # path to resulting images
+  scene_num        =  rospy.get_param('~sequence_number') # sequence/experiment number
+  left_topic       =  rospy.get_param('~lefttop')         # topic name for left image stream
+  right_topic      =  rospy.get_param('~righttop')        # topic name for right image stream
   # parser.add_argument("--bag_file", help="Input ROS bag.")
   # parser.add_argument("--output_dir", help="Output directory.")
   # parser.add_argument("--image_topic", help="Image topic.")
@@ -31,36 +32,40 @@ def main():
 
   # args = parser.parse_args()
   bridge = CvBridge()
-  
-  # print("Extract images from %s on topic %s into %s" % (src,left_topic, target_dir))
-  
+
+  # print("Extract images from %s on topic %s into %s" % (src,left_topic, scenes_path))
+
   bag = rosbag.Bag(source_dir, "r")
-  print("Extract images from {} on topic {} into {}".format(source_dir,left_topic,target_dir))
-  if not os.access(target_dir,os.W_OK)==True:
-    print('target dir not writable, making the directory?')
-    if input("Do You Want To Continue? [y/n]") == "y":
-      os.mkdir(target_dir)
-      print("created output directory")
-    else:
-      print('aborting')
-      sys.exit()
-  
-  count = 0
 
-  for topic, msg, t in bag.read_messages(topics=[left_topic]):
-    cv_image = bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
-    cv2.imwrite(os.path.join(target_dir, "%06i.png" % count), cv_image)
-    print("Wrote image %i" % count)
-    count+=1
+  scenes_path       = os.path.join(scenes_directory, f"{scene_num:06}", "rgb"      )
+  scenes_path_right = os.path.join(scenes_directory, f"{scene_num:06}", "rgb_right")
 
-  print("Extract images from {} on topic {} into {}".format(source_dir,right_topic,target_dir))
-  count = 0
+  print("Extract images from {} on topic {} into {}".format(source_dir,left_topic,scenes_path))
 
-  for topic, msg, t in bag.read_messages(topics=[right_topic]):
-    cv_image = bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
-    cv2.imwrite(os.path.join(target_dir, "right","%06i.png" % count), cv_image)
-    print("Wrote right image %i" % count)
-    count+=1
+  if not os.path.exists(scenes_path):
+  #if not os.access(scenes_path,os.W_OK)==True:
+    print('target dir not existing, creating the directory')
+    os.mkdir(scenes_path)
+    os.mkdir(scenes_path_right)
+    print("created {}".format(scenes_path))
+
+    countl = 0
+    countr = 0
+
+    for topic, msg, t in bag.read_messages(topics=[left_topic, right_topic]):
+      cv_image = bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
+      if topic == left_topic:
+        cv2.imwrite(os.path.join(scenes_path,      "%06i.png" % countl), cv_image)
+        countl+=1
+        print("Wrote left image %i" % countl)
+      else:
+        cv2.imwrite(os.path.join(scenes_path_right,"%06i.png" % countr), cv_image)
+        countr+=1
+        print("Wrote right image %i" % countr)
+
+  else:
+    print('path exists, assuming that images exist inside, aborting')
+    sys.exit()
 
   bag.close()
 
