@@ -81,6 +81,7 @@ def main():
     lookup_rate     = rospy.get_param('~lookup_rate')
     sleep_before    = rospy.get_param('~sleeptime')
     DEBUG           = rospy.get_param('~debug')
+    data_path       = rospy.get_param('~dataset_path')
 
     tfBuffer = tf2_ros.Buffer()
     listener = tf2_ros.TransformListener(tfBuffer)
@@ -90,7 +91,7 @@ def main():
     obj_id = 1
 
     #TODO change this when actually converting
-    scenes_directory = '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705'
+    scenes_directory = data_path #'/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705'
     scenes_path =  os.path.join(scenes_directory, f"{scene_num:06}")
     json_6d_path = os.path.join(scenes_path, "scene_gt.json")
     json_6d_aux_path = os.path.join(scenes_path, "scene_gt_aux.json")
