@@ -78,13 +78,12 @@ def main():
         right_info[countcamright] = extractCamInfo(msg)
         countcamright+=1
 
-
   else:
     print('path exists, assuming that images exist inside, aborting')
     sys.exit()
 
   bag.close()
-
+  print(left_info)
   
   return
 

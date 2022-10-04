@@ -7,8 +7,8 @@ import numpy as np
 #    - methods with i/o
 #    - load json 
 def msg_to_info(K, u, v, depth_scale):
-  print(type(K))
-  print(K)
+  #print(type(K))
+  #print(K)
   fx, fy, cx, cy = K[0], K[4], K[2], K[5]
   #im_size = (u, v)
 
