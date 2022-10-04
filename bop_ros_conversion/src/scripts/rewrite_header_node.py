@@ -8,7 +8,7 @@ def main():
   """ROS node to rewrite bagfile header stamps to create a dummy bagfile to trick tf lookup
   """
   rospy.init_node('rewrite_header')
-  source_dir =     rospy.get_param('~src')  # path to rosbag
+  source_dir =     rospy.get_param('bagpath')  # path to rosbag
   target_dir =     rospy.get_param('~tgt')  # path to resulting dummybag
   crop       =     rospy.get_param('~crop') # bool if to crop the resulting dummybag (to save disk space)
   crop_max   =     10*6                     # 10 messages for 6 topics

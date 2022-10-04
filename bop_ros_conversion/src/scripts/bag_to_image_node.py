@@ -15,7 +15,10 @@ import rosbag
 import rospy
 import sys
 from cv_bridge import CvBridge
+
 from pybop_lib.bag_to_camerainfo import extractCamInfo
+from bop_toolkit_lib import inout
+
 
 def main():
   """Extract an image sequence from a rosbag.
@@ -43,6 +46,7 @@ def main():
   bag = rosbag.Bag(source_dir, "r")
 
   scenes_path       = os.path.join(scenes_directory, split_type, f"{scene_num:06}", "rgb"      )
+  scenes_path_cam   = os.path.join(scenes_directory, split_type, f"{scene_num:06}"  "scene_camera.json")
   scenes_path_right = os.path.join(scenes_directory, split_type, f"{scene_num:06}", "rgb_right")
 
   print("Extract images from {} on topic {} into {}".format(source_dir,left_topic,scenes_path))
@@ -62,17 +66,18 @@ def main():
     countcamright = 0
 
     for topic, msg, t in bag.read_messages(topics=[left_topic, right_topic, left_cam, right_cam]):
-      cv_image = bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
       if topic == left_topic:
+        cv_image = bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
         cv2.imwrite(os.path.join(scenes_path,      "%06i.png" % countl), cv_image)
         countl+=1
         print("Wrote left image %i" % countl)
       elif topic == right_topic:
+        cv_image = bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
         cv2.imwrite(os.path.join(scenes_path_right,"%06i.png" % countr), cv_image)
         countr+=1
         print("Wrote right image %i" % countr)
       elif topic == left_cam:
-        left_info[countcamleft] = extractCamInfo(msg)     
+        left_info[countcamleft] = extractCamInfo(msg)
         countcamleft+=1
       else:
         right_info[countcamright] = extractCamInfo(msg)
@@ -84,7 +89,8 @@ def main():
 
   bag.close()
   print(left_info)
-  
+  inout.save_scene_gt_list(scenes_path_cam, left_info)
+
   return
 
 if __name__ == '__main__':

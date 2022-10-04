@@ -27,18 +27,16 @@
 
     <!-- create dummybag for consistent tf_lookup behaviour -->
     <node pkg="bop_ros_conversion" type="rewrite_header_node.py" name="ros_rewrite_header_delay" respawn="false" output="screen" >
-      <!--<param name="src" type="string" value="$(arg bagpath)" />-->
+      <!--<param name="src" type="string" value="$(arg bagpath)" /> -->
       <param name="tgt" type="string" value="$(arg dummybagpath)" />
       <param name="crop" type="bool"  value="$(arg dummy_crop)" />
     </node>
     <!-- bag_to_images -->
     <node pkg="bop_ros_conversion" type="bag_to_image_node.py" name="rosbag_to_images" respawn="false" output="screen" >
-      <!--<param name="src" type="string" value="$(arg bagpath)" />
-      <param name="dataset_path" type="string" value="$(arg dataset_path)" /> 
-      <param name="split_type" type="string" value="$(arg split_type)" />
-      <param name="sequence_number" type="int" value="$(arg sequence_number)"/>-->
       <param name="lefttop" type="string" value="/sync/left/image_rect" />
+      <param name="leftcamtop" type="string" value="/sync/left/camera_info" />
       <param name="righttop" type="string" value="/sync/right/image_rect" />
+      <param name="rightcamtop" type="string" value="/sync/right/camera_info" />
     </node>
     <!-- from optitrack odom to tf2 broadcasters for husky and box -->
     <node name="husky_tf2_broadcaster" pkg="bop_ros_conversion" type="odom_to_tf2_broadcaster.py" respawn="false" output="screen" >
