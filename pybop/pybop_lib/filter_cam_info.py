@@ -51,15 +51,14 @@ print(scene_ids)
 filtered_info = {}
 for scene_id in scene_ids:
   scene_camera = inout.load_scene_camera(
-    dp_split['scene_camera_tpath'].format(scene_id=scene_id))
+    dp_split['scene_camera_unfilt_tpath'].format(scene_id=scene_id))
   scene_gt = inout.load_scene_gt(
     dp_split['scene_gt_tpath'].format(scene_id=scene_id))
 
-  scenes_camera_path = os.path.join(scenes_directory, f"{scene_id:06}", "scene_camera_filtered.json")
   filtered_info = {}
   im_ids = sorted(scene_gt.keys())
 
   for im_id in im_ids:
     filtered_info[im_id] = scene_camera[im_id]
 
-  inout.save_scene_camera(scenes_camera_path, filtered_info)
+  inout.save_scene_camera(dp_split['scene_camera_tpath'].format(scene_id=scene_id), filtered_info)

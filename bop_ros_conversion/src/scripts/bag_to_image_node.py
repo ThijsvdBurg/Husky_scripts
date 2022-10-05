@@ -46,16 +46,19 @@ def main():
   bag = rosbag.Bag(source_dir, "r")
 
   scenes_path       = os.path.join(scenes_directory, split_type, f"{scene_num:06}", "rgb"      )
-  scenes_path_cam   = os.path.join(scenes_directory, split_type, f"{scene_num:06}"  "scene_camera.json")
-  scenes_path_right = os.path.join(scenes_directory, split_type, f"{scene_num:06}", "rgb_right")
+  scenes_path_cam   = os.path.join(scenes_directory, split_type, f"{scene_num:06}", "scene_camera_unfiltered.json")
+  #out_scene_camera_tpath =\
+  #  os.path.join('{out_path}', '{obj_id:06d}', 'scene_camera.json')
+  scenes_path_right    = os.path.join(scenes_directory, split_type, f"{scene_num:06}", "rgb_right")
+  scenes_path_cam_right= os.path.join(scenes_directory, split_type, f"{scene_num:06}", "scene_camera_unfiltered_right.json")
 
   print("Extract images from {} on topic {} into {}".format(source_dir,left_topic,scenes_path))
 
   if not os.path.exists(scenes_path):
-  #if not os.access(scenes_path,os.W_OK)==True:
     print('target dir not existing, creating the directory')
     os.makedirs(scenes_path)
     os.makedirs(scenes_path_right)
+
     print("created {}".format(scenes_path))
 
     left_info = {}
@@ -84,12 +87,13 @@ def main():
         countcamright+=1
 
   else:
-    print('path exists, assuming that images exist inside, aborting')
+    print('path exists, assuming that images and unfiltererd scene_cam info exist inside, aborting')
     sys.exit()
 
   bag.close()
-  print(left_info)
-  inout.save_scene_gt_list(scenes_path_cam, left_info)
+
+  inout.save_scene_camera(scenes_path_cam, left_info)
+  inout.save_scene_camera(scenes_path_cam_right, right_info)
 
   return
 

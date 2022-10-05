@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<launch> 
+
+  <arg name="bagpath" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705_exp_000001_synced.bag" />
+  <arg name="dummybagpath" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705/20220705_exp_000100_dummy.bag" />
+  <arg name="dataset_path" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/bop_datasets/husky" />
+  <arg name="bagrate" default="1" />
+  <arg name="sequence_number" default="1" />
+  <arg name="json_frequency" default="50" /> <!-- this value works well for 20220705_exp_0001**_synced  -->
+  <arg name="zed_focal_len" default="0.00212" />
+  <arg name="cam_pitch" default="23.31" />
+  <!-- <arg name="sleepbf" default="3.95" />  this value works well for 20220705_exp_000001_synced  -->
+  <arg name="sleepbf" default="1.2" /> <!-- this value works well for 20220705_exp_0001**_synced  -->
+  <!-- <arg name="bagdelay" default="4.5" /> this value works well for 20220705_exp_000001_synced  -->
+  <arg name="bagdelay" default="2.0" /> <!-- this value works well for 20220705_exp_0001**_synced  -->
+  <arg name="DEBUG" default="0" />
+  <arg name="dummy_crop" default="1" />
+  <arg name="node_start_delay" default="2.5" />  
+  <arg name="split_type" default="train" />  
+
+  <param name="bagpath" type="string" value="$(arg bagpath)" />
+  <param name="dataset_path" type="" value="$(arg dataset_path)" />
+  <param name="sequence_number" type="" value="$(arg sequence_number)" />
+  <param name="split_type" type="" value="$(arg split_type)" />
+  <!--<param name="" type="" value="$(arg )" /> -->
+
+    <!-- create dummybag for consistent tf_lookup behaviour -->
+    <!-- bag_to_images -->
+    <node pkg="bop_ros_conversion" type="bag_to_image_node.py" name="rosbag_to_images" respawn="false" output="screen" >
+      <param name="lefttop" type="string" value="/sync/left/image_rect" />
+      <param name="leftcamtop" type="string" value="/sync/left/camera_info" />
+      <param name="righttop" type="string" value="/sync/right/image_rect" />
+      <param name="rightcamtop" type="string" value="/sync/right/camera_info" />
+    </node>
+    
+    <!-- <node pkg="rosbag" type="play" name="rosbag_dummy" args="-r 0.5$(arg bagrate) $(arg dummybagpath)" />  -->
+    <!--<node pkg="rosbag" type="play" name="rosbag_dummy" args="-r .5 -u 3 $(arg dummybagpath)" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " /> -->
+    <node pkg="rosbag" type="play" name="rosbag" args="-r $(arg bagrate) -d $(arg bagdelay) $(arg bagpath)" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " />
+
+</launch>
