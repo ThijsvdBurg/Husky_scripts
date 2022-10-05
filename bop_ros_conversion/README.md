@@ -28,8 +28,13 @@ roslaunch bop_ros_conversion record_synced_bags.launch output_dir:='/media/pmvan
 
 # publish Odometry messages as transform messages and save the GT in a json BOP format
 
-1. Use ```roslaunch bop_ros_conversion odom_to_tf2.launch``` 
+
+1. Use ```export exp_nr=xxx ``` <br />
+       ```roslaunch bop_ros_conversion odom_to_tf2.launch \
+          sequence_number:=$exp_nr \
+          bagpath:=$path_to_bags/20220705_exp_$(printf "%06i" $exp_nr)_synced.bag \
+          dummybagpath:=$path_to_bags/20220705_exp_$(printf "%06i" $exp_nr)_dummy.bag``` 
 or 
-```export exp_nr=30 <br /> roslaunch bop_ros_conversion odom_to_tf2.launch json_frequency:=10 sequence_number:=$exp_nr``` 
+```export exp_nr=30 <br /> roslaunch bop_ros_conversion odom_to_tf2.launch  sequence_number:=$exp_nr``` 
 2. Substitute values in the launchfile for your specific needs
 3. 

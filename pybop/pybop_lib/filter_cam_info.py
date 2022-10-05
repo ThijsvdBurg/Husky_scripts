@@ -60,5 +60,5 @@ for scene_id in scene_ids:
 
   for im_id in im_ids:
     filtered_info[im_id] = scene_camera[im_id]
-
+  print('saving filtered scene_camera.json file in the subfolder for experiment {}.'.format(scene_id))
   inout.save_scene_camera(dp_split['scene_camera_tpath'].format(scene_id=scene_id), filtered_info)
