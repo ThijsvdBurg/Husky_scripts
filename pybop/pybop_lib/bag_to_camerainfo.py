@@ -28,4 +28,9 @@ def extractCamInfo(msg):
   v = msg.width
   depth_scale = 1.0
   cam_info = msg_to_info(K,u,v,depth_scale)
-  return cam_info
+
+  scene_camera = {
+        'cam_K': cam_info['K'],
+        'depth_scale': cam_info['depth_scale']
+      }
+  return scene_camera
