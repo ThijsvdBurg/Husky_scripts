@@ -3,7 +3,7 @@
 
   <arg name="bagpath" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705_exp_000001_synced.bag" />
   <arg name="dummybagpath" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705/20220705_exp_000100_dummy.bag" />
-  <arg name="dataset_path" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/bop_datasets/husky" />
+  <arg name="dataset_path" default="/home/pmvanderburg/noetic-husky/datasets/bop_datasets/husky" />
   <arg name="bagrate" default="1" />
   <arg name="sequence_number" default="1" />
   <arg name="json_frequency" default="50" /> <!-- this value works well for 20220705_exp_0001**_synced  -->
@@ -91,18 +91,10 @@
       <param name="childname"  type="string" value="MMbox_base_link" /> <!-- child frame id for the tf topic -->
     </node>
 
-    <node name="odom_to_json_listener" pkg="bop_ros_conversion" type="odom_to_json_listener.py" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " respawn="false" output="screen" >
-<!--
-      <param name="parent_frame" type= "string" value="Husky_zed_left2"/>
-      <param name="child_frame" type= "string" value="MMbox_base_link"/>
-      <param name="parent_frame" type= "string" value="Husky_zed_left_sensor_link"/> 
-      -->
 
+    <node name="odom_to_json_listener" pkg="bop_ros_conversion" type="odom_to_json_listener.py" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " respawn="false" output="screen" >
       <param name="parent_frame" type= "string" value="Husky_zed_left_sensor_link"/>
       <param name="child_frame" type= "string" value="MMbox_base_link"/>
-      <!--<param name="bagpath" type="string" value="$(arg bagpath)"/>
-      <param name="dataset_path" type="string" value="$(arg dataset_path)"/>
-      <param name="sequence_number" type="int" value="$(arg sequence_number)"/> -->
       <param name="lookup_rate" value="$(arg json_frequency)"/>
       <param name="sleeptime" value="$(arg sleepbf)"/>
       <param name="debug" value="$(arg DEBUG)"/>

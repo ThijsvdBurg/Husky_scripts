@@ -63,7 +63,6 @@ def world3DtoCam3D(R, t, Xw, Yw, Zw):
   Zc = cam3d[2]
   return Xc, Yc, Zc
 
-
 def isRotationMatrix(R):
   Rt = np.transpose(R)
   shouldBeI = np.dot(Rt,R)

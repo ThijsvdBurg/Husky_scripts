@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import rospy
 import os
-from os import mkdir 
+from os import mkdir
 
 import json
 import tf
@@ -10,6 +10,8 @@ import tf2_ros
 from bop_toolkit_lib import inout
 from pybop_lib.stamp_utils import assertStamp
 from pybop_lib.stamp_utils import getFirstStamp
+from pybop_lib.debug_tools import printdebug
+from pybop_lib import transform_tools as tt
 
 import time
 from geometry_msgs.msg import TransformStamped
@@ -102,12 +104,12 @@ def main():
     scene_filter     = {}
     scene_aux        = {}
     # gt_6d_pose_data  = {}
-    
+
     # -2 accounts for the two dummy transforms which are expected to be recorded to kick-start the pipeline
     image_num = -2
     discrepancy_multiplier = 1000
     discrepancy_threshold_upper = 2.000 # max threshold to filter the static transforms
-    
+
     topic_name='/sync/Husky/pose'
     # get first timestamp from bagfile to compare to the 0th recorded transform, also get total number of messages to use for assertion later
     first_stamp, num_msgs = getFirstStamp(bagpath, topic_name)
@@ -128,7 +130,6 @@ def main():
     with open(json_6d_path, 'w+') as gt_path:
         last_stamp1 = rospy.Time()
         last_stamp2 = rospy.Time()
-        #last_transform = transform_init()
         dummy_tf       = transform_init()
         #print(last_transform)
         while not rospy.is_shutdown():
@@ -145,8 +146,8 @@ def main():
                     timeout=rospy.Duration(1.0)
                 )
 
-                #if DEBUG:
-                #    print('transform from cam to object',transform_cam_object)
+                if DEBUG:
+                    print('transform from cam to object',transform_cam_object)
                 # transform from previous robot location to the current TODO check if these values are closely related to the excel values
                 transform_base = tfBuffer.lookup_transform_full(
                     target_frame=base_frame_id,
@@ -156,8 +157,6 @@ def main():
                     fixed_frame='world',
                     timeout=rospy.Duration(1.0)
                 )
-                #transform_magnitude = transform_magnituge(last_transform, transform)
-                last_transform = transform_cam_object
                 rate.sleep()
                 current_stamp = transform_cam_object.header.stamp
             except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as e:
@@ -198,10 +197,21 @@ def main():
             # we assert it here wrt an upper and lower bound, which is the original first timestamp ±25 million nanoseconds (rospy duration 0.025)
             if image_num == 0:
                 assertStamp(current_stamp, first_stamp, rospy.Duration(.025))
-            tf_cam_to_object = tfl.asMatrix(target_frame_id,transform_cam_object.header)
 
-            translation = list(tf_cam_to_object[0:3, 3 ]*1000   )  # convert meter to mm
-            rotation    =      tf_cam_to_object[0:3,0:3].tolist()  # rotation matrix
+
+
+            #printdebug('translation',translation)
+            p,q = tt.transformStampedTopq(transform_cam_object) #convert to position and quaternion numpy arrays
+
+            transform_matrix = tt.pqToRotationMatrix(p,q)
+            printdebug('transform_matrix',transform_matrix)
+            translation = list(transform_matrix[0:3, 3 ]*1000   )  # convert meter to mm
+            rotation    =      transform_matrix[0:3,0:3].tolist()  # rotation matrix
+            #translation = list(trans_np*1000    )           # convert np array to list and meter to mm
+            printdebug('translation',translation)
+            #rotation    =      list(rot_np       )           # rotation matrix
+            printdebug('rotation',rotation)
+
 
             # we need a second last_stamp to be able to generate valid stampdiff values for the auxiliary list (containing information to monitor the process)
             # laststamp2 gets updated after the construction of scene_aux to prevent stampdiff to return 0
