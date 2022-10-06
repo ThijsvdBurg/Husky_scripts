@@ -35,6 +35,4 @@ roslaunch bop_ros_conversion record_synced_bags.launch output_dir:='/media/pmvan
           bagpath:=$path_to_bags/20220705_exp_$(printf "%06i" $exp_nr)_synced.bag \
           dummybagpath:=$path_to_bags/20220705_exp_$(printf "%06i" $exp_nr)_dummy.bag``` 
 or 
-```export exp_nr=30 <br /> roslaunch bop_ros_conversion odom_to_tf2.launch  sequence_number:=$exp_nr``` 
-2. Substitute values in the launchfile for your specific needs
-3. 
+2. python $path_to_pybop/pybop_lib/filter_cam_info.py 
