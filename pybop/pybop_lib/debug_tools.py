@@ -12,10 +12,10 @@
 import rosbag
 # import sys
 
-def printDirTypeValue(object):
-  print('dir:',dir(object))
-  print('type:',type(object))
-  print('value:',object)
+def printdebug(name,object):
+  print(name,' dir:\n',dir(object))
+  print(name,' type:\n',type(object))
+  print(name,' value:\n',object,'\n\n')
 
 def printMap(map):
   listed = list(map)

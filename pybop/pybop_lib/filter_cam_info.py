@@ -10,7 +10,8 @@ from bop_toolkit_lib import dataset_params
 
 p = {
   # See dataset_params.py for options.
-  'dataset': 'husky',
+  'dataset': config.dataset_name,
+  #  'dataset': 'husky',
 
   # Dataset split. Options: 'train', 'val', 'test'.
   'dataset_split': 'train',
