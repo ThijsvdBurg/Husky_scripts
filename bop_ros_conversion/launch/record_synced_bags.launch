@@ -3,17 +3,19 @@
 
 <!-- Record all published synced topics and place them in a new bagfile under a new name -->
 <!-- Example usage -->
-<!-- roslaunch bop_ros_conversion record_synced_bags.launch date:='20220705' exp_nr:='001' -->
+<!-- roslaunch bop_ros_conversion record_synced_bags.launch date:='20220705' sequence_number:='001' -->
 
 <!-- Set the nr of the exp on the server -->
-<arg name="exp_nr" default="000100"/>
+<arg name="sequence_number" default="000001"/>
 <arg name="date" default="20220705"/>
-<arg name="output_dir" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/$(arg date)" />
+<arg name="bagdir" default="/media/pmvanderburg/T7/bagfiles/20220705"/>
+<arg name="output_dir" default="$(arg bagdir)" />
 <arg name="sync_slop" default="0.02" />
+<arg name="sync_delay" default="0" />
 <arg name="bagdelay" default="0" /> <!-- this value works well for 20220705_exp_0001**  -->
 <arg name="bagrate" default="1" /> <!-- running it faster would yield incorrect rosbags and maybe a loss of realtime properties -->
-<arg name="bagpath" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705/$(arg date)_exp_$(arg exp_nr)_edit.bag" />
-<param name="exp_nr_param" value="$(arg exp_nr)" />
+<arg name="bagpath" default="$(arg bagdir)/$(arg date)_exp_$(arg sequence_number)_edit_delay_$(arg sync_delay).bag" />
+<param name="sequence_number_param" value="$(arg sequence_number)" />
 
     <node pkg="bop_ros_conversion" type="sync_husky_and_optitrack_topics.py" name="synchronizer_node" respawn="false" output="screen" >
       <param name="slop" value="$(arg sync_slop)" /> 
@@ -21,7 +23,7 @@
 
 <node pkg="rosbag" type="record" name="rosbag_record_synced_topics"
       args="
-      record -O $(arg output_dir)/$(arg date)_exp_$(arg exp_nr)_synced
+      record -O $(arg output_dir)/$(arg date)_exp_$(arg sequence_number)_synced_delay_$(arg sync_delay)
       /sync/left/camera_info
       /sync/left/image_rect
       /sync/right/camera_info
@@ -29,5 +31,4 @@
       /sync/Husky/pose
       /sync/MMbox/pose" />
     <node pkg="rosbag" type="play" name="rosbag" args="-r $(arg bagrate) -d $(arg bagdelay) $(arg bagpath)" />
-
 </launch>

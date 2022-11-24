@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<launch>
+
+<!-- Record all published synced topics and place them in a new bagfile under a new name -->
+<!-- Example usage -->
+<!-- roslaunch bop_ros_conversion record_synced_bags.launch date:='20220705' exp_nr:='001' -->
+
+<!-- Set the nr of the exp on the server -->
+<arg name="exp_nr" default="999999"/>
+<arg name="date" default="20221017"/>
+<arg name="output_dir" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/$(arg date)" />
+<arg name="bagdelay" default="0" /> <!-- this value works well for 20220705_exp_0001**  -->
+<arg name="bagduration" default="10" /> 
+<arg name="bagpath" default="/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705/$(arg date)_exp_$(arg exp_nr)_edit.bag" />
+<arg name="node_prefix" default="/zed2/zed_node" />
+<param name="exp_nr_param" value="$(arg exp_nr)" />
+
+
+<node pkg="rosbag" type="record" name="rosbag_record_synced_topics"
+      args="
+      record -O $(arg output_dir)/$(arg date)_zed_$(arg exp_nr)
+      --duration $(arg bagduration)
+      $(arg node_prefix)/depth/camera_info
+      $(arg node_prefix)/depth/depth_registered
+      $(arg node_prefix)/disparity/disparity_image
+      $(arg node_prefix)/rgb/camera_info
+      $(arg node_prefix)/rgb/image_rect_color
+      /tf "/>
+
+</launch>

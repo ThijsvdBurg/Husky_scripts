@@ -20,7 +20,7 @@
   <arg name="dataset_path" default="/media/pmvanderburg/T7/bop_datasets/husky" />
 
   <arg name="bagrate" default="1" />
-  <arg name="json_frequency" default="30" /> <!-- 50hz works well for 20220705_exp_0001**_synced  -->
+  <arg name="json_frequency" default="500" /> <!-- 50hz works well for 20220705_exp_0001**_synced  -->
   <arg name="zed_focal_len" default="0.00212" />
   <arg name="cam_pitch" default="24.2" />  <!-- this value works well for 20220705_exp_00004*_synced  -->
   <!-- <arg name="sleepbf" default="3.95" />  this value works well for 20220705_exp_000001_synced  -->
@@ -39,13 +39,15 @@
   <param name="split_type" type="" value="$(arg split_type)" />
   <param name="sync_delay" type="" value="$(arg sync_delay)" />
 
-
     <!-- create dummybag for consistent tf_lookup behaviour -->
-    <node pkg="bop_ros_conversion" type="rewrite_header_node.py" name="ros_rewrite_header_delay" respawn="false" output="screen" >
-      <!--<param name="src" type="string" value="$(arg bagpath)" /> -->
-      <param name="tgt" type="string" value="$(arg dummybagpath)" />
-      <param name="crop" type="bool"  value="$(arg dummy_crop)" />
+<!--    <node pkg="bop_ros_conversion" type="rewrite_header_node.py" name="ros_rewrite_header_delay" respawn="false" output="screen" >
+    -->
+  <!--<param name="src" type="string" value="$(arg bagpath)" /> -->
+<!--      <param name="tgt" type="string" value="$(arg dummybagpath)" />
+  <param name="crop" type="bool"  value="$(arg dummy_crop)" />
     </node>
+    -->
+
     <!-- bag_to_images -->
     <node pkg="bop_ros_conversion" type="bag_to_image_node.py" name="rosbag_to_images" respawn="false" output="screen" >
       <param name="lefttop" type="string" value="/sync/left/image_rect" />
@@ -53,6 +55,7 @@
       <param name="righttop" type="string" value="/sync/right/image_rect" />
       <param name="rightcamtop" type="string" value="/sync/right/camera_info" />
     </node>
+
     <!-- from optitrack odom to tf2 broadcasters for husky and box -->
     <node name="husky_tf2_broadcaster" pkg="bop_ros_conversion" type="odom_to_tf2_broadcaster.py" respawn="false" output="screen" >
       <param name="agentname1" type="string" value="Husky" /> <!-- name for detecting it in the sync topic -->
@@ -63,7 +66,7 @@
       <param name="agentname1" type="string" value="MMbox" /> <!-- name for detecting it in the sync topic -->
       <param name="agentname2" type="string" value="object" /> <!-- child frame id for the tf topic --> 
     </node>
-    -->
+    
     <!-- static transforms below to publish the different coordinate frames (husky base_plate and zed sensors and box centre) 
     <node pkg="tf" type="static_transform_publisher" name="husky_opti_to_base_static_broadcaster" args="-.013881934 .009032268 -.10728907 0 0 0 1 Husky_opti_link Husky_base_link $(arg static_ms)" />
     <node pkg="tf" type="static_transform_publisher" name="husky_base_to_zed_right_static_broadcaster" args="-0.1593366 -.1050237 0.3558767  0 0 0 1 Husky_base_link Husky_zed_right2 $(arg static_ms)" />
@@ -71,6 +74,7 @@
     <node pkg="tf" type="static_transform_publisher" name="box_opti_to_top_ctr_static_broadcaster" args="-0.0091251 0.003978 -0.001673 0 0 0 1 MMbox_opti_link MMbox_top_ctr_2 $(arg static_ms)" />
     <node pkg="tf" type="static_transform_publisher" name="box_top_ctr_to_ctr_static_broadcaster" args="0 0 -0.182 0 0 0 1 MMbox_top_ctr_2 MMbox_base_link $(arg static_ms)" />
     -->
+
     <node name="static_tf2_broadcaster_base" pkg="bop_ros_conversion" type="odom_to_static_broadcaster.py" respawn="false" output="screen" >
       <param name="topicname" type="string" value="/sync/Husky/pose" />          <!-- name for detecting it in the sync topic -->
       <param name="parentname" type="string" value="Husky_opti_link" />          <!-- child frame id for the tf topic --> 
@@ -106,19 +110,14 @@
       <param name="childname"  type="string" value="MMbox_base_link" /> <!-- child frame id for the tf topic -->
     </node>
 
-
-    <node name="odom_to_json_listener" pkg="bop_ros_conversion" type="odom_to_json_listener.py" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " respawn="false" output="screen" >
+    <node name="odom_to_json_listener" pkg="bop_ros_conversion" type="odom_to_json_listener_nosync.py" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " respawn="false" output="screen" >
       <param name="parent_frame" type= "string" value="Husky_zed_left_sensor_link"/>
       <param name="child_frame" type= "string" value="MMbox_base_link"/>
       <param name="lookup_rate" value="$(arg json_frequency)"/>
       <param name="sleeptime" value="$(arg sleepbf)"/>
       <param name="debug" value="$(arg DEBUG)"/>
-    </node> 
-    
-    <!-- <node pkg="rosbag" type="play" name="rosbag_dummy" args="-r 0.5$(arg bagrate) $(arg dummybagpath)" />  -->
+    </node>
 
-    <node pkg="rosbag" type="play" name="rosbag_dummy" args="-r .5 -u 3 $(arg dummybagpath)" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " />
-    <!-- <node pkg="rosbag" type="play" name="rosbag_dummy" args="-r 1 -u 3 $(arg dummybagpath)" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " /> -->
     <node pkg="rosbag" type="play" name="rosbag" args="-r $(arg bagrate) -d $(arg bagdelay) $(arg bagpath)" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " />
 
 </launch>
