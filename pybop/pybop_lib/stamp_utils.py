@@ -17,10 +17,12 @@ def getFirstStamp(bagpath,topic_name):
   """
 
   bag = rosbag.Bag(bagpath, "r")
-
+  print('bag print:',bag)
   count = 0
   for topic, msg, t in bag.read_messages(topics=[topic_name]):
-    if msg.header.seq == 1:
+    #print('msg',msg)
+    #print('msg',msg.header)
+    if count == 0: # msg.header.seq == 1:
       first_timestamp = msg.header.stamp
     count+=1
     #print('')
@@ -34,7 +36,7 @@ def assertStamp(current_stamp, first_stamp, bound):
   print('first timestamp in bag is:', first_stamp, ' and the current stamp is: ', current_stamp)
   print('lowerbound and upperbound are:', lowerb, upperb)
   if current_stamp < lowerb:
-    print('The current stamp is lower than expected, \n\n try increasing sleepbf, default is 1.7 \n\n')
+    print('The current stamp is lower than expected, \n\n try increasing sleepbf, default is 1.2 \n\n')
   if current_stamp > upperb:
-    print('The current stamp is higher than expected, \n\n\ try decreasing sleepbf, default is 1.7 \n\n')
+    print('The current stamp is higher than expected, \n\n\ try decreasing sleepbf, default is 1.2 \n\n')
   assert current_stamp > lowerb and current_stamp < upperb

@@ -1,0 +1,6 @@
+#!/bin/bash
+for i in {1..77..1}
+do
+  cp -v "/home/pmvanderburg/noetic-husky/datasets/bop_datasets/husky_devel/train/100101/depth/000000.png" "/home/pmvanderburg/noetic-husky/datasets/bop_datasets/husky_devel/train/100101/depth/$(printf "%06d" $i).png"
+done
+

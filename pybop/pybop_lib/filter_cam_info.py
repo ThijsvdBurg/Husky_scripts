@@ -14,7 +14,7 @@ p = {
   #  'dataset': 'husky',
 
   # Dataset split. Options: 'train', 'val', 'test'.
-  'dataset_split': 'train',
+  'dataset_split': config.dataset_split,
 
   # Dataset split type. None = default. See dataset_params.py for options.
   'dataset_split_type': None,

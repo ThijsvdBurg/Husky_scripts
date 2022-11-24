@@ -107,3 +107,18 @@ def rotationMatrixToEulerDeg(R):
   yaw   = eulerRad[2] * 360 / math.pi
 
   return np.array([roll, pitch, yaw])
+
+def cam3DToUV(intrins, Xc, Yc, Zc):
+  '''
+  @param:
+    - intrins: the camera intrinsics
+    - Xc, Yc, Zc: the 3D world coordinates, expressed wrt the camera frame
+  @return u,v: pipxel coordinate locations corresponding to the world coordinates
+  '''
+  camvec = np.array([Xc,Yc,Zc])
+  uvw = np.dot( intrins, camvec )
+  u = uvw[0] / uvw[2]
+  v = uvw[1] / uvw[2]
+  print('u: ',u)
+  print('v: ',v)
+  return u, v

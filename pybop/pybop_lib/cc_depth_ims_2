@@ -1,0 +1,15 @@
+#!/bin/bash
+
+for j in {0..136..1}
+do
+
+  # mkdir -p "/home/pmvanderburg/noetic-husky/datasets/bop_datasets/husky/train/$(printf "%06i" $j)/depth"
+  mkdir -p "/media/pmvanderburg/T7/bop_datasets/husky/train_tmp/$(printf "%06i" $j)/depth"
+  cp -v "/home/pmvanderburg/noetic-husky/datasets/bop_datasets/husky/train_real_v2/000010/depth/000000.png" "/media/pmvanderburg/T7/bop_datasets/husky/train_tmp/$(printf "%06i" $j)/depth/"
+
+  for i in {1..150..1}
+  do
+    cp -v "/media/pmvanderburg/T7/bop_datasets/husky/train_tmp/$(printf "%06i" $j)/depth/000000.png" "/media/pmvanderburg/T7/bop_datasets/husky/train/$(printf "%06i" $j)/depth/$(printf "%06d" $i).png"
+  done
+
+done
