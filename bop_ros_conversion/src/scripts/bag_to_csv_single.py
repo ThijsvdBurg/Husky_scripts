@@ -5,7 +5,11 @@ import pandas as pd
 
 def main():
   #bagpath = '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/2022-09-27-07-23-59_rw3.bag'
-  bagpath = '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705/20220705_exp_000109_synced.bag'
+  #bagpath = '/media/pmvanderburg/T71/bagfiles/20220705/20220705_exp_000009_edit_delay_2000.bag'
+  #bagpath = '/media/pmvanderburg/T7/bagfiles/20220705/20220705_exp_000070_edit_delay_0.bag'
+  #bagpath = '/media/pmvanderburg/T7/bagfiles/20220705/20220705_exp_000106.bag'
+  bagpath = '/media/pmvanderburg/T7/bagfiles/20220705/20220705_exp_000105_edit_delay_0_nosync.bag'
+  #bagpath = '/media/pmvanderburg/T71/bagfiles/20220705/20220705_exp_000005.bag'
   #bagpath = '/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705/20220705_exp_000102_synced.bag'
   b = bagreader(bagpath)
 

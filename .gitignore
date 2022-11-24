@@ -64,3 +64,5 @@ gt_jsons
 
 # python eggs
 *.egg-info
+*/exp_data
+*/plots

@@ -50,5 +50,5 @@ def main():
             data = pd.read_csv(csvfiles[0])
 
 if __name__ == "__main__":
-	main()
+  main()
 
