@@ -18,7 +18,8 @@ from geometry_msgs.msg import TransformStamped
 import math
 import numpy as np
 
-# TODO move to pybop utils
+# TODO
+# move to pybop utils
 def filter_list(imnum, headerstamp,mag):
     scene_gt_filter = [{
                 'image_number': imnum,
@@ -69,7 +70,7 @@ def transform_init():
 
 
 def main():
-    #TODO:
+    # TODO :
     #		- Code cleanup
     rospy.init_node('json_listener')
 
@@ -92,7 +93,6 @@ def main():
     rospy.sleep(sleep_before)
     obj_id = 1
 
-    #TODO change this when actually converting
     scenes_directory = data_path #'/home/pmvanderburg/noetic-husky/bop_ros_ws/src/Husky_scripts/bagfiles/20220705'
     if delay:
         scenes_path =  os.path.join(scenes_directory, split_type, f"{scene_num:06}",'delay_{}'.format(delay))
@@ -107,20 +107,21 @@ def main():
     # gt_6d_pose_data  = {}
 
     # -2 accounts for the two dummy transforms which are expected to be recorded to kick-start the pipeline
-    image_num = -2
+    #image_num = -2
+    image_num = 0
     discrepancy_multiplier = 1000
-    discrepancy_threshold_upper = 2.000 # max threshold to filter the static transforms
+    discrepancy_threshold_upper = .0002000 # 2.000 max threshold to filter the static transforms
 
     topic_name='/sync/Husky/pose'
     # get first timestamp from bagfile to compare to the 0th recorded transform, also get total number of messages to use for assertion later
     first_stamp, num_msgs = getFirstStamp(bagpath, topic_name)
 
-#    if os.path.exists(json_6d_path):
-#        with open(json_6d_path, "r") as gt_scene:
-#            gt_6d_pose_data = json.load(gt_scene)
-#    elif not os.path.exists(scenes_path):
-#        print('folder does not exist yet...\ncreating')
-#        mkdir(scenes_path)
+    #    if os.path.exists(json_6d_path):
+    #        with open(json_6d_path, "r") as gt_scene:
+    #            gt_6d_pose_data = json.load(gt_scene)
+    #    elif not os.path.exists(scenes_path):
+    #        print('folder does not exist yet...\ncreating')
+    #        mkdir(scenes_path)
 
     if os.path.exists(json_6d_path):
         print('output file already existed, overwriting')
@@ -173,11 +174,11 @@ def main():
 
             stampdiff_int = stampdiff_sec * 1000000000
             if DEBUG:
-                    print('current stamp:',current_stamp)
-                    print('stamp difference:',stampdiff)
-                    print('tf base to prev timestep:',transform_base)
+                print('current stamp:',current_stamp)
+                print('stamp difference:',stampdiff)
+                print('tf base to prev timestep:',transform_base)
 
-            if last_stamp1 == current_stamp or stampdiff_int < 50000000: # or current_stamp == 1655219049426688671:
+            if last_stamp1 == current_stamp or stampdiff_int < 1000000: # <50000000 or current_stamp == 1655219049426688671:
                 #print('continued...')
                 continue
 
@@ -197,7 +198,7 @@ def main():
             # to automatically check if the first timestamp is corresponding with the timestamp found at image_num = 0,
             # we assert it here wrt an upper and lower bound, which is the original first timestamp ±25 million nanoseconds (rospy duration 0.025)
             if image_num == 0:
-                # for 000077 we needed a slightly larger bound assertStamp(current_stamp, first_stamp, rospy.Duration(.045))
+                # for 000077 we needed a slightly larger bound 0.045 assertStamp(current_stamp, first_stamp, rospy.Duration(.045))
                 assertStamp(current_stamp, first_stamp, rospy.Duration(.025))
 
 
@@ -209,11 +210,6 @@ def main():
             #printdebug('transform_matrix',transform_matrix)
             translation = list(transform_matrix[0:3, 3 ]*1000   )  # convert meter to mm
             rotation    =      transform_matrix[0:3,0:3].tolist()  # rotation matrix
-            #translation = list(trans_np*1000    )           # convert np array to list and meter to mm
-            #printdebug('translation',translation)
-            #rotation    =      list(rot_np       )           # rotation matrix
-            #printdebug('rotation',rotation)
-
 
             # we need a second last_stamp to be able to generate valid stampdiff values for the auxiliary list (containing information to monitor the process)
             # laststamp2 gets updated after the construction of scene_aux to prevent stampdiff to return 0
@@ -229,8 +225,8 @@ def main():
 
     print('end main')
     rospy.loginfo("Recorded {} transformations. We expected {}.".format(image_num+1, num_msgs))
-    #if image_num+1 == num_msgs
-    assert image_num+1 == num_msgs
+
+    # assert image_num+1 == num_msgs
     inout.save_scene_gt_list(json_6d_path       , scene_gt    )
     inout.save_scene_gt_list(json_6d_filter_path, scene_filter)
     inout.save_scene_gt_list(json_6d_aux_path   , scene_aux   )

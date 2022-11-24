@@ -68,15 +68,17 @@ catkin_install_python(PROGRAMS
   src/scripts/tf2_lookup.py
   src/scripts/tfstamped_broadcaster.py
   src/scripts/odom_to_json_listener.py
-  src/scripts/odom_to_json_listener_4.py
+  src/scripts/odom_to_json_listener_nosync.py
   src/scripts/transformerROS_listener.py
   src/scripts/rosbag_check.py
   src/scripts/rosbag_crop.py
   src/scripts/rewrite_rosmsg_header_timestamps.py
+  src/scripts/rewrite_rosmsg_header_timestamps_all_topics.py
+  src/scripts/rewrite_rosmsg_header_timestamps_nosync.py
   src/scripts/rewrite_rosmsg_header_timestamps_calib.py
   src/scripts/rewrite_rostopic_names.py
   src/scripts/rewrite_header_node.py
   src/scripts/inspect_json.py
-  src/scripts/import_test.py
+  #src/scripts/import_test.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

@@ -73,8 +73,9 @@ def handle_pose(msg):
         # camera optitrack to opencv convention (converted from deg to radians)
         camroll = (-90-cam_angle) / 360 * 2 * math.pi
         campitch=    0            / 360 * 2 * math.pi
-        camyaw  =  -90            / 360 * 2 * math.pi
-        # TODO werkt nog niet, op de een of andere stomme manier
+        #camyaw  =  -90            / 360 * 2 * math.pi
+        # Compensation for the broken arc of the husky
+        camyaw  =  -91.5            / 360 * 2 * math.pi
         quats = euler_to_quaternion(camroll, campitch, camyaw)
         t.transform.rotation.x = quats[0]
         t.transform.rotation.y = quats[1]
@@ -111,8 +112,11 @@ def handle_pose(msg):
         t.transform.translation.z = -0.183673
         t.transform.rotation.x = 0
         t.transform.rotation.y = 0
-        t.transform.rotation.z = 1
-        t.transform.rotation.w = 6.123233996e-17
+        #t.transform.rotation.z = 1
+        #t.transform.rotation.w = 6.123233996e-17
+        # box model is the right way around whith default rotation parameters
+        t.transform.rotation.z = 0
+        t.transform.rotation.w = 1
 
         #-0.1593366 -0.1050237 0.3558767  0 0 0 1 Husky_base_link Husky_zed_right2
 
