@@ -1,15 +1,10 @@
 #!/bin/bash
 
-for j in {120..136..1}
-do
+for i in {2..71}; do # 18,19,20,21,22,23,24,103,104,105,106,107,108,109,94}; do # while read i; do
+  #mkdir -p /media/pmvanderburg/T7/bop_datasets/husky/$(printf "%s" $split_type)/$(printf "%06i" $i)
+  echo "/media/pmvanderburg/T7/bop_datasets/husky/train/800100/depth" "/media/pmvanderburg/T7/bop_datasets/husky/$(printf "%s" $split_type)/$(printf "%06i" $i)/"
+  rsync -aP "/media/pmvanderburg/T7/bop_datasets/husky/train/800100/depth" "/media/pmvanderburg/T7/bop_datasets/husky/$(printf "%s" $split_type)/$(printf "%06i" $i)/"
+  #cp -rv "/media/pmvanderburg/T7/bop_datasets/husky/train/800100/depth" "/media/pmvanderburg/T7/bop_datasets/husky/$(printf "%s" $split_type)/$(printf "%06i" $i)/"
+done #  < /media/pmvanderburg/T7/bop_datasets/husky/seqlist.txt
 
-  # mkdir -p "/home/pmvanderburg/noetic-husky/datasets/bop_datasets/husky/train/$(printf "%06i" $j)/depth"
-  # mkdir -p "/media/pmvanderburg/T7/bop_datasets/husky/train_tmp/$(printf "%06i" $j)/depth"
-  rsync -aP "/home/pmvanderburg/noetic-husky/datasets/bop_datasets/husky/train_real_v2/000010/depth" "/media/pmvanderburg/T7/bop_datasets/husky/train_tmp/$(printf "%06i" $j)/"
-
-  #for i in {1..150..1}
-  #do
-  #  cp -v "/media/pmvanderburg/T7/bop_datasets/husky/train_tmp/$(printf "%06i" $j)/depth/000000.png" "/media/pmvanderburg/T7/bop_datasets/husky/train/$(printf "%06i" $j)/depth/$(printf "%06d" $i).png"
-  #done
-
-done
+rm -rv /media/pmvanderburg/T7/bop_datasets/husky/$(printf "%s" $split_type)/000000

@@ -12,7 +12,7 @@ import sys
 sync_delay  = os.environ['sync_delay']
 
 sequence_number = '{:06d}'.format(int(os.environ['exp_nr']))
-bagdir = os.environ['path_to_bags']
+bagdir = os.environ['bagpath']
 bagpath = os.path.join(bagdir,'20220705_exp_{}_synced_delay_{}.bag'.format(sequence_number,sync_delay))
 split_type = os.environ['split_type']
 print('bag_path',bagpath)
