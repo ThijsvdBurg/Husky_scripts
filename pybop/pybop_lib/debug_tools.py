@@ -9,7 +9,7 @@
 
 # import os
 # import argparse
-import rosbag
+# import rosbag
 # import sys
 
 def printdebug(name,object):
