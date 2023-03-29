@@ -185,7 +185,7 @@ def cam3DToUV(intrins, Xc, Yc, Zc):
   print('v: ',v)
   return u, v
 
-def TtoAziAlti(t_vec):
+def TF_to_azi_alti(t_vec):
   '''
   @param:
     - t_vec: translation from camera frame, camera coordinate is opencv convention (Positive Z forward)
@@ -194,3 +194,5 @@ def TtoAziAlti(t_vec):
   '''
 
   # Compute azimuth and altitude angles
+
+  dist = np.linalg.norm
