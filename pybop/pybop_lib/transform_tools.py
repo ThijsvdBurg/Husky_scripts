@@ -195,4 +195,14 @@ def TF_to_azi_alti(t_vec):
 
   # Compute azimuth and altitude angles
 
-  dist = np.linalg.norm
+  # dist = np.linalg.norm(t_vec)
+  R_azi =   t_vec[0]  **2 + t_vec[2] **2
+  R_alt = (-t_vec[1]) **2 + t_vec[2] **2
+  
+  azimuth_rad   = np.arccos(t_vec[2]/R_azi)
+  altitude_rad  = np.arccos(t_vec[2]/R_alt)
+  
+  azimuth_deg = 180 * azimuth_rad / math.pi
+  altitude_deg = 180 * altitude_rad / math.pi
+  
+  return azimuth_deg, altitude_deg
