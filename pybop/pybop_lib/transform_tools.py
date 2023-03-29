@@ -44,7 +44,6 @@ def transform_to_pq(msg):
                 msg.rotation.z, msg.rotation.w])
   return p,q
 
-
 def transformStampedTopq(msg):
   """Convert a C{geometry_msgs/TransformStamped} into position/quaternion np arrays
 
@@ -54,6 +53,69 @@ def transformStampedTopq(msg):
     - q: quaternion as a numpy array (order = [x,y,z,w])
   """
   return transform_to_pq(msg.transform)
+
+def pose_to_pq(msg):
+  """Convert a C{geometry_msgs/Pose} into position/quaternion np arrays
+
+  @param msg: ROS message to be converted
+  @return:
+    - p: position as a np.array
+    - q: quaternion as a numpy array (order = [x,y,z,w])
+  """
+  p = np.array([msg.position.x, msg.position.y, msg.position.z])
+  q = np.array([msg.orientation.x, msg.orientation.y,
+                msg.orientation.z, msg.orientation.w])
+  return p,q
+
+def Odometry_to_pq(msg):
+  """Convert a C{nav_msgs/Odometry} into position/quaternion np arrays
+
+  @param msg: ROS message to be converted
+  @return:
+    - p: position as a np.array
+    - q: quaternion as a numpy array (order = [x,y,z,w])
+  """
+  return pose_to_pq(msg.pose.pose)
+
+def Pose_to_Rt(msg):
+  """Convert a C{geometry_msgs/Pose} into full 4x4 rotation and translation matrix
+
+  @param msg: ROS message to be converted
+  @return:
+    - Rt: full 4x4 rotation and translation matrix
+  """
+  p,q = pose_to_pq(msg)
+  return pqToRotationMatrix(p,q)
+
+def PoseStamped_to_pq(msg):
+  """Convert a C{geometry_msgs/PoseStamped} into position/quaternion np arrays
+
+  @param msg: ROS message to be converted
+  @return:
+    - p: position as a np.array
+    - q: quaternion as a numpy array (order = [x,y,z,w])
+  """
+  return pose_to_pq(msg.pose)
+
+def PoseStamped_Odometry_to_Rt(msg):
+  """Convert a C{geometry_msgs/PoseStamped} or C{nav_msgs/Odometry} into full 4x4 rotation and translation matrix
+
+  @param msg: ROS message to be converted
+  @return:
+    - Rt: full 4x4 rotation and translation matrix
+  """
+  p,q = pose_to_pq(msg.pose)
+  return pqToRotationMatrix(p,q)
+
+def PoseStamped_Odometry_to_Rt(msg):
+  """Convert a C{geometry_msgs/PoseStamped} or C{nav_msgs/Odometry} into full 4x4 rotation and translation matrix
+
+  @param msg: ROS message to be converted
+  @return:
+    - Rt: full 4x4 rotation and translation matrix
+  """
+  p,q = pose_to_pq(msg.pose)
+  return pqToRotationMatrix(p,q)
 
 def quatToRotationMatrix(quat_np):
   """Convert quaternion array to 4x4 transformation matrix
@@ -122,3 +184,13 @@ def cam3DToUV(intrins, Xc, Yc, Zc):
   print('u: ',u)
   print('v: ',v)
   return u, v
+
+def TtoAziAlti(t_vec):
+  '''
+  @param:
+    - t_vec: translation from camera frame, camera coordinate is opencv convention (Positive Z forward)
+    - Xc, Yc, Zc: the 3D world coordinates, expressed wrt the camera frame
+  @return azimuth, altitude angles of the point described by the translation vector
+  '''
+
+  # Compute azimuth and altitude angles
