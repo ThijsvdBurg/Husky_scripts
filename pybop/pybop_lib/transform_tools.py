@@ -196,8 +196,8 @@ def TF_to_azi_alti(t_vec):
   # Compute azimuth and altitude angles
 
   # dist = np.linalg.norm(t_vec)
-  R_azi =   t_vec[0]  **2 + t_vec[2] **2
-  R_alt = (-t_vec[1]) **2 + t_vec[2] **2
+  R_azi =   math.sqrt(  t_vec[0]  **2 + t_vec[2] **2 )
+  R_alt =   math.sqrt((-t_vec[1]) **2 + t_vec[2] **2 )
   
   azimuth_rad   = np.arccos(t_vec[2]/R_azi)
   altitude_rad  = np.arccos(t_vec[2]/R_alt)
@@ -206,3 +206,46 @@ def TF_to_azi_alti(t_vec):
   altitude_deg = 180 * altitude_rad / math.pi
   
   return azimuth_deg, altitude_deg
+
+def get_affine_transform(center, scale, rot, output_size, shift=np.array([0, 0], dtype=np.float32), inv=False):
+  """
+  adapted from CenterNet: https://github.com/xingyizhou/CenterNet/blob/master/src/lib/utils/image.py
+  center: ndarray: (cx, cy)
+  scale: (w, h)
+  rot: angle in deg
+  output_size: int or (w, h)
+  """
+  if isinstance(center, (tuple, list)):
+      center = np.array(center, dtype=np.float32)
+
+  if isinstance(scale, (int, float)):
+      scale = np.array([scale, scale], dtype=np.float32)
+
+  if isinstance(output_size, (int, float)):
+      output_size = (output_size, output_size)
+
+  scale_tmp = scale
+  src_w = scale_tmp[0]
+  dst_w = output_size[0]
+  dst_h = output_size[1]
+
+  rot_rad = np.pi * rot / 180
+  src_dir = get_dir([0, src_w * -0.5], rot_rad)
+  dst_dir = np.array([0, dst_w * -0.5], np.float32)
+
+  src = np.zeros((3, 2), dtype=np.float32)
+  dst = np.zeros((3, 2), dtype=np.float32)
+  src[0, :] = center + scale_tmp * shift
+  src[1, :] = center + src_dir + scale_tmp * shift
+  dst[0, :] = [dst_w * 0.5, dst_h * 0.5]
+  dst[1, :] = np.array([dst_w * 0.5, dst_h * 0.5], np.float32) + dst_dir
+
+  src[2:, :] = get_3rd_point(src[0, :], src[1, :])
+  dst[2:, :] = get_3rd_point(dst[0, :], dst[1, :])
+
+  if inv:
+      trans = cv2.getAffineTransform(np.float32(dst), np.float32(src))
+  else:
+      trans = cv2.getAffineTransform(np.float32(src), np.float32(dst))
+
+  return trans
