@@ -199,14 +199,14 @@ class PoseToBbox(object):
 
         return Bbox
 
-    def pose_to_Bbox(self,stamp): #,pose_ObjToCam): #, latestcommontime):
+    def pose_to_Bbox(self): #,pose_ObjToCam): #, latestcommontime):
         # intrins = self.intrinsics
         # width = self.box_dims[0]
         # depth = self.box_dims[1]
         # height = self.box_dims[2]
         # get corners 3D points from camera frame
         # self.stamp = stamp
-        points = self.getCornerPoints_(stamp)  #pose_ObjToCam) #,latestcommontime)
+        points = self.getCornerPoints_()  #pose_ObjToCam) #,latestcommontime)
         if not points[0].point.x:
             # print('pose to bbox points 0 point x is zero, making bbox zero')
             bbox = np.array([0,0,0,0])
@@ -241,7 +241,7 @@ class PoseToBbox(object):
             # print('bbox:', bbox)
         return bbox, self.intrinsics, bbox_stamp
         
-    def getCornerPoints_(self,stamp):
+    def getCornerPoints_(self):
         """
         function that looks up tf's between the sensor's physical origin and the object's 8 corner points
         CF stands for Camera Frame
@@ -260,8 +260,8 @@ class PoseToBbox(object):
                 # print('obj cor MPPI format')
                 # object_corners_link_MPPI
             try:
-                # time = self.tf_buffer.get_latest_common_time(parent_frame, child_frame)
-                time = stamp
+                time = self.tf_buffer.get_latest_common_time(parent_frame, child_frame)
+                # time = stamp
                 # first attempt with rospy Time
                 transform = self.tf_buffer.lookup_transform(
                         parent_frame, child_frame, time, timeout=rospy.Duration(0.5))
