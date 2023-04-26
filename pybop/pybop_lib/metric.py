@@ -10,6 +10,16 @@ def Calculate_ADD_Error_BOP(R_GT,t_GT, R_predict, t_predict, vertices):
 
     return pose_error.add(R_predict, t_predict, R_GT, t_GT, vertices)
 
+def Calculate_ADD_TE_RE_Error_BOP(R_GT,t_GT, R_predict, t_predict, vertices):
+    t_GT = t_GT.reshape((3,1))
+    t_predict = np.array(t_predict).reshape((3,1))
+
+    add = pose_error.add(R_predict, t_predict, R_GT, t_GT, vertices)
+    te = pose_error.te(t_predict, t_GT)
+    re = pose_error.re(R_predict, R_GT)
+
+    return add, te, re
+
 def Calculate_ADI_Error_BOP(R_GT,t_GT, R_predict, t_predict, vertices):
     t_GT = t_GT.reshape((3,1))
     t_predict = np.array(t_predict).reshape((3,1))
