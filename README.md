@@ -44,3 +44,28 @@ roslaunch topic_tools_throttle_example.launch
 roslaunch data_collection_husky.launch
 ```
 
+
+
+# Change clock on Husky to synchronize the OptiTrack clock with the Husky clock
+
+## Connect Husky to different network to automatically retrieve the internet clock
+1. Startup Husky
+2. Connect Husky to base station (this will happen automatically if the base station is switched on)
+3. Either connect to husky via ssh or connect husky to monitor using HDMI
+4. Start terminal, type ```wicd-curses```
+5. Select objective network using the up- and down-arrows (different than DUOT06_Base_station, we use an hp laptop with WiFi hotspot)
+6. Right arrow to go to network settings, fill in password at the bottom of the screen
+7. Set cursor to a different settings row, then save settings by typing shift+S (also adjust the WPA settings as needed, we did not need to change this)
+8. You now end up in main screen, connect to new network by selecting is and then pressing the Enter key
+9. If everything is set correctly, the Husky will connect and show the IP address at the bottom in the black status bar with red characters
+10. Use this new IP address to ssh into husky and check if the clock is set correctly.
+
+## Changing the Husky timezone
+
+In our case, the clock was updated but a different timezone was selected. Follow the steps below to change this setting. We will change it to Amsterdam
+1. ```sudo dpkg-reconfigure tzdata```
+2. type the admin password
+3. Select Europe and press Enter
+4. Select Amsterdam and press Enter
+
+
